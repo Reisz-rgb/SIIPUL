@@ -2,71 +2,95 @@
 
 use Illuminate\Support\Facades\Route;
 
-// Halaman Depan (Merah)
+/*
+|--------------------------------------------------------------------------
+| Web Routes (SIIPUL - Sistem Informasi Pengajuan Cuti)
+|--------------------------------------------------------------------------
+*/
+
+// --- 1. HALAMAN DEPAN & UMUM ---
+
 Route::get('/', function () {
     return view('LandingPage');
-});
+})->name('landing');
 
-// Halaman Dashboard Admin/Umum
-Route::get('/dashboard', function () {
-    return view('Dashboard');
-});
+Route::get('/hubungi-kami', function () {
+    return view('HubungiKami');
+})->name('contact');
 
-// --- AUTHENTICATION (LOGIN & REGISTER) ---
 
-// 1. Tampilkan Halaman Login
+// --- 2. AUTHENTICATION (LOGIN & REGISTER) ---
+
 Route::get('/login', function () {
     return view('LoginPage');
-});
+})->name('login');
 
-// 2. Proses Login (POST) - PERBAIKAN UTAMA DISINI
-// Rute ini menangani saat tombol "Masuk" ditekan
 Route::post('/login', function () {
-    // Di sini nanti logika cek database (Auth::attempt)
-    // Untuk sekarang, kita langsung redirect ke dashboard user
-    return redirect('/dashboarduser');
-});
+    return redirect()->route('user.dashboard');
+})->name('login.process');
 
-// Halaman Register
 Route::get('/register', function () {
     return view('RegisterPage');
-});
+})->name('register');
 
-// Halaman Lupa Password
+/**
+ * INI YANG KAMU BUTUH:
+ * Setelah submit register, redirect ke halaman sukses.
+ * (Nanti kalau sudah pakai database, logika simpan user taruh di sini / controller)
+ */
+Route::post('/register', function () {
+    // contoh: validasi / simpan user (nanti)
+    return redirect()->route('register.success');
+})->name('register.process');
+
+/**
+ * Route untuk halaman sukses register
+ */
+Route::get('/register-success', function () {
+    return view('RegisterSuccess');
+})->name('register.success');
+
 Route::get('/lupa-password', function () {
     return view('LupaPassword');
-});
+})->name('password.request');
 
-// Halaman Konfirmasi Link Terkirim
 Route::get('/link-reset-terkirim', function () {
     return view('kirimlink');
-});
+})->name('password.sent');
 
-// --- USER DASHBOARD & PROFILE ---
 
-// Halaman Profil Saya
+// --- 3. AREA PEGAWAI (USER DASHBOARD) ---
+
+Route::get('/dashboarduser', function () {
+    return view('UserDashboard');
+})->name('user.dashboard');
+
 Route::get('/profil', function () {
     return view('ProfilPage');
-});
+})->name('user.profile');
 
-// Halaman Edit Profil
 Route::get('/edit-profil', function () {
     return view('EditProfilPage');
-});
+})->name('user.profile.edit');
 
-// Halaman Dashboard User
-Route::get('/dashboarduser', function () {
-    return view('UserDashboard'); 
-});
+Route::get('/riwayat', function () {
+    return view('RiwayatPage');
+})->name('user.history');
 
-// --- FITUR PENGAJUAN CUTI ---
 
-// 1. Tampilkan Form Pengajuan (GET)
+// --- 4. FITUR PENGAJUAN CUTI (INTI APLIKASI) ---
+
 Route::get('/pengajuan-cuti', function () {
     return view('pengajuan-cuti');
 })->name('cuti.create');
 
-// 2. Proses Submit Form Pengajuan (POST)
 Route::post('/pengajuan-cuti', function () {
-    return "Data cuti berhasil disubmit (Simulasi). Nanti akan masuk database.";
+    return view('PengajuanSukses');
 })->name('cuti.store');
+
+
+// --- 5. ADMIN (OPSIONAL) ---
+
+Route::get('/dashboard', function () {
+    return view('Dashboard');
+})->name('admin.dashboard');

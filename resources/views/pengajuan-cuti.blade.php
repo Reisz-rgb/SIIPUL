@@ -18,6 +18,8 @@
             --border: #d1d5db;
             --text: #111827;
             --muted: #6b7280;
+            --blue-bg: #dbeafe; /* Background Tips */
+            --blue-text: #1e40af; /* Text Tips */
             --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
 
@@ -217,6 +219,75 @@
         .radio-item input { margin-right: 10px; width: 16px; height: 16px; accent-color: var(--primary); }
         .radio-label { font-size: 13px; font-weight: 500; }
 
+        /* --- STYLE BARU UNTUK UPLOAD & TIPS --- */
+        
+        /* Upload Area */
+        .upload-area {
+            position: relative;
+            border: 2px dashed #d1d5db;
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .upload-area:hover {
+            border-color: var(--primary);
+            background: #fff5f5;
+        }
+        .upload-area input[type="file"] {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0; left: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .upload-icon {
+            font-size: 28px;
+            color: #9ca3af;
+            margin-bottom: 12px;
+        }
+        .upload-text {
+            font-size: 14px;
+            font-weight: 600;
+            color: #4b5563;
+        }
+        .upload-hint {
+            font-size: 12px;
+            color: #9ca3af;
+            margin-top: 6px;
+        }
+
+        /* Tips Box */
+        .tips-box {
+            background-color: var(--blue-bg);
+            border: 1px solid #bfdbfe;
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 20px;
+            display: flex;
+            gap: 15px;
+            color: var(--blue-text);
+        }
+        .tips-icon {
+            font-size: 18px;
+            margin-top: 2px;
+        }
+        .tips-content h4 {
+            margin: 0 0 5px 0;
+            font-size: 14px;
+            font-weight: 700;
+        }
+        .tips-content p {
+            margin: 0;
+            font-size: 13px;
+            line-height: 1.5;
+            opacity: 0.9;
+        }
+
+
         /* Submit Button */
         .btn-submit {
             width: 100%; background: var(--primary); color: white; border: none; padding: 14px;
@@ -240,6 +311,7 @@
 
     <div class="topbar">
         <div class="brand-hero">
+            {{-- Pastikan file gambar ada di public folder --}}
             <img src="{{ asset('logokabupatensemarang.png') }}" alt="Logo Kab Semarang"> 
             
             <h1 class="brand-title">SIIPUL</h1>
@@ -270,9 +342,11 @@
             <p class="form-subtitle-text">Silakan lengkapi data di bawah ini dengan benar</p>
         </div>
 
-        <form action="{{ route('cuti.store') }}" method="POST">
+        {{-- Tambahkan enctype="multipart/form-data" untuk support upload file --}}
+        <form action="{{ route('cuti.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
 
+            {{-- SECTION I: DATA PEGAWAI --}}
             <div class="section-box">
                 <div class="section-title">I. DATA PEGAWAI</div>
                 
@@ -311,6 +385,7 @@
                 </div>
             </div>
 
+            {{-- SECTION II: JENIS CUTI --}}
             <div class="section-box">
                 <div class="section-title">II. JENIS CUTI YANG DIAMBIL</div>
                 
@@ -319,27 +394,22 @@
                         <input type="radio" name="jenis_cuti" value="Cuti Tahunan" checked>
                         <span class="radio-label">Cuti Tahunan</span>
                     </label>
-                    
                     <label class="radio-item">
                         <input type="radio" name="jenis_cuti" value="Cuti Besar">
                         <span class="radio-label">Cuti Besar</span>
                     </label>
-                    
                     <label class="radio-item">
                         <input type="radio" name="jenis_cuti" value="Cuti Sakit">
                         <span class="radio-label">Cuti Sakit</span>
                     </label>
-                    
                     <label class="radio-item">
                         <input type="radio" name="jenis_cuti" value="Cuti Melahirkan">
                         <span class="radio-label">Cuti Melahirkan</span>
                     </label>
-                    
                     <label class="radio-item">
                         <input type="radio" name="jenis_cuti" value="Cuti Alasan Penting">
                         <span class="radio-label">Cuti Karena Alasan Penting</span>
                     </label>
-                    
                     <label class="radio-item">
                         <input type="radio" name="jenis_cuti" value="Cuti Luar Tanggungan">
                         <span class="radio-label">Cuti di Luar Tanggungan Negara</span>
@@ -347,6 +417,7 @@
                 </div>
             </div>
 
+            {{-- SECTION III: ALASAN CUTI --}}
             <div class="section-box">
                 <div class="section-title">III. ALASAN CUTI</div>
                 <div class="form-group">
@@ -355,6 +426,7 @@
                 </div>
             </div>
 
+            {{-- SECTION IV: LAMA CUTI --}}
             <div class="section-box">
                 <div class="section-title">IV. LAMANYA CUTI</div>
                 <div class="grid-date">
@@ -373,6 +445,7 @@
                 </div>
             </div>
 
+            {{-- SECTION V: CATATAN CUTI --}}
             <div class="section-box">
                 <div class="section-title">V. CATATAN CUTI</div>
                 <div style="overflow-x:auto;">
@@ -405,6 +478,7 @@
                 </div>
             </div>
 
+            {{-- SECTION VI: ALAMAT CUTI --}}
             <div class="section-box">
                 <div class="section-title">VI. ALAMAT SELAMA MENJALANKAN CUTI</div>
                 <div class="form-group">
@@ -414,6 +488,41 @@
                 <div class="form-group">
                     <label class="form-label">Nomor Telepon / HP <span class="required">*</span></label>
                     <input type="text" name="no_telepon" class="form-input" placeholder="08xxxxxxxxxx" required>
+                </div>
+            </div>
+
+            {{-- SECTION VII: DOKUMEN PENDUKUNG (BARU: SESUAI REQUEST) --}}
+            <div class="section-box">
+                <div class="section-title">VII. DOKUMEN PENDUKUNG (OPSIONAL)</div>
+
+                {{-- Catatan Tambahan (Mirip kolom "Alasan Pengajuan Diperbaharui" di gambar) --}}
+                <div class="form-group">
+                    <label class="form-label">Catatan Tambahan</label>
+                    <textarea name="catatan_tambahan" class="form-textarea" style="background:#f9fafb;" placeholder="Tambahkan catatan jika ada hal spesifik yang perlu disampaikan..."></textarea>
+                </div>
+
+                {{-- Upload Area (Mirip "Klik atau seret file" di gambar) --}}
+                <div class="form-group">
+                    <label class="form-label">Dokumen Lampiran (Surat Dokter, dll)</label>
+                    <div class="upload-area">
+                        <input type="file" name="dokumen_pendukung" id="fileUpload" accept=".pdf,.doc,.docx,.jpg,.png,.xls,.xlsx">
+                        <div class="upload-icon">
+                            <i class="fa-solid fa-arrow-up-from-bracket"></i>
+                        </div>
+                        <div class="upload-text">Klik atau seret file ke sini</div>
+                        <div class="upload-hint">Supported: PDF, DOC, JPG, PNG, XLS (Maks 5MB)</div>
+                    </div>
+                </div>
+
+                {{-- Tips Box (Mirip kotak biru di gambar) --}}
+                <div class="tips-box">
+                    <div class="tips-icon">
+                        <i class="fa-regular fa-lightbulb"></i>
+                    </div>
+                    <div class="tips-content">
+                        <h4>Tips:</h4>
+                        <p>Pastikan Anda melengkapi semua dokumen pendukung (seperti surat keterangan sakit dari dokter) agar proses verifikasi berjalan lancar.</p>
+                    </div>
                 </div>
             </div>
 

@@ -68,7 +68,8 @@
                     <p class="text-gray-500 text-xs mb-8 leading-relaxed">
                         Layanan pengajuan berbagai jenis cuti pegawai secara online, cepat, dan terintegrasi.
                     </p>
-                    <a href="{{ route('cuti.create') }}" class="block w-full bg-[#9E2A2B] text-white font-semibold py-3 rounded-lg hover:bg-red-800 transition flex justify-center items-center gap-2">
+                    
+                    <a href="{{ url('/login') }}" class="block w-full bg-[#9E2A2B] text-white font-semibold py-3 rounded-lg hover:bg-red-800 transition flex justify-center items-center gap-2">
                         Ajukan Sekarang
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />

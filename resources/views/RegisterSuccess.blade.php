@@ -20,7 +20,7 @@
 
     <main class="flex-grow flex flex-col items-center justify-center px-4 py-10">
         <h2 class="text-3xl font-normal text-gray-800 mb-8 text-center">Akun Anda Berhasil Dibuat!</h2>
-        
+
         <div class="mb-6">
             <div class="bg-[#2ECC71] rounded-full w-24 h-24 flex items-center justify-center shadow-lg mx-auto">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -30,7 +30,7 @@
         </div>
 
         <div class="text-center text-gray-600 mb-10 text-sm leading-relaxed">
-            <p>Akun Anda telah berhasil didaftarkan di sistem SIIPUL</p>
+            <p>Akun Anda telah berhasil didaftarkan di sistem SIIPUL.</p>
             <p>Silakan login untuk mengajukan cuti dan mengakses layanan lainnya.</p>
         </div>
 
@@ -38,10 +38,12 @@
             <div class="flex items-center gap-2 mb-4 text-gray-500 font-medium text-lg">
                 <span class="text-gray-600">Tips:</span>
             </div>
+
             <ul class="list-disc list-outside ml-6 text-gray-500 space-y-3 text-sm mb-12">
-                <li>Login menggunakan akun yang telah anda daftarkan</li>
-                <li>Pastikan data anda sesuai</li>
+                <li>Login menggunakan akun yang telah Anda daftarkan.</li>
+                <li>Pastikan data Anda sudah sesuai.</li>
             </ul>
+
             <div class="absolute bottom-8 right-8">
                 <a href="{{ url('/login') }}" class="bg-[#9E2A2B] text-white px-6 py-2 rounded shadow hover:bg-red-800 transition text-sm font-semibold">
                     Login Sekarang
@@ -49,5 +51,6 @@
             </div>
         </div>
     </main>
+
 </body>
 </html>
