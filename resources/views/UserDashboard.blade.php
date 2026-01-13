@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>SIIPUL Dashboard - User</title>
+  <title>Dashboard User</title>
 
   <style>
     /* --- CSS VARIABLES & RESET --- */
@@ -301,7 +301,7 @@
   <div class="topbar">
     <div class="brand">
       <img src="{{ asset('logokabupatensemarang.png') }}" alt="Logo Kab Semarang">
-      <div>SIIPUL Dashboard</div>
+      <div>Dashboard</div>
     </div>
 
     <div onclick="toggleDropdown()" class="userchip" id="userMenuBtn">
@@ -394,8 +394,11 @@
     </div>
 
     <div class="bottom">
-      <div class="infoBox"><div class="boxTitle"> &nbsp; Informasi Penting</div><div class="boxText">Pastikan Anda mengajukan cuti minimal 7 hari sebelum tanggal pengajuan. Untuk keperluan mendesak, hubungi HRD Anda.</div></div>
-      <div class="helpBox"><div class="boxTitle"> &nbsp; Butuh Bantuan?</div><div class="boxText">Hubungi kami melalui WhatsApp atau email untuk bantuan lebih lanjut jika mengalami kendala.</div></div>
+      <div class="infoBox"><div class="boxTitle"> &nbsp;Informasi Penting</div><div class="boxText">Pastikan Anda mengajukan cuti minimal 7 hari sebelum tanggal pengajuan. Untuk keperluan mendesak, hubungi HRD Anda.</div></div>
+      <div class="helpBox"><div class="boxTitle"> &nbsp;Butuh Bantuan?</div><div class="boxText">Hubungi kami melalui Hubungi kami melalui 
+<a href="https://wa.me/6289616474866">WhatsApp</a> atau 
+<a href="disdikbudporakabsmg@gmail.com">Email</a> 
+untuk bantuan lebih lanjut.</div></div>
     </div>
   </div>
 

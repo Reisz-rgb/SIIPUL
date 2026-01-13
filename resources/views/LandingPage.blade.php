@@ -53,7 +53,7 @@
                         </div>
                     </div>
                     <h4 class="text-gray-800 font-bold text-lg mb-2">Pengajuan Cuti</h4>
-                    <p class="text-gray-500 text-xs mb-8">Layanan pengajuan berbagai jenis cuti pegawai secara online, cepat, dan terintegrasi.</p>
+                    <p class="text-gray-500 text-xs mb-8">Layanan pengajuan berbagai jenis cuti pegawai secara online.</p>
                     
                     <a href="{{ url('/login') }}" class="block w-full bg-[#9E2A2B] text-white font-semibold py-3 rounded-lg hover:bg-red-800 transition flex justify-center items-center gap-2">
                         Ajukan Sekarang

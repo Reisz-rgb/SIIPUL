@@ -42,7 +42,7 @@
             </div>
 
             <div class="max-w-2xl mx-auto text-gray-600 text-sm leading-relaxed">
-                <p class="font-bold text-gray-800">Sistem Informasi Izin dan Cuti Pegawai <span class="font-normal text-gray-600">Disdikbudpora Kab. Semarang. Aplikasi</span></p>
+                <p class="font-bold text-gray-800">Sistem Informasi Cuti Pegawai <span class="font-normal text-gray-600">Disdikbudpora Kab. Semarang. Aplikasi</span></p>
                 <p>resmi untuk pengajuan dan pengelolaan izin cuti pegawai di lingkungan Dinas</p>
                 <p>Pendidikan, Kebudayaan, Kepemudaan dan Olahraga.</p>
             </div>
@@ -66,7 +66,7 @@
                     </div>
                     <h4 class="text-gray-800 font-bold text-lg mb-2">Pengajuan Cuti</h4>
                     <p class="text-gray-500 text-xs mb-8 leading-relaxed">
-                        Layanan pengajuan berbagai jenis cuti pegawai secara online, cepat, dan terintegrasi.
+                        Layanan pengajuan berbagai jenis cuti pegawai secara online.
                     </p>
                     
                     <a href="{{ url('/login') }}" class="block w-full bg-[#9E2A2B] text-white font-semibold py-3 rounded-lg hover:bg-red-800 transition flex justify-center items-center gap-2">

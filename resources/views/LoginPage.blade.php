@@ -19,7 +19,7 @@
                 <img src="{{ asset('logokabupatensemarang.png') }}" alt="Logo Kab Semarang" class="h-16 w-auto object-contain drop-shadow-sm">
             </div>
             <h1 class="text-2xl font-bold tracking-wide">SIIPUL</h1>
-            <p class="text-sm font-light opacity-90">Sistem Informasi Cuti (SIIPUL)</p>
+            <p class="text-sm font-light opacity-90">Sistem Informasi Cuti Pegawai</p>
         </div>
 
         <div class="p-8">
@@ -40,10 +40,10 @@
             <form action="{{ url('/dashboarduser') }}" method="GET"> 
                 
                 <div class="mb-5">
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Nomor Telepon</label>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">NIP</label>
                     <input type="text" 
                            class="w-full px-4 py-3 bg-gray-200 border-transparent rounded-lg focus:bg-white focus:ring-2 focus:ring-[#9E2A2B] focus:outline-none transition placeholder-gray-400 font-medium" 
-                           placeholder="08XXXXX">
+                           placeholder="19XXXXX">
                 </div>
 
                 <div class="mb-2">
