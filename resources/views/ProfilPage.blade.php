@@ -36,7 +36,7 @@
 
     <nav class="bg-custom-red text-white py-4 px-6 shadow-md sticky top-0 z-50">
         <div class="container mx-auto flex items-center gap-4">
-            <a href="{{ url('/dashboard') }}" class="text-white hover:text-gray-200 transition">
+            <a href="{{ url('/dashboarduser') }}" class="text-white hover:text-gray-200 transition">
                 <i class="fa-solid fa-arrow-left text-lg"></i>
             </a>
             <div class="flex items-center gap-3">
