@@ -2,11 +2,6 @@
 
 use Illuminate\Support\Facades\Route;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes (SIIPUL - Sistem Informasi Pengajuan Cuti)
-|--------------------------------------------------------------------------
-*/
 
 // --- 1. HALAMAN DEPAN & UMUM ---
 
