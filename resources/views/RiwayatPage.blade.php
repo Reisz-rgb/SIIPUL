@@ -45,13 +45,7 @@
         .back-btn:hover { opacity: 1; transform: translateX(-3px); }
         .page-title { font-size: 20px; font-weight: 600; letter-spacing: 0.5px; display: flex; align-items: center; gap: 12px; }
         
-        .user-chip { 
-            background: rgba(255,255,255,0.15); 
-            padding: 8px 20px; /* Diperbesar */
-            border-radius: 50px; 
-            display: flex; align-items: center; gap: 14px; 
-            backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,0.2);
-        }
+        
         .user-avatar { 
             width: 36px; height: 36px; /* Avatar diperbesar */
             background: white; color: var(--primary); 
@@ -246,10 +240,6 @@
             <div class="page-title">
                 <i class="fa-solid fa-folder-open"></i> Riwayat Cuti
             </div>
-        </div>
-        <div class="user-chip">
-            <div class="user-avatar">BS</div>
-            <span style="font-size: 14px; font-weight: 500;">Budi Santoso</span>
         </div>
     </div>
 

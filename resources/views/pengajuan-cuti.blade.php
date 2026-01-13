@@ -82,22 +82,7 @@
             letter-spacing: 0.5px;
         }
 
-        /* User Chip */
-        .userchip {
-            position: absolute;
-            top: 24px;
-            right: 32px;
-            display: flex; align-items: center; gap: 12px;
-            background: #fff; 
-            color: var(--text);
-            padding: 6px 8px 6px 16px;
-            border-radius: 999px;
-            min-width: 200px;
-            justify-content: space-between;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            transition: transform 0.2s;
-        }
+
         .userchip:hover { transform: translateY(-2px); }
         .userleft { display: flex; align-items: center; gap: 12px; text-align: right; }
         .avatar {
@@ -317,14 +302,6 @@
             <h1 class="brand-title">SIIPUL</h1>
             <p class="brand-subtitle">Sistem Informasi Pengajuan Cuti Online</p>
         </div>
-
-        <div class="userchip">
-            <div class="userleft">
-                <div>
-                    <div class="uname">{{ Auth::user()->name ?? 'Budi Santoso' }}</div>
-                    <div class="urole">Guru Matematika</div>
-                </div>
-            </div>
             <div class="avatar">
                 {{ substr(Auth::user()->name ?? 'BS', 0, 2) }}
             </div>
