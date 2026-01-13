@@ -16,10 +16,9 @@
       --muted:#6b7280;
       --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 
-      /* Warna Status (Diambil dari RiwayatPage) */
-      --ok: #15803d;   --ok-bg: #dcfce7; 
-      --pen: #b45309;  --pen-bg: #fef3c7; 
-      --rej: #b91c1c;  --rej-bg: #fee2e2; 
+      --ok:#1f7a46;   --okSoft:#e8f6ee;  
+      --rej:#b42318;  --rejSoft:#fde9ea; 
+      --pen:#a56a00;  --penSoft:#fff2df; 
 
       --blueSoft:#eef3ff; --blueBorder:#cfdcff;
       --greenSoft:#e9f8ef; --greenBorder:#c7edd6;
@@ -63,7 +62,7 @@
       filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
     }
 
-    /* User Chip (Gaya Asli Dashboard - Kapsul Putih) */
+    /* User Chip */
     .userchip{
       display:flex; align-items:center; gap:12px;
       background:#fff;
@@ -150,56 +149,18 @@
     .dot{ width:12px; height:12px; border-radius:4px; }
     .dot.ok{ background:#22c55e; } .dot.pen{ background:#f59e0b; } .dot.rej{ background:#ef4444; }
 
-    /* --- NEW HISTORY CARD STYLES (ADAPTED FROM RIWAYAT PAGE) --- */
-    .history-list-container { display: flex; flex-direction: column; gap: 16px; }
-
-    .h-card {
-        background: #fff;
-        border-radius: 16px;
-        padding: 20px 24px;
-        display: flex; align-items: center; justify-content: space-between;
-        border: 1px solid var(--border);
-        box-shadow: 0 2px 4px rgba(0,0,0,0.03);
-        transition: transform 0.2s, box-shadow 0.2s;
-        position: relative;
-    }
-    .h-card:hover { transform: translateY(-3px); box-shadow: 0 12px 20px -5px rgba(0,0,0,0.08); }
-
-    /* Status Border Colors */
-    .h-card[data-status="approved"] { border-left: 6px solid var(--ok); }
-    .h-card[data-status="pending"]  { border-left: 6px solid var(--pen); }
-    .h-card[data-status="rejected"] { border-left: 6px solid var(--rej); }
-
-    .hc-left { display: flex; align-items: center; gap: 20px; }
-    
-    /* Icon Circles */
-    .st-icon-circle {
-        width: 48px; height: 48px;
-        border-radius: 50%;
-        display: flex; align-items: center; justify-content: center;
-        font-size: 20px; flex-shrink: 0;
-    }
-    .st-ok { background: var(--ok-bg); color: var(--ok); }
-    .st-pen { background: var(--pen-bg); color: var(--pen); }
-    .st-rej { background: var(--rej-bg); color: var(--rej); }
-
-    .hc-info h4 { font-size: 16px; font-weight: 700; color: #111; margin: 0 0 6px 0; }
-    .hc-date { font-size: 13px; color: #555; display: flex; align-items: center; gap: 8px; }
-
-    .hc-right { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
-    
-    .duration-badge { 
-        font-size: 12px; font-weight: 600; background: #f3f4f6; 
-        padding: 6px 14px; border-radius: 8px; color: #374151; 
-    }
-
-    .btn-detail-sm {
-        font-size: 12px; font-weight: 600; color: var(--primary);
-        background: transparent; border: 1.5px solid var(--primary);
-        padding: 6px 16px; border-radius: 8px; cursor: pointer; transition: 0.2s;
-    }
-    .btn-detail-sm:hover { background: var(--primary); color: white; }
-
+    /* History Items */
+    .history-item{ border:1px solid transparent; border-radius:8px; padding:16px 20px; display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:16px; }
+    .history-item:last-child{ margin-bottom:0; }
+    .history-item.ok{ background:var(--okSoft); } .history-item.rej{ background:var(--rejSoft); } .history-item.pen{ background:var(--penSoft); }
+    .h-left{ display:flex; gap:16px; align-items:flex-start; }
+    .h-ico{ width:24px; height:24px; border-radius:999px; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:14px; flex:0 0 auto; margin-top:2px; background:rgba(255,255,255,0.5); }
+    .h-ico.ok{ color:var(--ok); border: 2px solid var(--ok); } .h-ico.rej{ color:var(--rej); border: 2px solid var(--rej); } .h-ico.pen{ color:var(--pen); border: 2px solid var(--pen); }
+    .h-meta b{ display:block; font-size:15px; font-weight:700; color: #111; } .h-meta small{ display:block; margin-top:6px; color:#555; font-weight:500; font-size:13px; }
+    .h-right{ display:flex; flex-direction:column; align-items:flex-end; gap:10px; min-width:140px; }
+    .status{ font-size:12px; font-weight:700; margin-top:2px; } .status.ok{ color:var(--ok); } .status.rej{ color:var(--rej); } .status.pen{ color:var(--pen); }
+    .btn-detail{ border:none; background:rgba(255,255,255,0.6); color:#555; font-weight:600; font-size:12px; padding:6px 12px; border: 1px solid rgba(0,0,0,0.1); border-radius:6px; cursor:pointer; transition: all 0.2s; }
+    .btn-detail:hover{ background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
     .seeall{ text-align:center; margin-top:24px; font-weight:600; color:var(--primary); font-size:14px; cursor: pointer; }
 
     /* Bottom Info & Footer */
@@ -223,13 +184,15 @@
       max-width:850px; 
       background:#fff; 
       border-radius:16px; 
-      overflow:hidden; 
+      overflow:hidden; /* Tetap hidden di luar */
       box-shadow:0 20px 50px rgba(0,0,0,.25); 
       border:1px solid rgba(0,0,0,.08); 
       animation: slideUp 0.3s ease-out;
+      
+      /* TAMBAHAN BARU AGAR RESPONSIVE & BISA SCROLL */
       display: flex;
       flex-direction: column;
-      max-height: 90vh; 
+      max-height: 90vh; /* Maksimal tinggi 90% dari layar */
     }
     @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     
@@ -238,15 +201,16 @@
       border-bottom:1px solid var(--border); 
       display:flex; align-items:center; justify-content:space-between; 
       background: #f9fafb;
-      flex-shrink: 0; 
+      flex-shrink: 0; /* Header tidak boleh mengecil */
     }
     .modalHead h4{ margin:0; font-size:18px; font-weight:700; color: var(--text); }
     .xbtn{ width:36px; height:36px; border-radius:10px; border:1px solid var(--border); background:#fff; cursor:pointer; font-size:20px; display: flex; align-items: center; justify-content: center; color: #666; }
     
     .modalBody{ 
       padding:24px; 
+      /* AGAR BISA DI-SCROLL */
       overflow-y: auto; 
-      flex: 1; 
+      flex: 1; /* Mengisi sisa ruang */
     }
     
     .formGrid{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
@@ -261,7 +225,7 @@
       padding:16px 24px; 
       display:flex; justify-content:flex-end; gap:12px; 
       background: #f9fafb; 
-      flex-shrink: 0; 
+      flex-shrink: 0; /* Footer tombol tidak boleh mengecil/hilang */
     }
     .btn2{ border-radius:8px; padding:12px 20px; cursor:pointer; font-weight:700; border:1px solid var(--border); background:#fff; font-size: 14px; }
     .btnSave{ border:none; background:var(--primary); color:#fff; }
@@ -272,18 +236,60 @@
 
     @media (max-width: 980px){ .stats, .grid, .bottom, .formGrid{ grid-template-columns:1fr; } .container, .topbar{ padding: 0 16px; width: 100%; } .history-item{ flex-direction: column; } }
 
-    /* Toast */
+    /* ========================================= */
+    /* CSS UNTUK NOTIFIKASI TOAST (FIXED POJOK)  */
+    /* ========================================= */
     #msg-toast {
-        display: none; position: fixed; bottom: 30px; right: 30px; z-index: 99999;
-        background: #fff; padding: 16px 20px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); border: 1px solid #f3f4f6;
-        display: flex; align-items: center; gap: 16px; min-width: 320px; max-width: 400px;
-        transform: translateX(120%); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        display: none; /* Sembunyi default */
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        z-index: 99999;
+        background: #fff;
+        padding: 16px 20px;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        border: 1px solid #f3f4f6;
+        
+        /* Flex agar ikon dan teks menyamping */
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        min-width: 320px;
+        max-width: 400px;
+        
+        /* Animasi Masuk */
+        transform: translateX(120%);
+        transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
-    #msg-toast.show { display: flex; transform: translateX(0); }
-    .toast-icon { width: 32px; height: 32px; background: #000; border-radius: 50%; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+    
+    /* Class untuk memunculkan */
+    #msg-toast.show {
+        display: flex;
+        transform: translateX(0);
+    }
+
+    /* Style Ikon Bulat Hitam */
+    .toast-icon {
+        width: 32px; height: 32px;
+        background: #000;
+        border-radius: 50%;
+        color: #fff;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 14px;
+        flex-shrink: 0;
+    }
+
+    /* Style Teks */
     .toast-content h4 { margin: 0; font-size: 14px; font-weight: 700; color: #111; }
     .toast-content p { margin: 2px 0 0; font-size: 12px; color: #666; }
-    .toast-close { margin-left: auto; background: none; border: none; cursor: pointer; color: #bbb; font-size: 16px; }
+
+    /* Tombol Close */
+    .toast-close {
+        margin-left: auto;
+        background: none; border: none; cursor: pointer;
+        color: #bbb; font-size: 16px;
+    }
     .toast-close:hover { color: #000; }
 
   </style>
@@ -371,53 +377,18 @@
 
       <div class="card history">
         <div class="head"><h3>Riwayat Permintaan Cuti</h3></div>
-        
-        <div class="history-list-container">
-            
-            <div class="h-card" data-status="approved">
-                <div class="hc-left">
-                    <div class="st-icon-circle st-ok"><i class="fa-solid fa-check"></i></div>
-                    <div class="hc-info">
-                        <h4>Cuti Tahunan</h4>
-                        <div class="hc-date"><i class="fa-regular fa-calendar"></i> 2026-02-10 s/d 2026-02-12</div>
-                    </div>
-                </div>
-                <div class="hc-right">
-                    <span class="duration-badge">3 Hari</span>
-                    <button class="btn-detail-sm" data-leave='{"id":"CT-2026-0001","status":"Diterima","jenis":"Cuti Tahunan","mulai":"2026-02-10","selesai":"2026-02-12","alamat":"Semarang","kontak":"0812xxxxxxx","alasan":"Keperluan Keluarga","lampiran":"Formulir_Cuti.pdf","catatan":"Disetujui"}'>Lihat Detail</button>
-                </div>
-            </div>
-
-            <div class="h-card" data-status="rejected">
-                <div class="hc-left">
-                    <div class="st-icon-circle st-rej"><i class="fa-solid fa-xmark"></i></div>
-                    <div class="hc-info">
-                        <h4>Cuti Sakit</h4>
-                        <div class="hc-date"><i class="fa-regular fa-calendar"></i> 2026-01-25 s/d 2026-01-27</div>
-                    </div>
-                </div>
-                <div class="hc-right">
-                    <span class="duration-badge">3 Hari</span>
-                    <button class="btn-detail-sm" data-leave='{"id":"CS-2026-0002","status":"Ditolak","jenis":"Cuti Sakit","mulai":"2026-01-25","selesai":"2026-01-27","alamat":"Semarang","kontak":"0812xxxxxxx","alasan":"Sakit","lampiran":"surat_dokter_lama.pdf","catatan":"Mohon lampirkan surat dokter yang valid"}'>Lihat Detail</button>
-                </div>
-            </div>
-
-            <div class="h-card" data-status="pending">
-                <div class="hc-left">
-                    <div class="st-icon-circle st-pen"><i class="fa-solid fa-clock"></i></div>
-                    <div class="hc-info">
-                        <h4>Cuti Tahunan</h4>
-                        <div class="hc-date"><i class="fa-regular fa-calendar"></i> 2026-03-15 s/d 2026-03-20</div>
-                    </div>
-                </div>
-                <div class="hc-right">
-                    <span class="duration-badge">6 Hari</span>
-                    <button class="btn-detail-sm" data-leave='{"id":"CT-2026-0003","status":"Diproses","jenis":"Cuti Tahunan","mulai":"2026-03-15","selesai":"2026-03-20","alamat":"Semarang","kontak":"0812xxxxxxx","alasan":"Urusan pribadi","lampiran":"Tiket.pdf","catatan":"-"}'>Lihat Detail</button>
-                </div>
-            </div>
-
+        <div class="history-item ok" id="item-CT-2026-0001">
+          <div class="h-left"><div class="h-ico ok">✓</div><div class="h-meta"><b class="jenis">Cuti Tahunan</b><small class="tgl">2026-02-10 s/d 2026-02-12</small><small class="ket">3 Hari</small></div></div>
+          <div class="h-right"><div class="status ok statusText">Diterima</div><button class="btn-detail" data-leave='{"id":"CT-2026-0001","status":"Diterima","jenis":"Cuti Tahunan","mulai":"2026-02-10","selesai":"2026-02-12","alamat":"Semarang","kontak":"0812xxxxxxx","alasan":"Keperluan Keluarga","lampiran":"Formulir_Cuti.pdf","catatan":"Disetujui"}'>Lihat</button></div>
         </div>
-
+        <div class="history-item rej" id="item-CS-2026-0002">
+          <div class="h-left"><div class="h-ico rej">✕</div><div class="h-meta"><b class="jenis">Cuti Sakit</b><small class="tgl">2026-01-25 s/d 2026-01-27</small><small class="ket">3 Hari. Perlu Surat Dokter</small></div></div>
+          <div class="h-right"><div class="status rej statusText">Ditolak</div><button class="btn-detail" style="background:#fff; border-color:var(--rej);" data-leave='{"id":"CS-2026-0002","status":"Ditolak","jenis":"Cuti Sakit","mulai":"2026-01-25","selesai":"2026-01-27","alamat":"Semarang","kontak":"0812xxxxxxx","alasan":"Sakit","lampiran":"surat_dokter_lama.pdf","catatan":"Mohon lampirkan surat dokter yang valid"}'>✏️ Edit</button></div>
+        </div>
+        <div class="history-item pen" id="item-CT-2026-0003">
+          <div class="h-left"><div class="h-ico pen">!</div><div class="h-meta"><b class="jenis">Cuti Tahunan</b><small class="tgl">2026-03-15 s/d 2026-03-20</small><small class="ket">6 Hari</small></div></div>
+          <div class="h-right"><div class="status pen statusText">Ditinjau</div><button class="btn-detail" data-leave='{"id":"CT-2026-0003","status":"Diproses","jenis":"Cuti Tahunan","mulai":"2026-03-15","selesai":"2026-03-20","alamat":"Semarang","kontak":"0812xxxxxxx","alasan":"Urusan pribadi","lampiran":"Tiket.pdf","catatan":"-"}'>Lihat</button></div>
+        </div>
         <a href="{{ url('/riwayat') }}" class="seeall" style="display:block; text-decoration:none;">Lihat Semua Riwayat</a>
       </div>
     </div>
@@ -469,7 +440,7 @@ untuk bantuan lebih lanjut.</div></div>
   </div>
 
   <script>
-    // --- DROPDOWN & MODAL SCRIPTS ---
+    // --- DROPDOWN & MODAL SCRIPTS (EXISTING) ---
     function toggleDropdown() { document.getElementById("userDropdown").classList.toggle("show"); }
     window.onclick = function(event) { if (!event.target.closest('.userchip') && !event.target.closest('.dropdown-menu')) { document.getElementById("userDropdown").classList.remove("show"); } }
     
@@ -493,9 +464,9 @@ untuk bantuan lebih lanjut.</div></div>
     function openModal(btn){ activeBtn = btn; activeData = JSON.parse(btn.getAttribute("data-leave") || "{}"); f.id.value = activeData.id || ""; f.status.value = activeData.status || ""; f.jenis.value = activeData.jenis || "Cuti Tahunan"; f.lampiranText.value = activeData.lampiran || ""; f.mulai.value = activeData.mulai || ""; f.selesai.value = activeData.selesai || ""; f.alamat.value = activeData.alamat || ""; f.kontak.value = activeData.kontak || ""; f.alasan.value = activeData.alasan || ""; f.catatan.value = activeData.catatan || ""; fileInput.value = ""; if(activeData.lampiran && activeData.lampiran !== "-"){ fileNameDisplay.innerHTML = `📎 ${activeData.lampiran}`; dropTextLabel.textContent = "File saat ini:"; } else { fileNameDisplay.innerHTML = ""; dropTextLabel.textContent = "Belum ada lampiran. Drag & drop file di sini."; } const isEditable = (activeData.status === "Ditolak"); configureEditMode(isEditable, activeData.status); modal.classList.add("open"); document.body.style.overflow = "hidden"; }
     function configureEditMode(editable, status) { const inputs = [f.jenis, f.mulai, f.selesai, f.alamat, f.kontak, f.alasan]; if (editable) { modalTitle.textContent = "Perbaiki Pengajuan (Ditolak)"; saveBtn.style.display = "block"; cancelBtn.textContent = "Batal"; inputs.forEach(inp => inp.disabled = false); dropArea.classList.remove('disabled'); fileInput.disabled = false; f.status.style.color = "#b42318"; statusAlert.style.display = "block"; statusAlert.style.background = "#fde9ea"; statusAlert.style.color = "#b42318"; statusAlert.textContent = "Pengajuan ini ditolak. Silakan perbaiki data dan simpan ulang."; } else { modalTitle.textContent = "Detail Pengajuan"; saveBtn.style.display = "none"; cancelBtn.textContent = "Tutup"; inputs.forEach(inp => inp.disabled = true); dropArea.classList.add('disabled'); fileInput.disabled = true; if(status === "Diterima") { f.status.style.color = "#1f7a46"; statusAlert.style.background = "#e8f6ee"; statusAlert.style.color = "#1f7a46"; statusAlert.textContent = "Pengajuan ini telah disetujui."; } else { f.status.style.color = "#a56a00"; statusAlert.style.background = "#fff2df"; statusAlert.style.color = "#a56a00"; statusAlert.textContent = "Pengajuan sedang dalam proses verifikasi."; } statusAlert.style.display = "block"; } }
     function closeModal(){ modal.classList.remove("open"); document.body.style.overflow = ""; }
-    document.querySelectorAll(".btn-detail-sm").forEach(btn => btn.addEventListener("click", ()=> openModal(btn))); closeBtn.addEventListener("click", closeModal); cancelBtn.addEventListener("click", closeModal); saveBtn.addEventListener("click", ()=>{ alert("Data perbaikan berhasil disimpan!"); closeModal(); });
+    document.querySelectorAll(".btn-detail").forEach(btn => btn.addEventListener("click", ()=> openModal(btn))); closeBtn.addEventListener("click", closeModal); cancelBtn.addEventListener("click", closeModal); saveBtn.addEventListener("click", ()=>{ alert("Data perbaikan berhasil disimpan!"); closeModal(); });
 
-    // --- SCRIPT NOTIFIKASI TOAST ---
+    // --- SCRIPT NOTIFIKASI TOAST BARU (TANPA TAILWIND) ---
     function closeToastNotif() {
         const toast = document.getElementById('msg-toast');
         toast.classList.remove('show');
@@ -505,9 +476,16 @@ untuk bantuan lebih lanjut.</div></div>
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('notif') === 'terkirim') {
         const toast = document.getElementById('msg-toast');
-        setTimeout(() => { toast.classList.add('show'); }, 100);
-        setTimeout(() => { 
+        
+        // 1. Munculkan dengan animasi slide
+        setTimeout(() => {
+            toast.classList.add('show');
+        }, 100);
+
+        // 2. Hilangkan otomatis setelah 5 detik
+        setTimeout(() => {
             closeToastNotif();
+            // Bersihkan URL agar bersih jika direfresh
             window.history.replaceState(null, null, window.location.pathname);
         }, 5000);
     }
