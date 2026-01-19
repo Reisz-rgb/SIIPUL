@@ -25,7 +25,7 @@
         <div class="p-8">
             
             <div class="mb-4">
-                <a href="{{ url('/dashboarduser') }}" class="text-gray-500 hover:text-[#9E2A2B] transition">
+                <a href="{{ route('landing') }}" class="text-gray-500 hover:text-[#9E2A2B] transition">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                     </svg>
@@ -37,7 +37,8 @@
                 <p class="text-sm text-gray-500 mt-1">Silakan masuk menggunakan akun Anda</p>
             </div>
 
-            <form action="{{ url('/dashboarduser') }}" method="GET"> 
+            <form action="{{ route('login.process') }}" method="POST">
+                @csrf
                 
                 <div class="mb-5">
                     <label class="block text-sm font-semibold text-gray-700 mb-2">NIP</label>

@@ -4,11 +4,9 @@ use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
-| Web Routes (SIIPUL - Sistem Informasi Pengajuan Cuti)
+| PUBLIC AREA
 |--------------------------------------------------------------------------
 */
-
-// --- 1. HALAMAN DEPAN & UMUM ---
 
 Route::get('/', function () {
     return view('LandingPage');
@@ -19,78 +17,68 @@ Route::get('/hubungi-kami', function () {
 })->name('contact');
 
 
-// --- 2. AUTHENTICATION (LOGIN & REGISTER) ---
+/*
+|--------------------------------------------------------------------------
+| AUTH
+|--------------------------------------------------------------------------
+*/
 
-Route::get('/login', function () {
-    return view('LoginPage');
-})->name('login');
+Route::get('/login', fn () => view('auth.LoginPage'))->name('login');
 
 Route::post('/login', function () {
+    // nanti: Auth::attempt(...)
     return redirect()->route('user.dashboard');
 })->name('login.process');
 
-Route::get('/register', function () {
-    return view('RegisterPage');
-})->name('register');
+Route::get('/register', fn () => view('auth.RegisterPage'))->name('register');
 
-/**
- * INI YANG KAMU BUTUH:
- * Setelah submit register, redirect ke halaman sukses.
- * (Nanti kalau sudah pakai database, logika simpan user taruh di sini / controller)
- */
 Route::post('/register', function () {
-    // contoh: validasi / simpan user (nanti)
+    // nanti: simpan user
     return redirect()->route('register.success');
 })->name('register.process');
 
-/**
- * Route untuk halaman sukses register
- */
-Route::get('/register-success', function () {
-    return view('RegisterSuccess');
-})->name('register.success');
+Route::get('/register-success', fn () => view('auth.RegisterSuccess'))
+    ->name('register.success');
 
-Route::get('/lupa-password', function () {
-    return view('LupaPassword');
-})->name('password.request');
+Route::get('/lupa-password', fn () => view('auth.LupaPassword'))
+    ->name('password.request');
 
-Route::get('/link-reset-terkirim', function () {
-    return view('kirimlink');
-})->name('password.sent');
+Route::get('/link-reset-terkirim', fn () => view('auth.kirimlink'))
+    ->name('password.sent');
 
 
-// --- 3. AREA PEGAWAI (USER DASHBOARD) ---
+/*
+|--------------------------------------------------------------------------
+| USER AREA
+|--------------------------------------------------------------------------
+*/
 
-Route::get('/dashboarduser', function () {
-    return view('UserDashboard');
-})->name('user.dashboard');
+Route::prefix('user')->name('user.')->group(function () {
 
-Route::get('/profil', function () {
-    return view('ProfilPage');
-})->name('user.profile');
+    Route::get('/dashboard', fn () => view('user.UserDashboard'))->name('dashboard');
+    Route::get('/profil', fn () => view('user.ProfilPage'))->name('profile');
+    Route::get('/edit-profil', fn () => view('user.EditProfilPage'))->name('profile.edit');
+    Route::get('/riwayat', fn () => view('user.RiwayatPage'))->name('history');
 
-Route::get('/edit-profil', function () {
-    return view('EditProfilPage');
-})->name('user.profile.edit');
-
-Route::get('/riwayat', function () {
-    return view('RiwayatPage');
-})->name('user.history');
-
-
-// --- 4. FITUR PENGAJUAN CUTI (INTI APLIKASI) ---
-
-Route::get('/pengajuan-cuti', function () {
-    return view('pengajuan-cuti');
-})->name('cuti.create');
-
-Route::post('/pengajuan-cuti', function () {
-    return view('PengajuanSukses');
-})->name('cuti.store');
+    Route::get('/pengajuan-cuti', fn () => view('user.pengajuan-cuti'))->name('cuti.create');
+    Route::post('/pengajuan-cuti', fn () => view('user.PengajuanSuksesPage'))->name('cuti.store');
+});
 
 
-// --- 5. ADMIN (OPSIONAL) ---
 
-Route::get('/dashboard', function () {
-    return view('Dashboard');
-})->name('admin.dashboard');
+/*
+|--------------------------------------------------------------------------
+| ADMIN AREA
+|--------------------------------------------------------------------------
+*/
+
+Route::prefix('admin')->name('admin.')->group(function () {
+
+    Route::get('/dashboard', fn () => view('admin.dashboard_admin'))->name('dashboard');
+    Route::get('/profil', fn () => view('admin.profil_admin'))->name('profil');
+
+    Route::get('/kelola-pegawai', fn () => view('admin.kelola-pegawai'))->name('kelola_pegawai');
+    Route::get('/laporan', fn () => view('admin.laporan'))->name('laporan');
+    Route::get('/detail-pengajuan', fn () => view('admin.detail-pengajuan'))->name('detail_pengajuan');
+    Route::get('/kelola-pengajuan', fn () => view('admin.kelola-pengajuan'))->name('kelola_pengajuan');
+});

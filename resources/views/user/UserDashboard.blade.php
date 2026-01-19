@@ -459,7 +459,7 @@ untuk bantuan lebih lanjut.</div></div>
       <div class="modalActions">
           <button class="btn2" id="cancelBtn">Tutup</button>
           
-          <a href="{{ route('cuti.create') }}" id="btnEditLink" class="btn2 btn-edit-link">
+          <a href="{{ route('user.cuti.create') }}" id="btnEditLink" class="btn2 btn-edit-link">
               <i class="fa-solid fa-pen-to-square"></i> Perbaiki Pengajuan
           </a>
       </div>
