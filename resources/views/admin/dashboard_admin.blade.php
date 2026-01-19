@@ -128,9 +128,8 @@
                 <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2" aria-labelledby="profileDropdown">
                     <li><h6 class="dropdown-header text-muted">Masuk sebagai Admin</h6></li>
                     <li><a class="dropdown-item" href="{{ route('admin.profil') }}"><i class="bi bi-person me-2"></i> Profile Saya</a></li>
-                    <li><a class="dropdown-item" href="#"><i class="bi bi-gear me-2"></i> Pengaturan</a></li>
                     <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item text-danger" href="#"><i class="bi bi-box-arrow-right me-2"></i> Keluar</a></li>
+                    <li><a class="dropdown-item text-danger" href="{{ route('landing') }}"><i class="bi bi-box-arrow-right me-2"></i> Keluar</a></li>
                 </ul>
             </div>
         </div>

@@ -27,7 +27,7 @@ Route::get('/login', fn () => view('auth.LoginPage'))->name('login');
 
 Route::post('/login', function () {
     // nanti: Auth::attempt(...)
-    return redirect()->route('user.dashboard');
+    return redirect()->route('admin.dashboard');
 })->name('login.process');
 
 Route::get('/register', fn () => view('auth.RegisterPage'))->name('register');
@@ -77,8 +77,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', fn () => view('admin.dashboard_admin'))->name('dashboard');
     Route::get('/profil', fn () => view('admin.profil_admin'))->name('profil');
 
-    Route::get('/kelola-pegawai', fn () => view('admin.kelola-pegawai'))->name('kelola_pegawai');
+    Route::get('/kelola-pegawai', fn () => view('admin.kelola_pegawai'))->name('kelola_pegawai');
     Route::get('/laporan', fn () => view('admin.laporan'))->name('laporan');
-    Route::get('/detail-pengajuan', fn () => view('admin.detail-pengajuan'))->name('detail_pengajuan');
-    Route::get('/kelola-pengajuan', fn () => view('admin.kelola-pengajuan'))->name('kelola_pengajuan');
+    Route::get('/detail-pengajuan', fn () => view('admin.detail_pengajuan'))->name('detail_pengajuan');
+    Route::get('/kelola-pengajuan', fn () => view('admin.kelola_pengajuan'))->name('kelola_pengajuan');
 });

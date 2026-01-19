@@ -217,7 +217,7 @@
                 <i class="bi bi-save"></i> Simpan
             </button>
 
-            <a href="#" class="btn btn-logout-custom text-decoration-none">
+            <a href="{{ route('landing') }}" class="btn btn-logout-custom text-decoration-none">
                 <i class="bi bi-box-arrow-right"></i> Keluar dari Akun
             </a>
 
