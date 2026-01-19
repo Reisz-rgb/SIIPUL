@@ -15,7 +15,7 @@
 </head>
 <body class="bg-gray-50 h-screen flex items-center justify-center px-4 relative">
 
-    <a href="{{ url('/dashboarduser') }}" class="absolute top-8 right-8 text-slate-400 hover:text-slate-600 transition">
+    <a href="{{ route('user.dashboard') }}" class="absolute top-8 right-8 text-slate-400 hover:text-slate-600 transition">
         <i class="fa-solid fa-xmark text-2xl"></i>
     </a>
 
@@ -56,7 +56,7 @@
             Notifikasi persetujuan akan dikirimkan melalui WhatsApp dan Email terdaftar.
         </p>
 
-        <a href="{{ url('/pengajuan-cuti') }}" class="block w-full bg-[#961E1E] hover:bg-[#7a1818] text-white font-bold py-4 rounded-xl shadow-lg transition duration-300 flex items-center justify-center gap-2">
+        <a href="{{ route('user.cuti.create') }}" class="block w-full bg-[#961E1E] hover:bg-[#7a1818] text-white font-bold py-4 rounded-xl shadow-lg transition duration-300 flex items-center justify-center gap-2">
             Buat Pengajuan Baru <i class="fa-solid fa-arrow-right"></i>
         </a>
 

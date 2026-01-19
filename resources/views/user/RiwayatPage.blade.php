@@ -204,7 +204,7 @@
   
   <div class="topbar">
     <div class="header-left">
-        <a href="{{ url('/dashboarduser') }}" class="back-btn">
+        <a href="{{ route('user.dashboard') }}" class="back-btn">
             <i class="fa-solid fa-arrow-left"></i>
         </a>
         <div class="page-title">
@@ -330,7 +330,7 @@
       <div class="modalActions">
           <button class="btn2" id="cancelBtn">Tutup</button>
           
-          <a href="{{ route('cuti.create') }}" id="btnEditLink" class="btn2 btn-edit-link">
+          <a href="{{ route('user.cuti.create') }}" id="btnEditLink" class="btn2 btn-edit-link">
               <i class="fa-solid fa-pen-to-square"></i> Perbaiki Pengajuan
           </a>
       </div>

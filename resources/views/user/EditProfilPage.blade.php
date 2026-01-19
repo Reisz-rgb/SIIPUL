@@ -25,7 +25,7 @@
 
     <nav class="bg-custom-red text-white py-4 px-6 shadow-md sticky top-0 z-50">
         <div class="container mx-auto flex items-center gap-4">
-            <a href="{{ url('/profil') }}" class="text-white hover:text-gray-200 transition">
+            <a href="{{ route('user.profil') }}" class="text-white hover:text-gray-200 transition">
                 <i class="fa-solid fa-arrow-left text-lg"></i>
             </a>
             <div class="flex items-center gap-3">
@@ -51,10 +51,10 @@
             </div>
 
             <div class="p-6 md:p-8">
-                
-                <form action="{{ url('/profil') }}" method="GET">
-    <input type="hidden" name="status" value="sukses">
-                    
+
+                <form action="{{ route('user.profil') }}" method="GET">
+                    <input type="hidden" name="status" value="sukses">
+
                     <div class="mb-5">
                         <label class="block text-slate-600 text-xs font-bold mb-2">Nama Lengkap</label>
                         <input type="text" name="nama" value="Budi Santoso" class="w-full px-4 py-3 border border-gray-300 rounded-lg text-slate-700 focus:bg-white input-focus" placeholder="Nama lengkap">
@@ -85,8 +85,8 @@
                         <button type="submit" class="flex-1 bg-custom-red text-white font-bold py-3 rounded-lg hover:bg-[#7a1818] transition shadow-md flex justify-center items-center gap-2">
                             <i class="fa-regular fa-circle-check"></i> Simpan Perubahan
                         </button>
-                        
-                        <a href="{{ url('/profil') }}" class="flex-1 bg-white border border-gray-300 text-slate-600 font-bold py-3 rounded-lg hover:bg-gray-50 transition text-center">
+
+                        <a href="{{ route('user.profil') }}" class="flex-1 bg-white border border-gray-300 text-slate-600 font-bold py-3 rounded-lg hover:bg-gray-50 transition text-center">
                             Batal
                         </a>
                     </div>

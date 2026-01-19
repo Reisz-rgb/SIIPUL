@@ -1,5 +1,3 @@
-{{-- resources/views/pengajuan-cuti.blade.php --}}
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -310,7 +308,7 @@
 
     <div class="container">
         
-        <a href="{{ url('/dashboarduser') }}" class="back-btn">
+        <a href="{{ route('user.dashboard') }}" class="back-btn">
             <i class="fa-solid fa-arrow-left"></i>
         </a>
 
@@ -320,7 +318,7 @@
         </div>
 
         {{-- Tambahkan enctype="multipart/form-data" untuk support upload file --}}
-        <form action="{{ route('cuti.store') }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('user.cuti.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
 
             {{-- SECTION I: DATA PEGAWAI --}}

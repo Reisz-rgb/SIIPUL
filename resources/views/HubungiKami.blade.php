@@ -26,7 +26,7 @@
         
         <div class="flex justify-between items-center px-8 py-5 border-b border-gray-100">
             <h2 class="text-xl font-bold text-slate-800">Hubungi Kami</h2>
-            <a href="{{ url('/dashboarduser') }}" class="text-slate-400 hover:text-red-500 transition text-2xl">
+            <a href="{{ route('user.dashboard') }}" class="text-slate-400 hover:text-red-500 transition text-2xl">
                 <i class="fa-solid fa-xmark"></i>
             </a>
         </div>
@@ -114,7 +114,7 @@
     <script>
         function kirimPesan() {
             // Arahkan ke dashboard membawa sinyal notif=terkirim
-            window.location.href = "{{ url('/dashboarduser') }}?notif=terkirim"; 
+            window.location.href = "{{ route('user.dashboard') }}?notif=terkirim"; 
         }
     </script>
 </body>

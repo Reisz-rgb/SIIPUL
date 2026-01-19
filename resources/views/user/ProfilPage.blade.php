@@ -36,7 +36,7 @@
 
     <nav class="bg-custom-red text-white py-4 px-6 shadow-md sticky top-0 z-50">
         <div class="container mx-auto flex items-center gap-4">
-            <a href="{{ url('/dashboarduser') }}" class="text-white hover:text-gray-200 transition">
+            <a href="{{ route('user.dashboard') }}" class="text-white hover:text-gray-200 transition">
                 <i class="fa-solid fa-arrow-left text-lg"></i>
             </a>
             <div class="flex items-center gap-3">
@@ -59,7 +59,7 @@
                     <p class="text-sm font-light opacity-90 mt-1">Guru Matematika</p>
                     <p class="text-xs font-light opacity-80">SMP Negeri 1 Semarang</p>
                 </div>
-                <a href="{{ url('/edit-profil') }}" class="bg-white text-custom-red px-4 py-2 rounded-lg text-sm font-semibold shadow hover:bg-gray-100 transition flex items-center gap-2 mt-4 md:mt-0">
+                <a href="{{ route('user.profil.edit') }}" class="bg-white text-custom-red px-4 py-2 rounded-lg text-sm font-semibold shadow hover:bg-gray-100 transition flex items-center gap-2 mt-4 md:mt-0">
                     <i class="fa-solid fa-pen"></i> Edit Profil
                 </a>
             </div>

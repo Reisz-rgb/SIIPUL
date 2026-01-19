@@ -56,12 +56,12 @@ Route::get('/link-reset-terkirim', fn () => view('auth.kirimlink'))
 Route::prefix('user')->name('user.')->group(function () {
 
     Route::get('/dashboard', fn () => view('user.UserDashboard'))->name('dashboard');
-    Route::get('/profil', fn () => view('user.ProfilPage'))->name('profile');
-    Route::get('/edit-profil', fn () => view('user.EditProfilPage'))->name('profile.edit');
-    Route::get('/riwayat', fn () => view('user.RiwayatPage'))->name('history');
+    Route::get('/profil', fn () => view('user.ProfilPage'))->name('profil');
+    Route::get('/edit-profil', fn () => view('user.EditProfilPage'))->name('profil.edit');
+    Route::get('/riwayat', fn () => view('user.RiwayatPage'))->name('riwayat');
 
     Route::get('/pengajuan-cuti', fn () => view('user.pengajuan-cuti'))->name('cuti.create');
-    Route::post('/pengajuan-cuti', fn () => view('user.PengajuanSuksesPage'))->name('cuti.store');
+    Route::post('/pengajuan-cuti', fn () => view('user.PengajuanSukses'))->name('cuti.store');
 });
 
 

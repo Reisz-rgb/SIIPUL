@@ -329,9 +329,9 @@
             <div class="dd-value">Guru Matematika</div>
         </div>
         <div class="dd-links">
-            <a href="{{ url('/profil') }}" class="dd-item"><i class="fa-regular fa-user"></i> Profil Saya</a>
-            <a href="{{ url('/riwayat') }}" class="dd-item"><i class="fa-regular fa-file-lines"></i> Riwayat Cuti</a>
-            <a href="{{ url('/') }}" class="dd-item dd-logout"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</a>
+            <a href="{{ route('user.profil') }}" class="dd-item"><i class="fa-regular fa-user"></i> Profil Saya</a>
+            <a href="{{ route('user.riwayat') }}" class="dd-item"><i class="fa-regular fa-file-lines"></i> Riwayat Cuti</a>
+            <a href="{{ route('landing') }}" class="dd-item dd-logout"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</a>
         </div>
     </div>
   </div>
@@ -358,7 +358,7 @@
       <div>
         <div class="card">
           <h3>Aksi Cepat</h3>
-          <a href="{{ url('/pengajuan-cuti') }}" class="btn btn-primary"> &nbsp; Ajukan Cuti</a>
+          <a href="{{ route('user.cuti.create') }}" class="btn btn-primary"> &nbsp; Ajukan Cuti</a>
           <a href="{{ url('/hubungi-kami') }}" class="btn"> &nbsp; Hubungi Kami</a>
         </div>
         <div class="card" style="margin-top:24px;">
