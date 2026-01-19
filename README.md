@@ -53,6 +53,7 @@ This project currently runs **without any database**.
 Ensure the following values exist in your `.env`:
 
 ```env
+DB_CONNECTION=null
 SESSION_DRIVER=file
 CACHE_DRIVER=file
 QUEUE_CONNECTION=sync
