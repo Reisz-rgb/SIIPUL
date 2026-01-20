@@ -423,7 +423,7 @@
 
         </div>
 
-        <a href="{{ url('/riwayat') }}" class="seeall" style="display:block; text-decoration:none;">Lihat Semua Riwayat</a>
+        <a href="{{ route('user.riwayat') }}" class="seeall" style="display:block; text-decoration:none;">Lihat Semua Riwayat</a>
       </div>
     </div>
 
