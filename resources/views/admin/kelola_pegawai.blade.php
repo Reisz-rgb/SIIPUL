@@ -103,7 +103,7 @@
                 <h4 class="mb-0 text-secondary">Kelola Pegawai</h4>
             </div>
 
-            <a href="#" class="btn-add-custom shadow-sm">
+            <a href="{{ route('admin.tambah_pegawai') }}" class="btn-add-custom shadow-sm">
                 <i class="bi bi-plus-lg"></i> Tambah Pegawai
             </a>
         </div>
