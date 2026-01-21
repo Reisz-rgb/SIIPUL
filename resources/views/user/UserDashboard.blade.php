@@ -109,12 +109,39 @@
     .dd-info-sec { padding: 20px; border-bottom: 1px solid #f3f4f6; }
     .dd-label { font-size: 11px; color: #9ca3af; font-weight: 700; margin-bottom: 4px; text-transform: uppercase; }
     .dd-value { font-size: 14px; color: #111827; font-weight: 600; margin-bottom: 12px; }
-    .dd-links { padding: 8px 0; }
-    .dd-item { display: flex; align-items: center; gap: 12px; padding: 12px 24px; color: #4b5563; text-decoration: none; font-size: 14px; font-weight: 500; transition: all 0.2s; }
-    .dd-item:hover { background: #f9fafb; color: var(--primary); }
-    .dd-item i { width: 18px; text-align: center; }
-    .dd-logout { border-top: 1px solid #f3f4f6; color: #ef4444 !important; }
-    .dd-logout:hover { background: #fef2f2; }
+    .dd-links {
+          display: flex;
+          flex-direction: column;
+      }
+
+      .dd-item {
+          display: block;
+          padding: 10px 15px;
+          text-decoration: none;
+          color: #333;
+          transition: background 0.3s;
+          background: none; /* Penting untuk button */
+          border: none;     /* Menghapus border default button */
+          width: 100%;      /* Agar area klik full */
+          text-align: left; /* Menyamakan posisi teks dengan <a> */
+          font-size: inherit;
+          cursor: pointer;
+      }
+
+      .dd-item:hover {
+          background-color: #f8f9fa;
+          color: #007bff;
+      }
+
+      .dd-item i {
+          margin-right: 10px;
+          width: 20px; /* Menjaga ikon tetap sejajar vertikal */
+      }
+
+      /* Khusus untuk Log Out jika ingin warna merah saat hover */
+      .dd-logout:hover {
+          color: #dc3545;
+      }
 
     /* --- CONTAINER --- */
     .container{ max-width:1400px; width: 95%; margin:30px auto; padding:0 20px 30px; flex: 1; }
@@ -329,15 +356,19 @@
             <div class="dd-value">Guru Matematika</div>
         </div>
         <div class="dd-links">
-            <a href="{{ route('user.profil') }}" class="dd-item"><i class="fa-regular fa-user"></i> Profil Saya</a>
-            <a href="{{ route('user.riwayat') }}" class="dd-item"><i class="fa-regular fa-file-lines"></i> Riwayat Cuti</a>
-            <form action="{{ route('logout') }}" method="POST">
-                @csrf
-                <button type="submit" class="dd-item dd-logout">
-                    <i class="fa-solid fa-arrow-right-from-bracket"></i>Log Out
-                </button>
-            </form>
-        </div>
+          <a href="{{ route('user.profil') }}" class="dd-item">
+              <i class="fa-regular fa-user"></i> Profil Saya
+          </a>
+          <a href="{{ route('user.riwayat') }}" class="dd-item">
+              <i class="fa-regular fa-file-lines"></i> Riwayat Cuti
+          </a>
+          <form action="{{ route('logout') }}" method="POST" class="m-0">
+              @csrf
+              <button type="submit" class="dd-item dd-logout w-100 border-0 text-start">
+                  <i class="fa-solid fa-arrow-right-from-bracket"></i> Log Out
+              </button>
+          </form>
+      </div>
     </div>
   </div>
 
