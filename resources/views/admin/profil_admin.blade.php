@@ -212,15 +212,15 @@
         </div>
 
         <div class="mb-5 d-flex justify-content-end gap-3">
-            
             <button type="button" class="btn btn-save-custom" onclick="simpanProfil()">
                 <i class="bi bi-save"></i> Simpan
             </button>
-
-            <a href="{{ route('landing') }}" class="btn btn-logout-custom text-decoration-none">
-                <i class="bi bi-box-arrow-right"></i> Keluar dari Akun
-            </a>
-
+            <form action="{{ route('logout') }}" method="POST" id="logout-form">
+                @csrf
+                <button type="submit" class="btn btn-logout-custom">
+                    <i class="bi bi-box-arrow-right"></i> Log Out
+                </button>
+            </form>
         </div>
 
     </div>

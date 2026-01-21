@@ -331,7 +331,12 @@
         <div class="dd-links">
             <a href="{{ route('user.profil') }}" class="dd-item"><i class="fa-regular fa-user"></i> Profil Saya</a>
             <a href="{{ route('user.riwayat') }}" class="dd-item"><i class="fa-regular fa-file-lines"></i> Riwayat Cuti</a>
-            <a href="{{ route('landing') }}" class="dd-item dd-logout"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</a>
+            <form action="{{ route('logout') }}" method="POST">
+                @csrf
+                <button type="submit" class="dd-item dd-logout">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>Log Out
+                </button>
+            </form>
         </div>
     </div>
   </div>

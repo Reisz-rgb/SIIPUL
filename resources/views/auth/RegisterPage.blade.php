@@ -206,23 +206,32 @@
             <h2>Daftar Akun Baru</h2>
             <p>Lengkapi data diri Anda untuk mendaftar</p>
         </div>
+        
+        {{-- Error Messages --}}
+        @if ($errors->any())
+            <div style="background-color: #fee2e2; border: 1px solid #fca5a5; border-radius: 8px; padding: 16px; margin-bottom: 20px;">
+                @foreach ($errors->all() as $error)
+                    <p style="color: #991b1b; font-size: 14px; margin-bottom: 4px;">{{ $error }}</p>
+                @endforeach
+            </div>
+        @endif
 
         <form action="{{ route('register') }}" method="POST">
             @csrf
 
             <div class="form-group">
                 <label class="form-label">Nama Lengkap</label>
-                <input type="text" name="name" class="form-input" placeholder="Nama lengkap sesuai SK" required>
+                <input type="text" name="name" class="form-input" placeholder="Nama lengkap sesuai SK" value="{{ old('name') }}" required>
             </div>
 
             <div class="form-group">
                 <label class="form-label">NIP</label>
-                <input type="text" name="nip" class="form-input" placeholder="19xxxxxxxxxxx" required>
+                <input type="text" name="nip" class="form-input" placeholder="19xxxxxxxxxxx" value="{{ old('nip') }}" required>
             </div>
 
             <div class="form-group">
                 <label class="form-label">Nomor HP / WhatsApp</label>
-                <input type="text" name="phone" class="form-input" placeholder="0812xxxx" required>
+                <input type="text" name="phone" class="form-input" placeholder="0812xxxx" value="{{ old('phone') }}" required>
             </div>
 
             <div class="form-group">
