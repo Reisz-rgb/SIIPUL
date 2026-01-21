@@ -132,23 +132,23 @@
             <div class="section-title">I. DATA PEGAWAI</div>
             <div class="row g-3"> <div class="col-md-6">
                     <p class="data-label">NAMA</p>
-                    <p class="data-value">Budi Santoso</p>
+                    <p class="data-value">{{ $pengajuan->user->name ?? '-' }}</p>
                 </div>
                 <div class="col-md-6">
                     <p class="data-label">NIP</p>
-                    <p class="data-value">197801011999121001</p>
+                    <p class="data-value">{{ $pengajuan->user->nip ?? '-' }}</p>
                 </div>
                 <div class="col-md-6">
                     <p class="data-label">JABATAN</p>
-                    <p class="data-value">Guru Matematika</p>
+                    <p class="data-value">{{ $pengajuan->user->jabatan ?? '-' }}</p>
                 </div>
                 <div class="col-md-6">
                     <p class="data-label">MASA KERJA</p>
-                    <p class="data-value">12 Tahun</p>
+                    <p class="data-value">{{ $pengajuan->user->masa_kerja ?? '-' }}</p>
                 </div>
                 <div class="col-12">
                     <p class="data-label">UNIT KERJA</p>
-                    <p class="data-value">DISDIKBUDPORA KABUPATEN SEMARANG</p>
+                    <p class="data-value">{{ $pengajuan->user->bidang_unit ?? '-' }}</p>
                 </div>
             </div>
 
@@ -161,7 +161,7 @@
                 </div>
                 <div class="col-md-6">
                     <div class="section-title mt-0">III. ALASAN CUTI</div>
-                    <p class="data-value">Keperluan Pribadi</p>
+                    <p class="data-value">{{ $pengajuan->alasan ?? '-' }}</p>
                 </div>
             </div>
 

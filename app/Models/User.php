@@ -17,10 +17,10 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'jabatan',
+        'bidang_unit',
         'lp',
         'pangkat_golongan',
-        'bidang_unit',
-        'jabatan',
         'pendidikan',
         'usia',
     ];
