@@ -63,6 +63,18 @@ Route::post('/logout', [AuthController::class, 'logout'])
 | USER AREA - Authenticated Users Only
 |--------------------------------------------------------------------------
 */
+
+Route::prefix('user')->name('user.')->middleware(['auth'])->group(function () {
+    Route::get('/dashboard', fn() => view('user.UserDashboard'))->name('dashboard');
+    Route::get('/profil', fn() => view('user.ProfilPage'))->name('profil');
+    Route::get('/edit-profil', fn() => view('user.EditProfilPage'))->name('profil.edit');
+    Route::get('/riwayat', fn() => view('user.RiwayatPage'))->name('riwayat');
+
+    // Pengajuan Cuti
+    Route::get('/pengajuan-cuti', fn() => view('user.pengajuan_cuti'))->name('cuti.create');
+    Route::post('/pengajuan-cuti', fn() => view('user.PengajuanSukses'))->name('cuti.store');
+});
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
