@@ -174,7 +174,7 @@ class PegawaiSheetImport implements ToCollection
     /**
      * Import single row menggunakan column map
      */
-    private function importRow(Collection $row, array $map, int $rowNumber)
+   private function importRow(Collection $row, array $map, int $rowNumber)
     {
         $nip = $this->digits($this->cell($row, $map['nip']));
 
@@ -205,16 +205,15 @@ class PegawaiSheetImport implements ToCollection
             'jabatan' => $this->cell($row, $map['jabatan']),
             'pendidikan' => $this->cell($row, $map['pendidikan']),
             'usia' => $this->parseUsia($this->cell($row, $map['usia'])),
+            
+            // Kolom baru
+            'status' => 'aktif',
+            'annual_leave_quota' => 12,
+            'join_date' => now()->subYears(rand(1, 10)), // Random untuk data import
         ]);
 
         echo "Row {$rowNumber}: ✓ {$nama}\n";
         $this->imported++;
-    }
-
-    private function digits($value): ?string
-    {
-        if (empty($value)) return null;
-        return preg_replace('/\D/', '', $value);
     }
 
 

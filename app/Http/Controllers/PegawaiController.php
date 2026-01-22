@@ -8,16 +8,19 @@ use Illuminate\Support\Facades\Hash;
 
 class PegawaiController extends Controller
 {
-    // 1. Menampilkan Daftar Pegawai
+    /**
+     * Menampilkan Daftar Pegawai
+     */
     public function index(Request $request)
     {
-        // Fitur pencarian sederhana
         $query = User::where('role', 'user');
 
-        if($request->has('search')){
-            $query->where(function($q) use ($request){
-                $q->where('name', 'LIKE', '%'.$request->search.'%')
-                  ->orWhere('nip', 'LIKE', '%'.$request->search.'%');
+        if ($request->has('search') && !empty($request->search)) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'LIKE', "%{$search}%")
+                  ->orWhere('nip', 'LIKE', "%{$search}%")
+                  ->orWhere('bidang_unit', 'LIKE', "%{$search}%");
             });
         }
 
@@ -25,85 +28,161 @@ class PegawaiController extends Controller
         return view('admin.kelola_pegawai', compact('pegawai'));
     }
 
-    // 2. Menampilkan Form Tambah
+    /**
+     * Menampilkan Form Tambah
+     */
     public function create()
     {
         return view('admin.tambah_pegawai'); 
     }
 
-    // 3. Proses Simpan Data (SUDAH DIPERBAIKI)
+    /**
+     * Proses Simpan Data Pegawai Baru
+     */
     public function store(Request $request)
     {
-        // A. Validasi (Sesuaikan nama dengan name="" di HTML)
-        $request->validate([
-            'name'        => 'required|string|max:255',
-            'nip'         => 'required|numeric|unique:users,nip',
-            'phone'       => 'required|numeric', // Hapus unique jika telepon boleh sama, atau biarkan jika wajib beda
-            'email'       => 'required|email|unique:users,email',
-            'jabatan'     => 'required|string', // UBAH position JADI jabatan
-            'bidang_unit' => 'required|string', // UBAH unit_kerja JADI bidang_unit
-            'annual_leave_quota' => 'required|numeric',
+        // Validasi
+        $validated = $request->validate([
+            'name'               => 'required|string|max:255',
+            'nip'                => 'required|string|unique:users,nip',
+            'phone'              => 'required|string|unique:users,phone',
+            'email'              => 'nullable|email|unique:users,email',
+            'jabatan'            => 'required|string|max:255',
+            'bidang_unit'        => 'required|string|max:255',
+            'join_date'          => 'nullable|date',
+            'annual_leave_quota' => 'required|integer|min:0|max:30',
+            'status'             => 'required|in:aktif,nonaktif',
+        ], [
+            'name.required'               => 'Nama wajib diisi',
+            'nip.required'                => 'NIP wajib diisi',
+            'nip.unique'                  => 'NIP sudah terdaftar',
+            'phone.required'              => 'Nomor telepon wajib diisi',
+            'phone.unique'                => 'Nomor telepon sudah terdaftar',
+            'email.unique'                => 'Email sudah terdaftar',
+            'jabatan.required'            => 'Jabatan wajib diisi',
+            'bidang_unit.required'        => 'Unit kerja wajib diisi',
+            'annual_leave_quota.required' => 'Kuota cuti wajib diisi',
+            'annual_leave_quota.integer'  => 'Kuota cuti harus berupa angka',
         ]);
 
-        // B. Simpan ke Database
+        // Bersihkan NIP dan phone
+        $nip = preg_replace('/[^0-9]/', '', $request->nip);
+        $phone = preg_replace('/[^0-9]/', '', $request->phone);
+
+        // Simpan pegawai baru
         User::create([
-            'name'               => $request->name,
-            'nip'                => $request->nip,
-            'phone'              => $request->phone,
-            'email'              => $request->email,
-            'jabatan'            => $request->jabatan,     // Ambil dari input 'jabatan'
-            'bidang_unit'        => $request->bidang_unit, // Ambil dari input 'bidang_unit'
-            'join_date'          => $request->join_date,   // Tambahan tanggal masuk
-            'status'             => $request->status,      // Tambahan status
-            'annual_leave_quota' => $request->annual_leave_quota,
-            'password'           => Hash::make('12345678'), 
+            'name'               => $validated['name'],
+            'nip'                => $nip,
+            'phone'              => $phone,
+            'email'              => $validated['email'],
+            'jabatan'            => $validated['jabatan'],
+            'bidang_unit'        => $validated['bidang_unit'],
+            'join_date'          => $validated['join_date'],
+            'status'             => $validated['status'],
+            'annual_leave_quota' => $validated['annual_leave_quota'],
+            'password'           => Hash::make($nip), // Password default = NIP
             'role'               => 'user',
         ]);
 
-        return redirect()->route('admin.kelola_pegawai')->with('success', 'Pegawai Berhasil Ditambahkan');
+        return redirect()
+            ->route('admin.kelola_pegawai')
+            ->with('success', 'Pegawai berhasil ditambahkan! Password default = NIP pegawai.');
     }
 
-    // 4. Menampilkan Form Edit
+    /**
+     * Menampilkan Form Edit
+     */
     public function edit($id)
     {
         $pegawai = User::findOrFail($id);
         return view('admin.edit_pegawai', compact('pegawai'));
     }
 
-    // 5. Proses Update Data (SUDAH DIPERBAIKI)
+    /**
+     * Proses Update Data
+     */
     public function update(Request $request, $id)
     {
-        $request->validate([
-            'name'        => 'required|string|max:255',
-            'nip'         => 'required|numeric|unique:users,nip,'.$id,
-            'phone'       => 'required|numeric',
-            'email'       => 'required|email|unique:users,email,'.$id,
-            'jabatan'     => 'required|string', // Sesuaikan nama input
-            'bidang_unit' => 'required|string', // Sesuaikan nama input
-        ]);
-
         $pegawai = User::findOrFail($id);
-        
-        $pegawai->update([
-            'name'        => $request->name,
-            'nip'         => $request->nip,
-            'phone'       => $request->phone,
-            'email'       => $request->email,
-            'jabatan'     => $request->jabatan,     // Sesuaikan
-            'bidang_unit' => $request->bidang_unit, // Sesuaikan
-            // Update data tambahan jika ada di form edit
-            'annual_leave_quota' => $request->annual_leave_quota ?? $pegawai->annual_leave_quota,
+
+        $validated = $request->validate([
+            'name'               => 'required|string|max:255',
+            'nip'                => 'required|string|unique:users,nip,' . $id,
+            'phone'              => 'required|string|unique:users,phone,' . $id,
+            'email'              => 'nullable|email|unique:users,email,' . $id,
+            'jabatan'            => 'required|string|max:255',
+            'bidang_unit'        => 'required|string|max:255',
+            'join_date'          => 'nullable|date',
+            'annual_leave_quota' => 'required|integer|min:0|max:30',
+            'status'             => 'required|in:aktif,nonaktif',
+        ], [
+            'name.required'               => 'Nama wajib diisi',
+            'nip.required'                => 'NIP wajib diisi',
+            'nip.unique'                  => 'NIP sudah terdaftar',
+            'phone.required'              => 'Nomor telepon wajib diisi',
+            'phone.unique'                => 'Nomor telepon sudah terdaftar',
+            'email.unique'                => 'Email sudah terdaftar',
+            'jabatan.required'            => 'Jabatan wajib diisi',
+            'bidang_unit.required'        => 'Unit kerja wajib diisi',
+            'annual_leave_quota.required' => 'Kuota cuti wajib diisi',
         ]);
 
-        return redirect()->route('admin.kelola_pegawai')->with('success', 'Pegawai Berhasil Diupdate');
+        // Bersihkan NIP dan phone
+        $nip = preg_replace('/[^0-9]/', '', $request->nip);
+        $phone = preg_replace('/[^0-9]/', '', $request->phone);
+
+        $pegawai->update([
+            'name'               => $validated['name'],
+            'nip'                => $nip,
+            'phone'              => $phone,
+            'email'              => $validated['email'],
+            'jabatan'            => $validated['jabatan'],
+            'bidang_unit'        => $validated['bidang_unit'],
+            'join_date'          => $validated['join_date'],
+            'status'             => $validated['status'],
+            'annual_leave_quota' => $validated['annual_leave_quota'],
+        ]);
+
+        return redirect()
+            ->route('admin.kelola_pegawai')
+            ->with('success', 'Data pegawai berhasil diperbarui!');
     }
 
-    // 6. Hapus Data
+    /**
+     * Hapus Data
+     */
     public function destroy($id)
     {
         $pegawai = User::findOrFail($id);
+        
+        // Cek apakah pegawai memiliki pengajuan cuti
+        if ($pegawai->cuti()->count() > 0) {
+            return redirect()
+                ->route('admin.kelola_pegawai')
+                ->with('error', 'Tidak dapat menghapus pegawai yang memiliki riwayat pengajuan cuti!');
+        }
+
         $pegawai->delete();
 
-        return redirect()->route('admin.kelola_pegawai')->with('success', 'Pegawai Berhasil Dihapus');
+        return redirect()
+            ->route('admin.kelola_pegawai')
+            ->with('success', 'Pegawai berhasil dihapus!');
+    }
+
+    /**
+     * Reset Password Pegawai (Bonus Feature)
+     */
+    public function resetPassword($id)
+    {
+        $pegawai = User::findOrFail($id);
+        
+        // Reset password ke NIP
+        $pegawai->update([
+            'password' => Hash::make($pegawai->nip)
+        ]);
+
+        return redirect()
+            ->route('admin.kelola_pegawai')
+            ->with('success', 'Password pegawai berhasil direset ke NIP!');
     }
 }

@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\PegawaiController;
+    
 /*
 |--------------------------------------------------------------------------
 | PUBLIC AREA
@@ -81,30 +82,35 @@ Route::prefix('user')->name('user.')->middleware(['auth'])->group(function () {
 |--------------------------------------------------------------------------
 */
 
-Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(function () {
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/dashboard', function() {
+        return view('admin.dashboard_admin');
+    })->name('dashboard');
     
-    // Dashboard & Profil
-    Route::get('/dashboard', fn() => view('admin.dashboard_admin'))->name('dashboard');
-    Route::get('/profil', fn() => view('admin.profil_admin'))->name('profil');
-
-    // --- LOGIC PEGAWAI ---
+    Route::get('/profil', function() {
+        return view('admin.profil_admin');
+    })->name('profil');
     
-    // 1. List Pegawai
+    // Kelola Pegawai - CRUD
     Route::get('/kelola-pegawai', [PegawaiController::class, 'index'])->name('kelola_pegawai');
-
-    // 2. Tambah Pegawai
     Route::get('/tambah-pegawai', [PegawaiController::class, 'create'])->name('tambah_pegawai');
-    Route::post('/pegawai', [PegawaiController::class, 'store'])->name('pegawai.store');
-
-    // 3. Edit Pegawai
+    Route::post('/pegawai/store', [PegawaiController::class, 'store'])->name('pegawai.store');
     Route::get('/pegawai/{id}/edit', [PegawaiController::class, 'edit'])->name('pegawai.edit');
     Route::put('/pegawai/{id}', [PegawaiController::class, 'update'])->name('pegawai.update');
-
-    // 4. Hapus Pegawai (INI YANG KURANG)
-    Route::delete('/pegawai/{id}', [PegawaiController::class, 'destroy'])->name('pegawai.destroy'); // <--- TAMBAHKAN INI
-
-    // Menu Lainnya
-    Route::get('/laporan', fn() => view('admin.laporan'))->name('laporan');
-    Route::get('/kelola-pengajuan', fn() => view('admin.kelola_pengajuan'))->name('kelola_pengajuan');
-    Route::get('/detail-pengajuan', fn() => view('admin.detail_pengajuan'))->name('detail_pengajuan');
+    Route::delete('/pegawai/{id}', [PegawaiController::class, 'destroy'])->name('pegawai.destroy');
+    Route::post('/pegawai/{id}/reset-password', [PegawaiController::class, 'resetPassword'])->name('pegawai.reset_password');
+    
+    // Laporan & Pengajuan Cuti
+    Route::get('/laporan', function() {
+        return view('admin.laporan');
+    })->name('laporan');
+    
+    Route::get('/kelola-pengajuan', function() {
+        return view('admin.kelola_pengajuan');
+    })->name('kelola_pengajuan');
+    
+    Route::get('/detail-pengajuan', function() {
+        return view('admin.detail_pengajuan');
+    })->name('detail_pengajuan');
 });
+

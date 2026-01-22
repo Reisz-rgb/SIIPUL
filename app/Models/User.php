@@ -17,12 +17,15 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
-        'jabatan',
-        'bidang_unit',
-        'lp',
+        'gender',
         'pangkat_golongan',
+        'bidang_unit',
+        'jabatan',
         'pendidikan',
         'usia',
+        'join_date',          // ← TAMBAHKAN
+        'status',             // ← TAMBAHKAN
+        'annual_leave_quota', // ← TAMBAHKAN
     ];
 
     protected $hidden = [
@@ -35,6 +38,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'join_date' => 'date', // ← TAMBAHKAN
         ];
     }
 
@@ -48,5 +52,11 @@ class User extends Authenticatable
     public function isAdmin()
     {
         return $this->role === 'admin';
+    }
+
+    // Helper method untuk cek status
+    public function isActive()
+    {
+        return $this->status === 'aktif';
     }
 }
