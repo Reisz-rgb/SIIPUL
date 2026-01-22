@@ -77,15 +77,13 @@ class AuthController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            'nip' => 'required|string|unique:users,nip',
-            'phone' => 'required|string|unique:users,phone',
+            'nip' => 'required|string',
+            'phone' => 'required|string',
             'password' => 'required|string|min:6|confirmed',
         ], [
             'name.required' => 'Nama wajib diisi',
             'nip.required' => 'NIP wajib diisi',
-            'nip.unique' => 'NIP sudah terdaftar',
             'phone.required' => 'Nomor HP wajib diisi',
-            'phone.unique' => 'Nomor HP sudah terdaftar',
             'password.required' => 'Password wajib diisi',
             'password.min' => 'Password minimal 6 karakter',
             'password.confirmed' => 'Konfirmasi password tidak cocok',
@@ -101,20 +99,41 @@ class AuthController extends Controller
         $nip = preg_replace('/[^0-9]/', '', $request->nip);
         $phone = preg_replace('/[^0-9]/', '', $request->phone);
 
-        // Cek apakah NIP ada di data pegawai yang sudah diimport
+        // Cek apakah NIP ada di database pegawai
         $existingUser = User::where('nip', $nip)->first();
 
         if (!$existingUser) {
             return redirect()->back()
-                ->withErrors(['nip' => 'NIP tidak ditemukan dalam database pegawai. Hubungi admin.'])
+                ->withErrors(['nip' => 'NIP tidak ditemukan dalam database pegawai. Silakan hubungi admin.'])
                 ->withInput();
         }
 
-        // Update user yang sudah ada dengan password dan phone baru
+        // Cek apakah nama sesuai dengan data di database
+        if (strtolower(trim($existingUser->name)) !== strtolower(trim($request->name))) {
+            return redirect()->back()
+                ->withErrors(['name' => 'Nama tidak sesuai dengan data pegawai. Nama yang terdaftar: ' . $existingUser->name])
+                ->withInput();
+        }
+
+        // Cek apakah phone sudah dipakai user lain
+        $phoneExists = User::where('phone', $phone)
+            ->where('id', '!=', $existingUser->id)
+            ->exists();
+
+        if ($phoneExists) {
+            return redirect()->back()
+                ->withErrors(['phone' => 'Nomor HP sudah digunakan oleh pegawai lain.'])
+                ->withInput();
+        }
+
+        // Update user dengan password dan phone baru
         $existingUser->update([
             'phone' => $phone,
             'password' => Hash::make($request->password),
         ]);
+
+        // Auto login setelah register
+        Auth::login($existingUser);
 
         return redirect()->route('register.success');
     }

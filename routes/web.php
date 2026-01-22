@@ -50,14 +50,14 @@ Route::middleware('guest')->group(function () {
         ->name('password.reset');
     Route::post('/reset-password', [PasswordResetController::class, 'reset'])
         ->name('password.update');
+
+    Route::get('/panduan-login', fn() => view('auth.PanduanLogin'))->name('panduan.login');    
 });
 
 // Logout (authenticated only)
 Route::post('/logout', [AuthController::class, 'logout'])
     ->name('logout')
     ->middleware('auth');
-
-
 /*
 |--------------------------------------------------------------------------
 | USER AREA - Authenticated Users Only

@@ -216,6 +216,21 @@
             </div>
         @endif
 
+        <div class="page-heading">
+    <h2>Daftar Akun Baru</h2>
+    <p>Lengkapi data diri Anda untuk mendaftar</p>
+    
+    {{-- Info box --}}
+    <div style="background-color: #e7f1ff; border: 1px solid #b3d7ff; border-radius: 8px; padding: 12px; margin-top: 15px; text-align: left;">
+            <p style="margin: 0; font-size: 13px; color: #0c5460; line-height: 1.5;">
+                <strong>Penting:</strong><br>
+                1. Masukkan <strong>Nama</strong> dan <strong>NIP</strong> sesuai data pegawai yang terdaftar<br>
+                2. Jika pertama kali login, gunakan <strong>NIP sebagai password</strong><br>
+                3. Gunakan form ini untuk <strong>mengubah password</strong> dan <strong>mendaftarkan nomor HP</strong> Anda
+            </p>
+        </div>
+    </div>
+
         <form action="{{ route('register') }}" method="POST">
             @csrf
 
