@@ -110,7 +110,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/pegawai/{id}/reset-password', [PegawaiController::class, 'resetPassword'])->name('pegawai.reset_password');
     
     // 5. VIEW LAINNYA
-    Route::get('/laporan', function() { return view('admin.laporan'); })->name('laporan');
+    Route::get('/laporan', [AdminController::class, 'laporan'])
+     ->name('laporan');
     Route::get('/kelola-pengajuan', function() { return view('admin.kelola_pengajuan'); })->name('kelola_pengajuan');
     Route::get('/detail-pengajuan', function() { return view('admin.detail_pengajuan'); })->name('detail_pengajuan');
 });

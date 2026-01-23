@@ -63,10 +63,21 @@
                 <div class="card sidebar-card shadow-sm mb-4">
                     <div class="card-header bg-white font-weight-bold py-3">Menu Cepat</div>
                     <div class="list-group list-group-flush">
-                        {{-- Pastikan route ini ada di web.php --}}
-                        <a href="/kelola_cuti" class="list-group-item list-group-item-action"><i class="bi bi-journal-text"></i> Kelola Cuti</a>
-                        <a href="/kelola_pegawai" class="list-group-item list-group-item-action"><i class="bi bi-people"></i> Kelola Pegawai</a>
-                        <a href="/laporan" class="list-group-item list-group-item-action"><i class="bi bi-bar-chart"></i> Laporan</a>
+                        <a href="{{ route('admin.kelola_pengajuan') }}"
+                            class="list-group-item list-group-item-action">
+                            <i class="bi bi-journal-text"></i> Kelola Pengajuan
+                        </a>
+
+                        <a href="{{ route('admin.kelola_pegawai') }}"
+                            class="list-group-item list-group-item-action">
+                            <i class="bi bi-people"></i> Kelola Pegawai
+                         </a>
+
+                        <a href="{{ route('admin.laporan') }}"
+                            class="list-group-item list-group-item-action">
+                            <i class="bi bi-bar-chart"></i> Laporan
+                        </a>
+
                     </div>
                 </div>
 
