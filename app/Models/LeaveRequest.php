@@ -4,15 +4,21 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 
 class LeaveRequest extends Model
 {
     use HasFactory;
 
-    // Nama tabel di database (opsional jika sesuai standar, tapi biar aman kita tulis)
     protected $table = 'leave_requests';
 
-    // Kolom yang boleh diisi datanya
+    /* =====================
+     * CONSTANT STATUS
+     * ===================== */
+    public const STATUS_PENDING  = 'pending';
+    public const STATUS_APPROVED = 'approved';
+    public const STATUS_REJECTED = 'rejected';
+
     protected $fillable = [
         'user_id',
         'jenis_cuti',
@@ -20,21 +26,64 @@ class LeaveRequest extends Model
         'end_date',
         'duration',
         'reason',
-        'status',            // pending, approved, rejected
+        'status',
         'rejection_reason',
-        'file_path'          // jika ada upload surat dokter
+        'file_path',
     ];
 
-    // Agar kolom tanggal otomatis jadi objek Carbon (biar gampang diformat tgl-bln-thn)
     protected $casts = [
         'start_date' => 'date',
-        'end_date' => 'date',
+        'end_date'   => 'date',
     ];
 
-    // --- RELASI PENTING ---
-    // Ini biar kita bisa panggil $leaveRequest->user->name
+    /* =====================
+     * DEFAULT ATTRIBUTE
+     * ===================== */
+    protected $attributes = [
+        'status' => self::STATUS_PENDING,
+    ];
+
+    /* =====================
+     * RELATIONSHIP
+     * ===================== */
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    /* =====================
+     * QUERY SCOPES
+     * ===================== */
+    public function scopePending(Builder $query): Builder
+    {
+        return $query->where('status', self::STATUS_PENDING);
+    }
+
+    public function scopeApproved(Builder $query): Builder
+    {
+        return $query->where('status', self::STATUS_APPROVED);
+    }
+
+    public function scopeRejected(Builder $query): Builder
+    {
+        return $query->where('status', self::STATUS_REJECTED);
+    }
+
+    /* =====================
+     * HELPER METHODS
+     * ===================== */
+    public function isPending(): bool
+    {
+        return $this->status === self::STATUS_PENDING;
+    }
+
+    public function isApproved(): bool
+    {
+        return $this->status === self::STATUS_APPROVED;
+    }
+
+    public function isRejected(): bool
+    {
+        return $this->status === self::STATUS_REJECTED;
     }
 }

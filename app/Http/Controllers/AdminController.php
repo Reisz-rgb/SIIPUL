@@ -2,116 +2,163 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\LeaveRequest;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth;
-// Import Library Excel & PDF
+
+// Export
 use App\Exports\LaporanExport;
 use Maatwebsite\Excel\Facades\Excel;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class AdminController extends Controller
 {
-    // ==========================================
-    // 1. FITUR DOWNLOAD LAPORAN
-    // ==========================================
-    
+    /* =====================================================
+     * 1. DOWNLOAD LAPORAN
+     * ===================================================== */
+
     public function downloadExcel(Request $request)
     {
-        // Pastikan file app/Exports/LaporanExport.php nanti dibuat
-        return Excel::download(new LaporanExport($request), 'laporan_cuti.xlsx');
+        return Excel::download(
+            new LaporanExport($request),
+            'laporan_cuti.xlsx'
+        );
     }
 
     public function downloadPdf(Request $request)
     {
         $query = LeaveRequest::with('user');
-        
-        // Filter Tanggal
-        if ($request->start_date && $request->end_date) {
-            $query->whereBetween('start_date', [$request->start_date, $request->end_date]);
+
+        if ($request->filled(['start_date', 'end_date'])) {
+            $query->whereBetween('start_date', [
+                $request->start_date,
+                $request->end_date
+            ]);
         }
-        // Filter Status
-        if ($request->status) {
+
+        if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
-        
+
         $data = $query->get();
 
-        // Pastikan file resources/views/admin/laporan_pdf.blade.php nanti dibuat
-        $pdf = Pdf::loadView('admin.laporan_pdf', compact('data'));
-        return $pdf->download('laporan_cuti.pdf');
+        return Pdf::loadView('admin.laporan_pdf', compact('data'))
+            ->download('laporan_cuti.pdf');
     }
 
-    // ==========================================
-    // 2. DASHBOARD ADMIN
-    // ==========================================
+    /* =====================================================
+     * 2. DASHBOARD ADMIN (SAFE + OPTIMIZED)
+     * ===================================================== */
 
     public function dashboard()
     {
-        // A. DATA KARTU STATISTIK
-        $totalPengajuan = LeaveRequest::count();
-        $disetujui      = LeaveRequest::where('status', 'approved')->count();
-        $menunggu       = LeaveRequest::where('status', 'pending')->count();
-        $ditolak        = LeaveRequest::where('status', 'rejected')->count();
-        $totalPegawai   = User::where('role', 'user')->count();
+        $totalPegawai = User::where('role', 'user')->count();
+        $listPegawai  = User::where('role', 'user')->orderBy('name')->get();
 
-        // B. DATA LIST MENUNGGU (5 Teratas)
+        /**
+         * SAFETY NET
+         * Kalau migration belum dijalankan
+         */
+        if (!Schema::hasTable('leave_requests')) {
+            return view('admin.dashboard_admin', [
+                'totalPengajuan' => 0,
+                'disetujui' => 0,
+                'menunggu' => 0,
+                'ditolak' => 0,
+                'totalPegawai' => $totalPegawai,
+                'pendingRequests' => collect(),
+                'recentActivities' => collect(),
+                'listPegawai' => $listPegawai,
+                'chartLabels' => [],
+                'dataApproved' => [],
+                'dataRejected' => [],
+                'dataPending' => [],
+            ]);
+        }
+
+        /* =====================
+         * A. STATISTIK KARTU
+         * ===================== */
+        $stats = LeaveRequest::selectRaw("
+                COUNT(*) as total,
+                SUM(status = 'approved') as approved,
+                SUM(status = 'pending') as pending,
+                SUM(status = 'rejected') as rejected
+            ")->first();
+
+        /* =====================
+         * B. PENDING TERBARU
+         * ===================== */
         $pendingRequests = LeaveRequest::with('user')
-                            ->where('status', 'pending')
-                            ->orderBy('created_at', 'desc')
-                            ->take(5)
-                            ->get();
+            ->where('status', 'pending')
+            ->latest()
+            ->limit(5)
+            ->get();
 
-        // C. DATA LIST PEGAWAI (Untuk Dropdown Filter Laporan)
-        $listPegawai = User::where('role', 'user')->orderBy('name')->get();
+        /* =====================
+         * C. AKTIVITAS TERAKHIR
+         * ===================== */
+        $recentActivities = LeaveRequest::with('user')
+            ->latest('updated_at')
+            ->limit(3)
+            ->get();
 
-        // D. GRAFIK 6 BULAN TERAKHIR
+        /* =====================
+         * D. GRAFIK 6 BULAN (1 QUERY)
+         * ===================== */
+        $start = Carbon::now()->subMonths(5)->startOfMonth();
+
+        $chartRaw = LeaveRequest::selectRaw("
+                YEAR(start_date) as year,
+                MONTH(start_date) as month,
+                SUM(status = 'approved') as approved,
+                SUM(status = 'rejected') as rejected,
+                SUM(status = 'pending') as pending
+            ")
+            ->where('start_date', '>=', $start)
+            ->groupBy('year', 'month')
+            ->orderBy('year')
+            ->orderBy('month')
+            ->get()
+            ->keyBy(fn ($row) => "{$row->year}-{$row->month}");
+
         $chartLabels = [];
         $dataApproved = [];
         $dataRejected = [];
-        $dataPending = [];
+        $dataPending  = [];
 
         for ($i = 5; $i >= 0; $i--) {
             $date = Carbon::now()->subMonths($i);
-            $monthName = $date->translatedFormat('M'); 
-            $year = $date->year;
-            $month = $date->month;
+            $key  = $date->year . '-' . $date->month;
 
-            array_push($chartLabels, $monthName);
+            $chartLabels[] = $date->translatedFormat('M');
 
-            $dataApproved[] = LeaveRequest::whereYear('start_date', $year)
-                                ->whereMonth('start_date', $month)
-                                ->where('status', 'approved')->count();
-            
-            $dataRejected[] = LeaveRequest::whereYear('start_date', $year)
-                                ->whereMonth('start_date', $month)
-                                ->where('status', 'rejected')->count();
-
-            $dataPending[] = LeaveRequest::whereYear('start_date', $year)
-                                ->whereMonth('start_date', $month)
-                                ->where('status', 'pending')->count();
+            $dataApproved[] = $chartRaw[$key]->approved ?? 0;
+            $dataRejected[] = $chartRaw[$key]->rejected ?? 0;
+            $dataPending[]  = $chartRaw[$key]->pending ?? 0;
         }
 
-        // E. AKTIVITAS TERAKHIR
-        $recentActivities = LeaveRequest::with('user')
-                            ->whereNotNull('updated_at')
-                            ->orderBy('updated_at', 'desc')
-                            ->take(3)
-                            ->get();
-
-        return view('admin.dashboard_admin', compact(
-            'totalPengajuan', 'disetujui', 'menunggu', 'ditolak', 'totalPegawai',
-            'pendingRequests', 'listPegawai', 'recentActivities',
-            'chartLabels', 'dataApproved', 'dataRejected', 'dataPending'
-        ));
+        return view('admin.dashboard_admin', [
+            'totalPengajuan' => $stats->total,
+            'disetujui' => $stats->approved,
+            'menunggu' => $stats->pending,
+            'ditolak' => $stats->rejected,
+            'totalPegawai' => $totalPegawai,
+            'pendingRequests' => $pendingRequests,
+            'recentActivities' => $recentActivities,
+            'listPegawai' => $listPegawai,
+            'chartLabels' => $chartLabels,
+            'dataApproved' => $dataApproved,
+            'dataRejected' => $dataRejected,
+            'dataPending' => $dataPending,
+        ]);
     }
 
-    // ==========================================
-    // 3. DETAIL & PROSES PENGAJUAN
-    // ==========================================
+    /* =====================================================
+     * 3. DETAIL & UPDATE STATUS
+     * ===================================================== */
 
     public function show($id)
     {
@@ -121,28 +168,21 @@ class AdminController extends Controller
 
     public function updateStatus($id, Request $request)
     {
-        // Validasi input
-        $request->validate([
+        $validated = $request->validate([
             'status' => 'required|in:approved,pending,rejected',
             'rejection_reason' => 'nullable|string'
         ]);
 
-        // Cari data
         $pengajuan = LeaveRequest::findOrFail($id);
 
-        // Update status
-        $pengajuan->status = $request->status;
-        
-        // Simpan alasan jika ditolak, reset jika disetujui
-        if ($request->status == 'rejected') {
-            $pengajuan->rejection_reason = $request->rejection_reason;
-        } else {
-            $pengajuan->rejection_reason = null;
-        }
+        $pengajuan->status = $validated['status'];
+        $pengajuan->rejection_reason =
+            $validated['status'] === 'rejected'
+                ? $validated['rejection_reason']
+                : null;
 
         $pengajuan->save();
 
-        // Redirect kembali
-        return redirect()->back()->with('success', 'Keputusan berhasil disimpan!');
+        return back()->with('success', 'Keputusan berhasil disimpan!');
     }
 }
