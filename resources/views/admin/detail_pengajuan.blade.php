@@ -42,7 +42,11 @@
         .data-label { font-size: 0.75rem; color: #888; text-transform: uppercase; margin-bottom: 2px; }
         .data-value { font-size: 0.95rem; font-weight: 500; color: #333; margin-bottom: 15px; }
         
-        .badge-status { background-color: #fff8e1; color: #ffc107; padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; border: 1px solid #ffe69c; }
+        /* Status Badge Logic */
+        .badge-status { padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; border: 1px solid transparent; }
+        .bg-pending { background-color: #fff8e1; color: #ffc107; border-color: #ffe69c; }
+        .bg-approved { background-color: #d1e7dd; color: #0f5132; border-color: #badbcc; }
+        .bg-rejected { background-color: #f8d7da; color: #842029; border-color: #f5c2c7; }
 
         /* File Attachment */
         .file-item { display: flex; align-items: center; justify-content: space-between; border: 1px solid #eee; padding: 10px 15px; border-radius: 6px; margin-bottom: 10px; }
@@ -50,15 +54,14 @@
         .file-name { font-weight: 600; font-size: 0.9rem; display: block; }
         .file-size { font-size: 0.75rem; color: #999; }
 
-        /* Approval Section - DIPERBAIKI */
+        /* Approval Section */
         .approval-section { border-top: 1px solid #eee; margin-top: 30px; padding-top: 20px; }
         .approval-title { color: #A52A2A; font-weight: bold; font-size: 1rem; margin-bottom: 20px; }
         .form-check-input:checked { background-color: #A52A2A; border-color: #A52A2A; }
         
-        /* Signature Box - DIPERBAIKI (Pake Flexbox biar gak berantakan) */
         .signature-wrapper {
             display: flex;
-            justify-content: flex-end; /* Memaksa ke kanan */
+            justify-content: flex-end;
             margin-top: 40px;
         }
         .signature-box { 
@@ -72,16 +75,6 @@
         /* Buttons */
         .btn-action-green { background-color: #198754; color: white; border: none; padding: 12px 20px; border-radius: 6px; width: 100%; font-weight: 600; transition: all 0.3s; }
         .btn-action-green:hover { background-color: #146c43; transform: translateY(-2px); }
-
-        /* Alert Animasi */
-        .success-alert {
-            position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px);
-            background-color: #d1e7dd; color: #0f5132; border: 1px solid #badbcc;
-            padding: 15px 30px; border-radius: 50px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            z-index: 1050; opacity: 0; transition: all 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-            display: flex; align-items: center; gap: 10px; font-weight: 600;
-        }
-        .success-alert.show { transform: translateX(-50%) translateY(0); opacity: 1; }
     </style>
 </head>
 <body>
@@ -94,21 +87,22 @@
             </a>
             <div class="dropdown">
                 <a href="#" class="user-dropdown dropdown-toggle" data-bs-toggle="dropdown">
-                    <div class="avatar-circle">DS</div> <span>Drs. Sutrisno</span>
+                    <div class="avatar-circle">{{ substr(Auth::user()->name ?? 'A', 0, 1) }}</div> 
+                    <span>{{ Auth::user()->name ?? 'Admin' }}</span>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end mt-2">
-                    <li><a class="dropdown-item" href="{{ route('admin.profil') }}">Profil Saya</a></li>
-                    <li><hr class="dropdown-divider"></li>
                     <li><a class="dropdown-item text-danger" href="#">Keluar</a></li>
                 </ul>
             </div>
         </div>
     </nav>
 
-    <div id="successAlert" class="success-alert">
-        <i class="bi bi-check-circle-fill fs-5"></i>
-        Keputusan Berhasil Disimpan!
+    @if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show m-4" role="alert" style="max-width: 900px;">
+        <i class="bi bi-check-circle-fill me-2"></i> {{ session('success') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
+    @endif
 
     <div class="container-fluid px-4 mt-4 mb-5" style="max-width: 900px;">
         
@@ -120,19 +114,28 @@
             
             <div class="d-flex justify-content-between align-items-start mb-4">
                 <div>
-                    <h4 class="fw-bold mb-1">Budi Santoso</h4>
-                    <p class="text-muted mb-2">Guru Matematika</p>
-                    <span class="badge-status">Menunggu</span>
-                    <span class="text-muted small ms-2">ID Pengajuan: #0081</span>
+                    <h4 class="fw-bold mb-1">{{ $pengajuan->user->name }}</h4>
+                    <p class="text-muted mb-2">{{ $pengajuan->user->jabatan ?? 'Pegawai' }}</p>
+                    
+                    @if($pengajuan->status == 'approved')
+                        <span class="badge-status bg-approved">Disetujui</span>
+                    @elseif($pengajuan->status == 'rejected')
+                        <span class="badge-status bg-rejected">Ditolak</span>
+                    @else
+                        <span class="badge-status bg-pending">Menunggu</span>
+                    @endif
+
+                    <span class="text-muted small ms-2">ID Pengajuan: #{{ $pengajuan->id }}</span>
                 </div>
             </div>
 
             <hr>
 
             <div class="section-title">I. DATA PEGAWAI</div>
-            <div class="row g-3"> <div class="col-md-6">
+            <div class="row g-3"> 
+                <div class="col-md-6">
                     <p class="data-label">NAMA</p>
-                    <p class="data-value">{{ $pengajuan->user->name ?? '-' }}</p>
+                    <p class="data-value">{{ $pengajuan->user->name }}</p>
                 </div>
                 <div class="col-md-6">
                     <p class="data-label">NIP</p>
@@ -143,10 +146,6 @@
                     <p class="data-value">{{ $pengajuan->user->jabatan ?? '-' }}</p>
                 </div>
                 <div class="col-md-6">
-                    <p class="data-label">MASA KERJA</p>
-                    <p class="data-value">{{ $pengajuan->user->masa_kerja ?? '-' }}</p>
-                </div>
-                <div class="col-12">
                     <p class="data-label">UNIT KERJA</p>
                     <p class="data-value">{{ $pengajuan->user->bidang_unit ?? '-' }}</p>
                 </div>
@@ -157,11 +156,11 @@
             <div class="row g-3">
                 <div class="col-md-6">
                     <div class="section-title mt-0">II. JENIS CUTI YANG DIAMBIL</div>
-                    <div class="p-2 bg-light border rounded d-inline-block">Cuti Tahunan</div>
+                    <div class="p-2 bg-light border rounded d-inline-block">{{ $pengajuan->jenis_cuti }}</div>
                 </div>
                 <div class="col-md-6">
                     <div class="section-title mt-0">III. ALASAN CUTI</div>
-                    <p class="data-value">{{ $pengajuan->alasan ?? '-' }}</p>
+                    <p class="data-value">{{ $pengajuan->reason }}</p>
                 </div>
             </div>
 
@@ -171,123 +170,76 @@
             <div class="row g-3">
                 <div class="col-md-4">
                     <p class="data-label">DURASI</p>
-                    <p class="data-value">5 Hari</p>
+                    <p class="data-value">{{ $pengajuan->duration }} Hari</p>
                 </div>
                 <div class="col-md-4">
                     <p class="data-label">TANGGAL MULAI</p>
-                    <p class="data-value">2024-05-20</p>
+                    <p class="data-value">{{ $pengajuan->start_date->format('d M Y') }}</p>
                 </div>
                 <div class="col-md-4">
                     <p class="data-label">TANGGAL SELESAI</p>
-                    <p class="data-value">2024-05-25</p>
-                </div>
-            </div>
-
-            <hr>
-
-            <div class="section-title">V. CATATAN CUTI</div>
-            <div class="row g-3">
-                <div class="col-md-6">
-                    <p class="data-label">TAHUN</p>
-                    <p class="data-value">2024</p>
-                </div>
-                <div class="col-md-6">
-                    <p class="data-label">SISA CUTI</p>
-                    <p class="data-value">8 Hari</p>
+                    <p class="data-value">{{ $pengajuan->end_date->format('d M Y') }}</p>
                 </div>
             </div>
 
             <hr>
 
             <div class="section-title">LAMPIRAN DOKUMEN</div>
-            <div class="file-item">
-                <div class="d-flex align-items-center">
-                    <i class="bi bi-file-earmark-pdf-fill file-icon"></i>
-                    <div>
-                        <span class="file-name">Surat Keterangan Dokter.pdf</span>
-                        <span class="file-size">200 KB</span>
+            @if($pengajuan->file_path)
+                <div class="file-item">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-file-earmark-pdf-fill file-icon"></i>
+                        <div>
+                            <span class="file-name">Dokumen Lampiran</span>
+                            <span class="file-size">Klik lihat untuk mengunduh</span>
+                        </div>
                     </div>
+                    <a href="{{ asset('storage/' . $pengajuan->file_path) }}" target="_blank" class="btn btn-sm btn-outline-secondary">Lihat</a>
                 </div>
-                <button class="btn btn-sm btn-outline-secondary">Lihat</button>
-            </div>
-            <div class="file-item">
-                <div class="d-flex align-items-center">
-                    <i class="bi bi-file-earmark-pdf-fill file-icon"></i>
-                    <div>
-                        <span class="file-name">Surat Permohonan Cuti.pdf</span>
-                        <span class="file-size">150 KB</span>
-                    </div>
-                </div>
-                <button class="btn btn-sm btn-outline-secondary">Lihat</button>
-            </div>
+            @else
+                <p class="text-muted fst-italic">Tidak ada dokumen lampiran.</p>
+            @endif
 
         </div>
 
         <div class="detail-card shadow-sm">
-            <form id="formKeputusan">
+            <form action="{{ route('admin.pengajuan.update', $pengajuan->id) }}" method="POST">
+                @csrf
+                @method('PUT')
                 
                 <div class="approval-section pt-0 border-top-0 mt-0">
                     <h5 class="approval-title">VII. KEPUTUSAN PEJABAT YANG BERWENANG</h5>
                     <div class="d-flex flex-wrap gap-4 mb-4">
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="keputusan" id="k_setuju" value="disetujui">
-                            <label class="form-check-label" for="k_setuju">Disetujui</label>
+                            <input class="form-check-input" type="radio" name="status" id="k_setuju" value="approved" {{ $pengajuan->status == 'approved' ? 'checked' : '' }}>
+                            <label class="form-check-label fw-bold text-success" for="k_setuju">Disetujui</label>
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="keputusan" id="k_ubah" value="perubahan">
-                            <label class="form-check-label" for="k_ubah">Perubahan</label>
+                            <input class="form-check-input" type="radio" name="status" id="k_tangguh" value="pending" {{ $pengajuan->status == 'pending' ? 'checked' : '' }}>
+                            <label class="form-check-label text-warning" for="k_tangguh">Ditangguhkan / Menunggu</label>
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="keputusan" id="k_tangguh" value="ditangguhkan">
-                            <label class="form-check-label" for="k_tangguh">Ditangguhkan</label>
+                            <input class="form-check-input" type="radio" name="status" id="k_tolak" value="rejected" {{ $pengajuan->status == 'rejected' ? 'checked' : '' }}>
+                            <label class="form-check-label fw-bold text-danger" for="k_tolak">Tidak Disetujui</label>
                         </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="keputusan" id="k_tolak" value="tidak_disetujui">
-                            <label class="form-check-label" for="k_tolak">Tidak Disetujui</label>
-                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small text-muted">Catatan / Alasan Penolakan (Jika ada)</label>
+                        <textarea class="form-control" name="rejection_reason" rows="2">{{ $pengajuan->rejection_reason }}</textarea>
                     </div>
 
                     <div class="signature-wrapper">
                         <div class="signature-box">
                             <p class="mb-5 fw-bold">Pejabat Berwenang</p>
-                            <p class="signature-name">Drs. Sutrisno</p>
-                            <span class="signature-nip">NIP. 19680510 199003 1 004</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="approval-section">
-                    <h5 class="approval-title">VIII. PERTIMBANGAN ATASAN LANGSUNG</h5>
-                    <div class="d-flex flex-wrap gap-4 mb-4">
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="pertimbangan" id="p_setuju" value="disetujui">
-                            <label class="form-check-label" for="p_setuju">Disetujui</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="pertimbangan" id="p_ubah" value="perubahan">
-                            <label class="form-check-label" for="p_ubah">Perubahan</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="pertimbangan" id="p_tangguh" value="ditangguhkan">
-                            <label class="form-check-label" for="p_tangguh">Ditangguhkan</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="pertimbangan" id="p_tolak" value="tidak_disetujui">
-                            <label class="form-check-label" for="p_tolak">Tidak Disetujui</label>
-                        </div>
-                    </div>
-                    
-                    <div class="signature-wrapper">
-                        <div class="signature-box">
-                            <p class="mb-5 fw-bold">Sekretaris</p>
-                            <p class="signature-name">Budi Riyanto, S.Pd.,M.Pd</p>
-                            <span class="signature-nip">NIP. 19790902 200604 1 005</span>
+                            <p class="signature-name">{{ Auth::user()->name ?? 'Administrator' }}</p>
+                            <span class="signature-nip">NIP. {{ Auth::user()->nip ?? '-' }}</span>
                         </div>
                     </div>
                 </div>
 
                 <div class="mt-5">
-                    <button type="button" onclick="simpanKeputusan()" class="btn btn-action-green shadow-sm">
+                    <button type="submit" class="btn btn-action-green shadow-sm">
                         <i class="bi bi-save me-2"></i> SIMPAN KEPUTUSAN
                     </button>
                 </div>
@@ -298,15 +250,5 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <script>
-        function simpanKeputusan() {
-            const alertBox = document.getElementById('successAlert');
-            alertBox.classList.add('show');
-            setTimeout(() => {
-                alertBox.classList.remove('show');
-            }, 3000);
-        }
-    </script>
 </body>
 </html>
