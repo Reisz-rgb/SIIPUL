@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\PegawaiController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\UserController;
     
 /*
 |--------------------------------------------------------------------------
@@ -65,18 +66,26 @@ Route::post('/logout', [AuthController::class, 'logout'])
 | USER AREA - Authenticated Users Only
 |--------------------------------------------------------------------------
 */
-
-Route::prefix('user')->name('user.')->middleware(['auth'])->group(function () {
-    Route::get('/dashboard', fn() => view('user.UserDashboard'))->name('dashboard');
-    Route::get('/profil', fn() => view('user.ProfilPage'))->name('profil');
-    Route::get('/edit-profil', fn() => view('user.EditProfilPage'))->name('profil.edit');
-    Route::get('/riwayat', fn() => view('user.RiwayatPage'))->name('riwayat');
+Route::middleware(['auth'])->prefix('user')->name('user.')->group(function () {
+    // Dashboard
+    Route::get('/dashboard', [UserController::class, 'dashboard'])->name('dashboard');
+    
+    // Profil
+    Route::get('/profil', [UserController::class, 'profile'])->name('profil');
+    Route::get('/edit-profil', [UserController::class, 'editProfile'])->name('profil.edit');
+    Route::post('/edit-profil', [UserController::class, 'updateProfile'])->name('profil.update');
+    
+    // Change Password
+    Route::get('/ubah-password', [UserController::class, 'showChangePassword'])->name('password.change');
+    Route::post('/ubah-password', [UserController::class, 'updatePassword'])->name('password.update.user'); // ← UBAH INI
+    
+    // Riwayat
+    Route::get('/riwayat', [UserController::class, 'history'])->name('riwayat');
 
     // Pengajuan Cuti
     Route::get('/pengajuan-cuti', fn() => view('user.pengajuan_cuti'))->name('cuti.create');
     Route::post('/pengajuan-cuti', fn() => view('user.PengajuanSukses'))->name('cuti.store');
 });
-
 /*
 |--------------------------------------------------------------------------
 | Web Routes

@@ -50,55 +50,71 @@
         
         <div class="w-full max-w-2xl bg-white rounded-xl shadow-lg overflow-hidden mb-6">
             
+            {{-- Header --}}
             <div class="bg-custom-red p-6 flex flex-col md:flex-row items-center md:items-start gap-4 md:gap-6 relative">
                 <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-md shrink-0">
-                    <span class="text-custom-red text-2xl font-bold">BS</span>
+                    <span class="text-custom-red text-2xl font-bold">{{ strtoupper(substr($user->name, 0, 2)) }}</span>
                 </div>
                 <div class="text-center md:text-left flex-grow text-white">
-                    <h2 class="text-2xl font-bold">Budi Santoso</h2>
-                    <p class="text-sm font-light opacity-90 mt-1">Guru Matematika</p>
-                    <p class="text-xs font-light opacity-80">SMP Negeri 1 Semarang</p>
+                    <h2 class="text-2xl font-bold">{{ $user->name }}</h2>
+                    <p class="text-sm font-light opacity-90 mt-1">{{ $user->jabatan ?? 'Pegawai' }}</p>
+                    <p class="text-xs font-light opacity-80">{{ $user->bidang_unit ?? '-' }}</p>
                 </div>
                 <a href="{{ route('user.profil.edit') }}" class="bg-white text-custom-red px-4 py-2 rounded-lg text-sm font-semibold shadow hover:bg-gray-100 transition flex items-center gap-2 mt-4 md:mt-0">
                     <i class="fa-solid fa-pen"></i> Edit Profil
                 </a>
             </div>
 
+            {{-- Info Section --}}
             <div class="p-6 md:p-8 space-y-6">
                 <div class="flex gap-4 border-b border-gray-100 pb-4">
                     <div class="w-8 flex-shrink-0 pt-1 text-center"><i class="fa-regular fa-user text-custom-red text-lg"></i></div>
                     <div>
                         <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">NAMA LENGKAP</p>
-                        <p class="text-slate-800 font-medium text-lg">Budi Santoso</p>
+                        <p class="text-slate-800 font-medium text-lg">{{ $user->name }}</p>
                     </div>
                 </div>
                 <div class="flex gap-4 border-b border-gray-100 pb-4">
                     <div class="w-8 flex-shrink-0 pt-1 text-center"><i class="fa-regular fa-envelope text-custom-red text-lg"></i></div>
                     <div>
                         <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">EMAIL</p>
-                        <p class="text-slate-800 font-medium text-lg">budi.santoso@example.com</p>
+                        <p class="text-slate-800 font-medium text-lg">{{ $user->email ?? 'Belum diisi' }}</p>
+                    </div>
+                </div>
+                <div class="flex gap-4 border-b border-gray-100 pb-4">
+                    <div class="w-8 flex-shrink-0 pt-1 text-center"><i class="fa-solid fa-phone text-custom-red text-lg"></i></div>
+                    <div>
+                        <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">NOMOR HP</p>
+                        <p class="text-slate-800 font-medium text-lg">{{ $user->phone }}</p>
                     </div>
                 </div>
                 <div class="flex gap-4 border-b border-gray-100 pb-4">
                     <div class="w-8 flex-shrink-0 pt-1 text-center"><i class="fa-solid fa-id-card text-custom-red text-lg"></i></div>
                     <div>
                         <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">NIP</p>
-                        <p class="text-slate-800 font-medium text-lg">197801011999121001</p>
+                        <p class="text-slate-800 font-medium text-lg">{{ $user->nip }}</p>
                     </div>
                 </div>
                 <div class="flex gap-4 border-b border-gray-100 pb-4">
                     <div class="w-8 flex-shrink-0 pt-1 text-center"><i class="fa-solid fa-briefcase text-custom-red text-lg"></i></div>
                     <div>
                         <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">JABATAN</p>
-                        <p class="text-slate-800 font-medium text-lg">Guru Matematika</p>
+                        <p class="text-slate-800 font-medium text-lg">{{ $user->jabatan ?? '-' }}</p>
                     </div>
                 </div>
                 <div class="flex gap-4 pb-2">
                     <div class="w-8 flex-shrink-0 pt-1 text-center"><i class="fa-regular fa-building text-custom-red text-lg"></i></div>
                     <div>
                         <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">SEKOLAH/UNIT KERJA</p>
-                        <p class="text-slate-800 font-medium text-lg">SMP Negeri 1 Semarang</p>
+                        <p class="text-slate-800 font-medium text-lg">{{ $user->bidang_unit ?? '-' }}</p>
                     </div>
+                </div>
+                
+                {{-- Tombol Ubah Password --}}
+                <div class="pt-4">
+                    <a href="{{ route('user.password.change') }}" class="block w-full bg-yellow-500 hover:bg-yellow-600 text-white text-center font-semibold py-3 rounded-lg transition">
+                        <i class="fa-solid fa-key mr-2"></i>Ubah Password
+                    </a>
                 </div>
             </div>
         </div>

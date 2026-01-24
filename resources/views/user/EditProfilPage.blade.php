@@ -39,46 +39,76 @@
         
         <div class="w-full max-w-2xl bg-white rounded-xl shadow-lg overflow-hidden mb-6">
             
+            {{-- Header --}}
             <div class="bg-custom-red p-6 flex items-center gap-6">
                 <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-md shrink-0">
-                    <span class="text-custom-red text-2xl font-bold">BS</span>
+                    <span class="text-custom-red text-2xl font-bold">{{ strtoupper(substr($user->name, 0, 2)) }}</span>
                 </div>
                 <div class="text-white">
-                    <h2 class="text-2xl font-bold">Budi Santoso</h2>
-                    <p class="text-sm font-light opacity-90 mt-1">Guru Matematika</p>
-                    <p class="text-xs font-light opacity-80">SMP Negeri 1 Semarang</p>
+                    <h2 class="text-2xl font-bold">{{ $user->name }}</h2>
+                    <p class="text-sm font-light opacity-90 mt-1">{{ $user->jabatan ?? 'Pegawai' }}</p>
+                    <p class="text-xs font-light opacity-80">{{ $user->bidang_unit ?? '-' }}</p>
                 </div>
             </div>
 
             <div class="p-6 md:p-8">
+                {{-- Error Messages --}}
+                @if ($errors->any())
+                    <div class="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
+                        <h6 class="font-semibold text-red-800 mb-2">
+                            <i class="fa-solid fa-circle-exclamation mr-2"></i>Terjadi Kesalahan
+                        </h6>
+                        <ul class="list-disc list-inside text-sm text-red-700">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
 
-                <form action="{{ route('user.profil') }}" method="GET">
-                    <input type="hidden" name="status" value="sukses">
+                <form action="{{ route('user.profil.update') }}" method="POST">
+                    @csrf
 
                     <div class="mb-5">
                         <label class="block text-slate-600 text-xs font-bold mb-2">Nama Lengkap</label>
-                        <input type="text" name="nama" value="Budi Santoso" class="w-full px-4 py-3 border border-gray-300 rounded-lg text-slate-700 focus:bg-white input-focus" placeholder="Nama lengkap">
+                        <input type="text" name="name" value="{{ old('name', $user->name) }}" 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg text-slate-700 focus:bg-white input-focus" 
+                            placeholder="Nama lengkap" required>
                     </div>
 
                     <div class="mb-5">
                         <label class="block text-slate-600 text-xs font-bold mb-2">Email</label>
-                        <input type="email" name="email" value="budi.santoso@example.com" class="w-full px-4 py-3 border border-gray-300 rounded-lg text-slate-700 focus:bg-white input-focus" placeholder="Email aktif">
+                        <input type="email" name="email" value="{{ old('email', $user->email) }}" 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg text-slate-700 focus:bg-white input-focus" 
+                            placeholder="Email aktif">
+                    </div>
+                    
+                    <div class="mb-5">
+                        <label class="block text-slate-600 text-xs font-bold mb-2">Nomor HP</label>
+                        <input type="text" name="phone" value="{{ old('phone', $user->phone) }}" 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg text-slate-700 focus:bg-white input-focus" 
+                            placeholder="08xxxxxxxxxx" required>
                     </div>
 
                     <div class="mb-5">
                         <label class="block text-slate-600 text-xs font-bold mb-2">NIP</label>
-                        <input type="text" value="197801011999121001" readonly class="w-full px-4 py-3 border border-gray-200 rounded-lg text-slate-500 bg-gray-100 cursor-not-allowed" title="NIP tidak dapat diubah">
+                        <input type="text" value="{{ $user->nip }}" readonly 
+                            class="w-full px-4 py-3 border border-gray-200 rounded-lg text-slate-500 bg-gray-100 cursor-not-allowed">
                         <p class="text-[10px] text-slate-400 mt-1 italic">NIP tidak dapat diubah</p>
                     </div>
 
                     <div class="mb-5">
                         <label class="block text-slate-600 text-xs font-bold mb-2">Jabatan</label>
-                        <input type="text" name="jabatan" value="Guru Matematika" class="w-full px-4 py-3 border border-gray-300 rounded-lg text-slate-700 focus:bg-white input-focus" placeholder="Jabatan saat ini">
+                        <input type="text" name="jabatan" value="{{ old('jabatan', $user->jabatan) }}" 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg text-slate-700 focus:bg-white input-focus" 
+                            placeholder="Jabatan saat ini">
                     </div>
 
                     <div class="mb-8">
                         <label class="block text-slate-600 text-xs font-bold mb-2">Sekolah/Unit Kerja</label>
-                        <input type="text" name="unit_kerja" value="SMP Negeri 1 Semarang" class="w-full px-4 py-3 border border-gray-300 rounded-lg text-slate-700 focus:bg-white input-focus" placeholder="Unit kerja">
+                        <input type="text" name="bidang_unit" value="{{ old('bidang_unit', $user->bidang_unit) }}" 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg text-slate-700 focus:bg-white input-focus" 
+                            placeholder="Unit kerja">
                     </div>
 
                     <div class="flex flex-col md:flex-row gap-4">
@@ -90,9 +120,7 @@
                             Batal
                         </a>
                     </div>
-
                 </form>
-
             </div>
         </div>
 
