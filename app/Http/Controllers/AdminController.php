@@ -185,4 +185,30 @@ class AdminController extends Controller
 
         return back()->with('success', 'Keputusan berhasil disimpan!');
     }
+
+    public function kelolaPengajuan(Request $request)
+    {
+        // 1. Siapkan Query
+        $query = LeaveRequest::with('user');
+
+        // 2. Logika Pencarian (Nama atau NIP)
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->whereHas('user', function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('nip', 'like', "%{$search}%");
+            });
+        }
+
+        // 3. Logika Filter Status
+        if ($request->filled('status') && $request->status !== 'Semua') {
+            $query->where('status', $request->status);
+        }
+
+        // 4. Ambil data dengan Pagination (10 data per halaman)
+        // 'latest()' sama dengan orderBy('created_at', 'desc')
+        $pengajuan = $query->latest()->paginate(10); 
+
+        return view('admin.kelola_pengajuan', compact('pengajuan'));
+    }
 }

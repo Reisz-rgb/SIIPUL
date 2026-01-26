@@ -22,7 +22,7 @@
         }
         .navbar-brand:hover { color: #e0e0e0 !important; }
 
-        /* Profile Pill (Static) */
+        /* Profile Pill */
         .user-pill { 
             background: white; color: #333; padding: 5px 6px 5px 6px; 
             border-radius: 50px; display: flex; align-items: center; gap: 10px; 
@@ -50,9 +50,9 @@
         
         /* Status Badges */
         .badge-status { padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
-        .status-menunggu { background-color: #fff8e1; color: #ffc107; border: 1px solid #ffe69c; }
-        .status-disetujui { background-color: #e6f8ef; color: #198754; border: 1px solid #c3e6cb; }
-        .status-ditolak { background-color: #ffeef0; color: #dc3545; border: 1px solid #f5c6cb; }
+        .status-menunggu { background-color: #fff8e1; color: #ffc107; border: 1px solid #ffe69c; } /* Pending */
+        .status-disetujui { background-color: #e6f8ef; color: #198754; border: 1px solid #c3e6cb; } /* Approved */
+        .status-ditolak { background-color: #ffeef0; color: #dc3545; border: 1px solid #f5c6cb; } /* Rejected */
 
         /* Detail Button */
         .btn-detail-custom {
@@ -64,6 +64,11 @@
 
         /* NIP Small Text */
         .text-nip { font-size: 0.75rem; color: #888; display: block; margin-top: 2px; }
+
+        /* Pagination Style Fix */
+        .pagination { margin-bottom: 0; }
+        .page-link { color: var(--primary-red); }
+        .page-item.active .page-link { background-color: var(--primary-red); border-color: var(--primary-red); color: white; }
     </style>
 </head>
 <body>
@@ -76,12 +81,11 @@
             </a>
             
             <div class="user-pill">
-                <div class="avatar-circle">DS</div> 
+                <div class="avatar-circle">{{ substr(Auth::user()->name, 0, 2) }}</div> 
                 <div style="line-height: 1.2;">
-                    <span class="d-block">Drs. Sutrisno</span>
+                    <span class="d-block">{{ Str::limit(Auth::user()->name, 20) }}</span>
                     <span class="d-block text-muted" style="font-size: 0.7rem; font-weight: normal;">Administrator</span>
                 </div>
-                <i class="bi bi-chevron-down text-muted ms-2" style="font-size: 0.8rem;"></i>
             </div>
         </div>
     </nav>
@@ -94,24 +98,26 @@
         </div>
 
         <div class="filter-card shadow-sm">
-            <div class="row g-3">
-                <div class="col-md-8">
-                    <label class="form-label small text-muted">Cari Pegawai</label>
-                    <input type="text" class="form-control bg-light border-0" placeholder="Nama pegawai atau NIP...">
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label small text-muted">Status</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-white border-end-0"><i class="bi bi-funnel text-muted"></i></span>
-                        <select class="form-select border-start-0 bg-light">
-                            <option>Semua</option>
-                            <option>Menunggu</option>
-                            <option>Disetujui</option>
-                            <option>Ditolak</option>
-                        </select>
+            <form action="{{ route('admin.kelola_pengajuan') }}" method="GET">
+                <div class="row g-3">
+                    <div class="col-md-8">
+                        <label class="form-label small text-muted">Cari Pegawai</label>
+                        <input type="text" name="search" value="{{ request('search') }}" class="form-control bg-light border-0" placeholder="Nama pegawai atau NIP lalu tekan Enter...">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small text-muted">Filter Status</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0"><i class="bi bi-funnel text-muted"></i></span>
+                            <select name="status" class="form-select border-start-0 bg-light" onchange="this.form.submit()">
+                                <option value="Semua" {{ request('status') == 'Semua' ? 'selected' : '' }}>Semua Status</option>
+                                <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Menunggu</option>
+                                <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Disetujui</option>
+                                <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Ditolak</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </form>
         </div>
 
         <div class="table-card shadow-sm">
@@ -128,77 +134,48 @@
                         </tr>
                     </thead>
                     <tbody>
+                        @forelse($pengajuan as $item)
                         <tr>
                             <td>
-                                <span class="fw-bold">Budi Santoso</span>
-                                <span class="text-nip">197801011999121001</span>
+                                <span class="fw-bold">{{ $item->user->name }}</span>
+                                <span class="text-nip">{{ $item->user->nip ?? '-' }}</span>
                             </td>
-                            <td>Cuti Tahunan</td>
-                            <td>2024-05-20 s/d 2024-05-25</td>
-                            <td>5 Hari</td>
-                            <td><span class="badge-status status-menunggu">Menunggu</span></td>
+                            <td>{{ $item->jenis_cuti }}</td>
                             <td>
-                                <a href="{{ route('admin.detail_pengajuan') }}" class="btn-detail-custom">Detail</a>
+                                {{ \Carbon\Carbon::parse($item->start_date)->format('d M Y') }} 
+                                <span class="text-muted small">s/d</span> 
+                                {{ \Carbon\Carbon::parse($item->end_date)->format('d M Y') }}
+                            </td>
+                            <td>
+                                {{ \Carbon\Carbon::parse($item->start_date)->diffInDays(\Carbon\Carbon::parse($item->end_date)) + 1 }} Hari
+                            </td>
+                            <td>
+                                @if($item->status == 'pending')
+                                    <span class="badge-status status-menunggu">Menunggu</span>
+                                @elseif($item->status == 'approved')
+                                    <span class="badge-status status-disetujui">Disetujui</span>
+                                @else
+                                    <span class="badge-status status-ditolak">Ditolak</span>
+                                @endif
+                            </td>
+                            <td>
+                                <a href="{{ route('admin.pengajuan.show', $item->id) }}" class="btn-detail-custom">Detail</a>
                             </td>
                         </tr>
-                        
+                        @empty
                         <tr>
-                            <td>
-                                <span class="fw-bold">Siti Nurhaliza</span>
-                                <span class="text-nip">198005152007012001</span>
-                            </td>
-                            <td>Cuti Sakit</td>
-                            <td>2024-05-15 s/d 2024-05-17</td>
-                            <td>3 Hari</td>
-                            <td><span class="badge-status status-menunggu">Menunggu</span></td>
-                            <td>
-                                <a href="{{ route('admin.detail_pengajuan') }}" class="btn-detail-custom">Detail</a>
+                            <td colspan="6" class="text-center py-5 text-muted">
+                                <i class="bi bi-inbox display-4 d-block mb-3"></i>
+                                Belum ada data pengajuan cuti yang sesuai.
                             </td>
                         </tr>
-
-                        <tr>
-                            <td>
-                                <span class="fw-bold">Ahmad Wijaya</span>
-                                <span class="text-nip">197805201989031005</span>
-                            </td>
-                            <td>Izin</td>
-                            <td>2024-05-18 s/d 2024-05-18</td>
-                            <td>1 Hari</td>
-                            <td><span class="badge-status status-disetujui">Disetujui</span></td>
-                            <td>
-                                <a href="{{ route('admin.detail_pengajuan') }}" class="btn-detail-custom">Detail</a>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td>
-                                <span class="fw-bold">Rini Kusuma</span>
-                                <span class="text-nip">198203071992032003</span>
-                            </td>
-                            <td>Cuti Tahunan</td>
-                            <td>2024-05-30 s/d 2024-06-02</td>
-                            <td>4 Hari</td>
-                            <td><span class="badge-status status-menunggu">Menunggu</span></td>
-                            <td>
-                                <a href="{{ route('admin.detail_pengajuan') }}" class="btn-detail-custom">Detail</a>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td>
-                                <span class="fw-bold">Eka Sutrisno</span>
-                                <span class="text-nip">197912102005011007</span>
-                            </td>
-                            <td>Cuti Sakit</td>
-                            <td>2024-05-10 s/d 2024-05-12</td>
-                            <td>3 Hari</td>
-                            <td><span class="badge-status status-ditolak">Ditolak</span></td>
-                            <td>
-                                <a href="{{ route('admin.detail_pengajuan') }}" class="btn-detail-custom">Detail</a>
-                            </td>
-                        </tr>
+                        @endforelse
                     </tbody>
                 </table>
+            </div>
+            
+            <div class="d-flex justify-content-end p-3">
+                {{ $pengajuan->withQueryString()->links() }}
             </div>
         </div>
 

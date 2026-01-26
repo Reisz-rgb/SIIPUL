@@ -93,7 +93,6 @@ Route::middleware(['auth'])->prefix('user')->name('user.')->group(function () {
 |--------------------------------------------------------------------------
 */
 
-// Perhatikan: group ini sudah memberi awalan "admin." otomatis ke semua nama route di dalamnya
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     
     // 1. DASHBOARD & PROFIL
@@ -110,7 +109,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/download-excel', [AdminController::class, 'downloadExcel'])->name('download.excel');
     Route::get('/download-pdf', [AdminController::class, 'downloadPdf'])->name('download.pdf');
 
-    // 4. KELOLA PEGAWAI (Ini AMAN, tidak dihapus)
+    // 4. KELOLA PEGAWAI (Aman, Tetap Ada)
     Route::get('/kelola-pegawai', [PegawaiController::class, 'index'])->name('kelola_pegawai');
     Route::get('/tambah-pegawai', [PegawaiController::class, 'create'])->name('tambah_pegawai');
     Route::post('/pegawai/store', [PegawaiController::class, 'store'])->name('pegawai.store');
@@ -119,9 +118,13 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::delete('/pegawai/{id}', [PegawaiController::class, 'destroy'])->name('pegawai.destroy');
     Route::post('/pegawai/{id}/reset-password', [PegawaiController::class, 'resetPassword'])->name('pegawai.reset_password');
     
-    // 5. VIEW LAINNYA
-    Route::get('/laporan', [AdminController::class, 'laporan'])
-     ->name('laporan');
-    Route::get('/kelola-pengajuan', function() { return view('admin.kelola_pengajuan'); })->name('kelola_pengajuan');
+    // 5. KELOLA PENGAJUAN (YANG DIPERBAIKI)
+    // Ini sekarang mengarah ke Controller, bukan view kosong lagi.
+    Route::get('/kelola-pengajuan', [AdminController::class, 'kelolaPengajuan'])->name('kelola_pengajuan');
+    
+    // 6. VIEW LAINNYA
+    // Pastikan function 'laporan' ada di AdminController, atau ubah jadi view biasa jika error
+    Route::get('/laporan', [AdminController::class, 'laporan'])->name('laporan'); 
+    
     Route::get('/detail-pengajuan', function() { return view('admin.detail_pengajuan'); })->name('detail_pengajuan');
 });
