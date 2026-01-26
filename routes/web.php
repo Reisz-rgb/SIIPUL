@@ -92,7 +92,6 @@ Route::middleware(['auth'])->prefix('user')->name('user.')->group(function () {
 | Web Routes
 |--------------------------------------------------------------------------
 */
-
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     
     // 1. DASHBOARD & PROFIL
@@ -102,8 +101,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     })->name('profil');
     
     // 2. KELOLA PENGAJUAN CUTI (Detail & Update Status)
-    Route::get('/pengajuan/{id}', [CutiController::class, 'show'])->name('pengajuan.show');
-    Route::put('/pengajuan/{id}', [CutiController::class, 'updateStatus'])->name('pengajuan.update');
+    // PERBAIKAN DI SINI: Ubah CutiController menjadi AdminController
+    Route::get('/pengajuan/{id}', [AdminController::class, 'show'])->name('pengajuan.show');
+    Route::put('/pengajuan/{id}', [AdminController::class, 'updateStatus'])->name('pengajuan.update');
 
     // 3. DOWNLOAD LAPORAN (Excel & PDF)
     Route::get('/download-excel', [AdminController::class, 'downloadExcel'])->name('download.excel');
@@ -118,13 +118,12 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::delete('/pegawai/{id}', [PegawaiController::class, 'destroy'])->name('pegawai.destroy');
     Route::post('/pegawai/{id}/reset-password', [PegawaiController::class, 'resetPassword'])->name('pegawai.reset_password');
     
-    // 5. KELOLA PENGAJUAN (YANG DIPERBAIKI)
-    // Ini sekarang mengarah ke Controller, bukan view kosong lagi.
+    // 5. KELOLA PENGAJUAN 
     Route::get('/kelola-pengajuan', [AdminController::class, 'kelolaPengajuan'])->name('kelola_pengajuan');
     
     // 6. VIEW LAINNYA
-    // Pastikan function 'laporan' ada di AdminController, atau ubah jadi view biasa jika error
     Route::get('/laporan', [AdminController::class, 'laporan'])->name('laporan'); 
     
-    Route::get('/detail-pengajuan', function() { return view('admin.detail_pengajuan'); })->name('detail_pengajuan');
+    // Route ini sebaiknya dihapus atau dikomentari agar tidak rancu dengan route dynamic di atas
+    // Route::get('/detail-pengajuan', function() { return view('admin.detail_pengajuan'); })->name('detail_pengajuan');
 });

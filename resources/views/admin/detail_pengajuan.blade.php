@@ -97,9 +97,23 @@
         </div>
     </nav>
 
+    {{-- ALERT SUKSES --}}
     @if(session('success'))
     <div class="alert alert-success alert-dismissible fade show m-4" role="alert" style="max-width: 900px;">
         <i class="bi bi-check-circle-fill me-2"></i> {{ session('success') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    @endif
+
+    {{-- ALERT ERROR (BARU DITAMBAHKAN) --}}
+    @if ($errors->any())
+    <div class="alert alert-danger alert-dismissible fade show m-4" role="alert" style="max-width: 900px;">
+        <strong><i class="bi bi-exclamation-triangle-fill me-2"></i> Gagal Menyimpan!</strong>
+        <ul class="mb-0 mt-2">
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
     @endif

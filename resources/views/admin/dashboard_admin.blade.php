@@ -226,7 +226,9 @@
                                     <div class="text-end">
                                         <span class="badge badge-pending mb-2">Menunggu</span>
                                         <br>
-                                        <a href="#" class="btn btn-sm btn-outline-secondary">Lihat Detail</a>
+                                        <a href="{{ route('admin.pengajuan.show', $request->id) }}" class="btn btn-sm btn-outline-secondary">
+                                            Lihat Detail
+                                        </a>
                                     </div>
                                 </div>
                             </div>
@@ -237,7 +239,9 @@
                         @endforelse
                         
                         <div class="p-3 text-center border-top">
-                            <a href="#" class="text-danger text-decoration-none small fw-bold">Lihat Semua Pengajuan &rarr;</a>
+                            <a href="{{ route('admin.kelola_pengajuan') }}" class="text-danger text-decoration-none small fw-bold">
+                Lihat Semua Pengajuan &rarr;
+                            </a>
                         </div>
                     </div>
                 </div>

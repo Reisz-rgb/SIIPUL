@@ -6,7 +6,7 @@ use App\Models\User;
 use App\Models\LeaveRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\DB; // <--- TAMBAHAN PENTING
+use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
 // Export
@@ -167,6 +167,7 @@ class AdminController extends Controller
         return view('admin.detail_pengajuan', compact('pengajuan'));
     }
 
+    // INI YANG SUDAH DIPERBAIKI (MENGGUNAKAN 'status', BUKAN 'keputusan')
     public function updateStatus($id, Request $request)
     {
         $validated = $request->validate([
