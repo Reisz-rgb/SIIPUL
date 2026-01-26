@@ -12,9 +12,6 @@ class LeaveRequest extends Model
 
     protected $table = 'leave_requests';
 
-    /* =====================
-     * CONSTANT STATUS
-     * ===================== */
     public const STATUS_PENDING  = 'pending';
     public const STATUS_APPROVED = 'approved';
     public const STATUS_REJECTED = 'rejected';
@@ -26,9 +23,12 @@ class LeaveRequest extends Model
         'end_date',
         'duration',
         'reason',
+        'address',
+        'phone',
+        'notes',
+        'file_path',
         'status',
         'rejection_reason',
-        'file_path',
     ];
 
     protected $casts = [
@@ -36,24 +36,16 @@ class LeaveRequest extends Model
         'end_date'   => 'date',
     ];
 
-    /* =====================
-     * DEFAULT ATTRIBUTE
-     * ===================== */
     protected $attributes = [
         'status' => self::STATUS_PENDING,
     ];
 
-    /* =====================
-     * RELATIONSHIP
-     * ===================== */
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    /* =====================
-     * QUERY SCOPES
-     * ===================== */
+    // Scopes
     public function scopePending(Builder $query): Builder
     {
         return $query->where('status', self::STATUS_PENDING);
@@ -69,9 +61,7 @@ class LeaveRequest extends Model
         return $query->where('status', self::STATUS_REJECTED);
     }
 
-    /* =====================
-     * HELPER METHODS
-     * ===================== */
+    // Helper methods
     public function isPending(): bool
     {
         return $this->status === self::STATUS_PENDING;
@@ -85,5 +75,17 @@ class LeaveRequest extends Model
     public function isRejected(): bool
     {
         return $this->status === self::STATUS_REJECTED;
+    }
+    
+    /**
+     * Get formatted status for display
+     */
+    public function getStatusLabelAttribute(): string
+    {
+        return match($this->status) {
+            self::STATUS_APPROVED => 'Disetujui',
+            self::STATUS_REJECTED => 'Ditolak',
+            default => 'Pending',
+        };
     }
 }

@@ -80,17 +80,13 @@
             letter-spacing: 0.5px;
         }
 
-
-        .userchip:hover { transform: translateY(-2px); }
-        .userleft { display: flex; align-items: center; gap: 12px; text-align: right; }
         .avatar {
             width: 38px; height: 38px; border-radius: 999px;
-            background: var(--primary); color: #fff;
+            background: rgba(255,255,255,0.2); color: #fff;
             display: flex; align-items: center; justify-content: center;
             font-weight: 600; font-size: 14px;
+            border: 2px solid white;
         }
-        .uname { font-weight: 700; font-size: 14px; line-height: 1.2; }
-        .urole { font-size: 12px; color: var(--muted); line-height: 1.2; }
 
         /* --- FORM CONTAINER --- */
         .container {
@@ -202,8 +198,6 @@
         .radio-item input { margin-right: 10px; width: 16px; height: 16px; accent-color: var(--primary); }
         .radio-label { font-size: 13px; font-weight: 500; }
 
-        /* --- STYLE BARU UNTUK UPLOAD & TIPS --- */
-        
         /* Upload Area */
         .upload-area {
             position: relative;
@@ -220,56 +214,20 @@
             background: #fff5f5;
         }
         .upload-area input[type="file"] {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            top: 0; left: 0;
-            opacity: 0;
-            cursor: pointer;
+            position: absolute; width: 100%; height: 100%; top: 0; left: 0; opacity: 0; cursor: pointer;
         }
-        .upload-icon {
-            font-size: 28px;
-            color: #9ca3af;
-            margin-bottom: 12px;
-        }
-        .upload-text {
-            font-size: 14px;
-            font-weight: 600;
-            color: #4b5563;
-        }
-        .upload-hint {
-            font-size: 12px;
-            color: #9ca3af;
-            margin-top: 6px;
-        }
+        .upload-icon { font-size: 28px; color: #9ca3af; margin-bottom: 12px; }
+        .upload-text { font-size: 14px; font-weight: 600; color: #4b5563; }
+        .upload-hint { font-size: 12px; color: #9ca3af; margin-top: 6px; }
 
         /* Tips Box */
         .tips-box {
-            background-color: var(--blue-bg);
-            border: 1px solid #bfdbfe;
-            border-radius: 8px;
-            padding: 16px;
-            margin-top: 20px;
-            display: flex;
-            gap: 15px;
-            color: var(--blue-text);
+            background-color: var(--blue-bg); border: 1px solid #bfdbfe; border-radius: 8px;
+            padding: 16px; margin-top: 20px; display: flex; gap: 15px; color: var(--blue-text);
         }
-        .tips-icon {
-            font-size: 18px;
-            margin-top: 2px;
-        }
-        .tips-content h4 {
-            margin: 0 0 5px 0;
-            font-size: 14px;
-            font-weight: 700;
-        }
-        .tips-content p {
-            margin: 0;
-            font-size: 13px;
-            line-height: 1.5;
-            opacity: 0.9;
-        }
-
+        .tips-icon { font-size: 18px; margin-top: 2px; }
+        .tips-content h4 { margin: 0 0 5px 0; font-size: 14px; font-weight: 700; }
+        .tips-content p { margin: 0; font-size: 13px; line-height: 1.5; opacity: 0.9; }
 
         /* Submit Button */
         .btn-submit {
@@ -286,7 +244,6 @@
             .grid-2, .grid-date, .radio-grid { grid-template-columns: 1fr; }
             .container { margin-top: -40px; padding: 20px; }
             .topbar { min-height: auto; padding-bottom: 70px; }
-            .userchip { position: relative; top: auto; right: auto; margin-top: 15px; width: 100%; }
         }
     </style>
 </head>
@@ -294,15 +251,12 @@
 
     <div class="topbar">
         <div class="brand-hero">
-            {{-- Pastikan file gambar ada di public folder --}}
             <img src="{{ asset('logokabupatensemarang.png') }}" alt="Logo Kab Semarang"> 
-            
             <h1 class="brand-title">SIIPUL</h1>
             <p class="brand-subtitle">Sistem Informasi Pengajuan Cuti Online</p>
         </div>
-            <div class="avatar">
-                {{ substr(Auth::user()->name ?? 'BS', 0, 2) }}
-            </div>
+        <div class="avatar">
+            {{ substr($user->name ?? 'BS', 0, 2) }}
         </div>
     </div>
 
@@ -317,38 +271,40 @@
             <p class="form-subtitle-text">Silakan lengkapi data di bawah ini dengan benar</p>
         </div>
 
-        {{-- Tambahkan enctype="multipart/form-data" untuk support upload file --}}
         <form action="{{ route('user.cuti.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
 
-            {{-- SECTION I: DATA PEGAWAI --}}
+            {{-- SECTION I: DATA PEGAWAI (DINAMIS) --}}
             <div class="section-box">
                 <div class="section-title">I. DATA PEGAWAI</div>
                 
                 <div class="grid-2">
                     <div class="form-group">
                         <label class="form-label">Nama Lengkap <span class="required">*</span></label>
-                        <input type="text" class="form-input" value="{{ Auth::user()->name ?? 'Budi Santoso, S.Pd.' }}" readonly>
+                        <input type="text" class="form-input" value="{{ $user->name }}" readonly>
                     </div>
                     <div class="form-group">
                         <label class="form-label">NIP <span class="required">*</span></label>
-                        <input type="text" class="form-input" value="19800101 200501 1 005" readonly>
+                        <input type="text" class="form-input" value="{{ $user->nip }}" readonly>
                     </div>
                 </div>
 
                 <div class="grid-2">
                     <div class="form-group">
                         <label class="form-label">Jabatan <span class="required">*</span></label>
-                        <input type="text" class="form-input" value="Guru Ahli Pertama" readonly>
+                        <input type="text" class="form-input" value="{{ $user->jabatan ?? '-' }}" readonly>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Masa Kerja <span class="required">*</span></label>
                         <div style="display: flex; gap: 10px;">
                             <div style="flex:1; display:flex; align-items:center; gap:5px;">
-                                <input type="text" class="form-input" value="12" readonly> <span style="font-size:12px; color:#666;">Tahun</span>
+                                {{-- Menggunakan floor untuk membuang desimal --}}
+                                <input type="text" class="form-input" value="{{ floor($workYears) }}" readonly> 
+                                <span style="font-size:12px; color:#666;">Tahun</span>
                             </div>
                             <div style="flex:1; display:flex; align-items:center; gap:5px;">
-                                <input type="text" class="form-input" value="04" readonly> <span style="font-size:12px; color:#666;">Bulan</span>
+                                <input type="text" class="form-input" value="{{ floor($workMonths) }}" readonly> 
+                                <span style="font-size:12px; color:#666;">Bulan</span>
                             </div>
                         </div>
                     </div>
@@ -356,39 +312,20 @@
 
                 <div class="form-group">
                     <label class="form-label">Unit Kerja <span class="required">*</span></label>
-                    <input type="text" class="form-input" value="DISDIKBUDPORA KABUPATEN SEMARANG" readonly>
+                    <input type="text" class="form-input" value="{{ $user->bidang_unit ?? 'DISDIKBUDPORA KABUPATEN SEMARANG' }}" readonly>
                 </div>
             </div>
 
             {{-- SECTION II: JENIS CUTI --}}
             <div class="section-box">
                 <div class="section-title">II. JENIS CUTI YANG DIAMBIL</div>
-                
                 <div class="radio-grid">
-                    <label class="radio-item">
-                        <input type="radio" name="jenis_cuti" value="Cuti Tahunan" checked>
-                        <span class="radio-label">Cuti Tahunan</span>
-                    </label>
-                    <label class="radio-item">
-                        <input type="radio" name="jenis_cuti" value="Cuti Besar">
-                        <span class="radio-label">Cuti Besar</span>
-                    </label>
-                    <label class="radio-item">
-                        <input type="radio" name="jenis_cuti" value="Cuti Sakit">
-                        <span class="radio-label">Cuti Sakit</span>
-                    </label>
-                    <label class="radio-item">
-                        <input type="radio" name="jenis_cuti" value="Cuti Melahirkan">
-                        <span class="radio-label">Cuti Melahirkan</span>
-                    </label>
-                    <label class="radio-item">
-                        <input type="radio" name="jenis_cuti" value="Cuti Alasan Penting">
-                        <span class="radio-label">Cuti Karena Alasan Penting</span>
-                    </label>
-                    <label class="radio-item">
-                        <input type="radio" name="jenis_cuti" value="Cuti Luar Tanggungan">
-                        <span class="radio-label">Cuti di Luar Tanggungan Negara</span>
-                    </label>
+                    <label class="radio-item"><input type="radio" name="jenis_cuti" value="Cuti Tahunan" checked><span class="radio-label">Cuti Tahunan</span></label>
+                    <label class="radio-item"><input type="radio" name="jenis_cuti" value="Cuti Besar"><span class="radio-label">Cuti Besar</span></label>
+                    <label class="radio-item"><input type="radio" name="jenis_cuti" value="Cuti Sakit"><span class="radio-label">Cuti Sakit</span></label>
+                    <label class="radio-item"><input type="radio" name="jenis_cuti" value="Cuti Melahirkan"><span class="radio-label">Cuti Melahirkan</span></label>
+                    <label class="radio-item"><input type="radio" name="jenis_cuti" value="Cuti Alasan Penting"><span class="radio-label">Cuti Karena Alasan Penting</span></label>
+                    <label class="radio-item"><input type="radio" name="jenis_cuti" value="Cuti Luar Tanggungan"><span class="radio-label">Cuti di Luar Tanggungan Negara</span></label>
                 </div>
             </div>
 
@@ -397,7 +334,12 @@
                 <div class="section-title">III. ALASAN CUTI</div>
                 <div class="form-group">
                     <label class="form-label">Uraian Alasan Cuti <span class="required">*</span></label>
-                    <textarea name="alasan" class="form-textarea" placeholder="Jelaskan alasan pengambilan cuti secara detail..." required></textarea>
+                    <textarea name="alasan" class="form-textarea" 
+                            placeholder="Jelaskan alasan cuti secara detail (Contoh: Menghadiri pernikahan saudara kandung di luar kota)..." 
+                            minlength="20" required>{{ old('alasan') }}</textarea>
+                    <small style="color: #6b7280; font-size: 11px; margin-top: 4px; display: block;">
+                        * Berikan alasan yang jelas, minimal 20 karakter agar mudah diverifikasi.
+                    </small>
                 </div>
             </div>
 
@@ -420,7 +362,7 @@
                 </div>
             </div>
 
-            {{-- SECTION V: CATATAN CUTI --}}
+            {{-- SECTION V: CATATAN CUTI (DINAMIS) --}}
             <div class="section-box">
                 <div class="section-title">V. CATATAN CUTI</div>
                 <div style="overflow-x:auto;">
@@ -434,19 +376,40 @@
                         </thead>
                         <tbody>
                             <tr>
-                                <td style="padding:8px; font-weight:600;">N-2</td>
-                                <td style="padding:8px;"><input type="text" class="form-input" value="0" readonly></td>
-                                <td style="padding:8px;"><input type="text" class="form-input" placeholder="Keterangan..." readonly></td>
+                                <td style="padding:8px; font-weight:600;">N-2 ({{ $leaveBalance['n2']['year'] }})</td>
+                                <td style="padding:8px;">
+                                    <input type="text" class="form-input" value="{{ $leaveBalance['n2']['remaining'] }}" readonly>
+                                </td>
+                                <td style="padding:8px;">
+                                    <input type="text" class="form-input" value="Bonus: {{ $leaveBalance['n2']['bonus'] }} hari (setengah dari sisa)" readonly>
+                                </td>
                             </tr>
                             <tr>
-                                <td style="padding:8px; font-weight:600;">N-1</td>
-                                <td style="padding:8px;"><input type="text" class="form-input" value="0" readonly></td>
-                                <td style="padding:8px;"><input type="text" class="form-input" placeholder="Keterangan..." readonly></td>
+                                <td style="padding:8px; font-weight:600;">N-1 ({{ $leaveBalance['n1']['year'] }})</td>
+                                <td style="padding:8px;">
+                                    <input type="text" class="form-input" value="{{ $leaveBalance['n1']['remaining'] }}" readonly>
+                                </td>
+                                <td style="padding:8px;">
+                                    <input type="text" class="form-input" value="Bonus: {{ $leaveBalance['n1']['bonus'] }} hari (setengah dari sisa)" readonly>
+                                </td>
                             </tr>
                             <tr>
-                                <td style="padding:8px; font-weight:600;">N (Tahun Berjalan)</td>
-                                <td style="padding:8px;"><input type="text" class="form-input" value="12" readonly style="font-weight:bold; color:var(--primary);"></td>
-                                <td style="padding:8px;"><input type="text" class="form-input" value="Sisa cuti tahun ini" readonly></td>
+                                <td style="padding:8px; font-weight:600;">N ({{ $leaveBalance['n']['year'] }}) - Tahun Berjalan</td>
+                                <td style="padding:8px;">
+                                    <input type="text" class="form-input" value="{{ $leaveBalance['n']['remaining'] }}" readonly style="font-weight:bold; color:var(--primary);">
+                                </td>
+                                <td style="padding:8px;">
+                                    <input type="text" class="form-input" value="Sisa cuti tahun ini (dari {{ $leaveBalance['n']['quota'] }} hari)" readonly>
+                                </td>
+                            </tr>
+                            <tr style="background-color: #f0f9ff;">
+                                <td style="padding:8px; font-weight:800; color:var(--primary);">TOTAL TERSEDIA</td>
+                                <td style="padding:8px;">
+                                    <input type="text" class="form-input" value="{{ $leaveBalance['total_available'] }}" readonly style="font-weight:bold; color:#059669; background:#ecfdf5;">
+                                </td>
+                                <td style="padding:8px;">
+                                    <input type="text" class="form-input" value="Total cuti yang dapat diambil saat ini" readonly>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -466,37 +429,29 @@
                 </div>
             </div>
 
-            {{-- SECTION VII: DOKUMEN PENDUKUNG (BARU: SESUAI REQUEST) --}}
+            {{-- SECTION VII: DOKUMEN PENDUKUNG --}}
             <div class="section-box">
                 <div class="section-title">VII. DOKUMEN PENDUKUNG (OPSIONAL)</div>
-
-                {{-- Catatan Tambahan (Mirip kolom "Alasan Pengajuan Diperbaharui" di gambar) --}}
                 <div class="form-group">
                     <label class="form-label">Catatan Tambahan</label>
-                    <textarea name="catatan_tambahan" class="form-textarea" style="background:#f9fafb;" placeholder="Tambahkan catatan jika ada hal spesifik yang perlu disampaikan..."></textarea>
+                    <textarea name="catatan_tambahan" class="form-textarea" style="background:#f9fafb;" placeholder="Tambahkan catatan jika ada hal spesifik..."></textarea>
                 </div>
-
-                {{-- Upload Area (Mirip "Klik atau seret file" di gambar) --}}
                 <div class="form-group">
                     <label class="form-label">Dokumen Lampiran (Surat Dokter, dll)</label>
-                    <div class="upload-area">
+                    <div class="upload-area" id="dropZone">
                         <input type="file" name="dokumen_pendukung" id="fileUpload" accept=".pdf,.doc,.docx,.jpg,.png,.xls,.xlsx">
-                        <div class="upload-icon">
+                        <div class="upload-icon" id="uploadIcon">
                             <i class="fa-solid fa-arrow-up-from-bracket"></i>
                         </div>
-                        <div class="upload-text">Klik atau seret file ke sini</div>
-                        <div class="upload-hint">Supported: PDF, DOC, JPG, PNG, XLS (Maks 5MB)</div>
+                        <div class="upload-text" id="uploadText">Klik atau seret file ke sini</div>
+                        <div class="upload-hint" id="uploadHint">Supported: PDF, DOC, JPG, PNG (Maks 5MB)</div>
                     </div>
                 </div>
-
-                {{-- Tips Box (Mirip kotak biru di gambar) --}}
                 <div class="tips-box">
-                    <div class="tips-icon">
-                        <i class="fa-regular fa-lightbulb"></i>
-                    </div>
+                    <div class="tips-icon"><i class="fa-regular fa-lightbulb"></i></div>
                     <div class="tips-content">
                         <h4>Tips:</h4>
-                        <p>Pastikan Anda melengkapi semua dokumen pendukung (seperti surat keterangan sakit dari dokter) agar proses verifikasi berjalan lancar.</p>
+                        <p>Pastikan melengkapi semua dokumen pendukung agar proses verifikasi berjalan lancar.</p>
                     </div>
                 </div>
             </div>
@@ -505,12 +460,35 @@
                 <i class="fa-solid fa-paper-plane"></i> &nbsp; Ajukan Permohonan Cuti
             </button>
 
-            <p class="footer-note">
-                Dengan menekan tombol ini, Anda menyatakan bahwa data yang diisi adalah benar dan dapat dipertanggungjawabkan.
-            </p>
-
+            <p class="footer-note">Dengan menekan tombol ini, Anda menyatakan bahwa data yang diisi adalah benar.</p>
         </form>
     </div>
+
+<script>
+    const fileInput = document.getElementById('fileUpload');
+    const uploadText = document.getElementById('uploadText');
+    const uploadHint = document.getElementById('uploadHint');
+    const uploadIcon = document.getElementById('uploadIcon');
+    const dropZone = document.getElementById('dropZone');
+
+    fileInput.addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+            const file = this.files[0];
+            
+            // Ubah tampilan menjadi mode "File Terpilih"
+            uploadText.innerText = "File Siap Diupload!";
+            uploadText.style.color = "#059669"; // Hijau
+            
+            uploadHint.innerHTML = `<strong>Berhasil memilih:</strong> ${file.name} (${(file.size/1024).toFixed(1)} KB)`;
+            uploadHint.style.color = "#059669";
+            
+            uploadIcon.innerHTML = '<i class="fa-solid fa-circle-check" style="color: #059669; font-size: 32px;"></i>';
+            
+            dropZone.style.borderColor = "#059669";
+            dropZone.style.background = "#ecfdf5";
+        }
+    });
+</script>
 
 </body>
 </html>

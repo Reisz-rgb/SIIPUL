@@ -40,7 +40,7 @@
                 <div class="flex items-center gap-2 text-slate-500 text-xs font-semibold uppercase tracking-wide">
                     <i class="fa-regular fa-file-lines"></i> No. Referensi
                 </div>
-                <div class="text-slate-800 font-bold text-sm">CUTI-2026-5531</div>
+               <div class="text-slate-800 font-bold text-sm">{{ $refNumber }}</div>
             </div>
             <div class="flex justify-between items-center">
                 <div class="flex items-center gap-2 text-slate-500 text-xs font-semibold uppercase tracking-wide">

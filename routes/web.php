@@ -6,6 +6,7 @@ use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\PegawaiController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\CutiController;
     
 /*
 |--------------------------------------------------------------------------
@@ -83,8 +84,8 @@ Route::middleware(['auth'])->prefix('user')->name('user.')->group(function () {
     Route::get('/riwayat', [UserController::class, 'history'])->name('riwayat');
 
     // Pengajuan Cuti
-    Route::get('/pengajuan-cuti', fn() => view('user.pengajuan_cuti'))->name('cuti.create');
-    Route::post('/pengajuan-cuti', fn() => view('user.PengajuanSukses'))->name('cuti.store');
+    Route::get('/pengajuan-cuti', [CutiController::class, 'create'])->name('cuti.create');
+    Route::post('/pengajuan-cuti', [CutiController::class, 'store'])->name('cuti.store');
 });
 /*
 |--------------------------------------------------------------------------
@@ -102,8 +103,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     })->name('profil');
     
     // 2. KELOLA PENGAJUAN CUTI (Detail & Update Status)
-    Route::get('/pengajuan/{id}', [AdminController::class, 'show'])->name('pengajuan.show');
-    Route::put('/pengajuan/{id}', [AdminController::class, 'updateStatus'])->name('pengajuan.update');
+    Route::get('/pengajuan/{id}', [CutiController::class, 'show'])->name('pengajuan.show');
+    Route::put('/pengajuan/{id}', [CutiController::class, 'updateStatus'])->name('pengajuan.update');
 
     // 3. DOWNLOAD LAPORAN (Excel & PDF)
     Route::get('/download-excel', [AdminController::class, 'downloadExcel'])->name('download.excel');
