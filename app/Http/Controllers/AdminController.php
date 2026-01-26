@@ -211,4 +211,10 @@ class AdminController extends Controller
 
         return view('admin.kelola_pengajuan', compact('pengajuan'));
     }
+
+    public function laporan()
+    {
+        // 'admin.laporan' artinya: Buka folder 'admin', cari file 'laporan.blade.php'
+        return view('admin.laporan');
+    }
 }
