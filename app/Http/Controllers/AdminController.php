@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\LeaveRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB; // <--- TAMBAHAN PENTING
 use Carbon\Carbon;
 
 // Export
@@ -206,15 +207,96 @@ class AdminController extends Controller
         }
 
         // 4. Ambil data dengan Pagination (10 data per halaman)
-        // 'latest()' sama dengan orderBy('created_at', 'desc')
         $pengajuan = $query->latest()->paginate(10); 
 
         return view('admin.kelola_pengajuan', compact('pengajuan'));
     }
 
-    public function laporan()
+    /* =====================================================
+     * 4. HALAMAN LAPORAN & ANALYTICS (DINAMIS)
+     * ===================================================== */
+    public function laporan(Request $request)
     {
-        // 'admin.laporan' artinya: Buka folder 'admin', cari file 'laporan.blade.php'
-        return view('admin.laporan');
+        // 1. Filter Rentang Waktu
+        $filter = $request->input('filter', '1_bulan'); // Default 1 bulan
+        $query = LeaveRequest::query();
+
+        if ($filter == '1_bulan') {
+            $startDate = Carbon::now()->subMonth();
+            $labelWaktu = "1 Bulan Terakhir";
+        } elseif ($filter == '3_bulan') {
+            $startDate = Carbon::now()->subMonths(3);
+            $labelWaktu = "3 Bulan Terakhir";
+        } else {
+            $startDate = Carbon::now()->startOfYear();
+            $labelWaktu = "Tahun Ini (" . date('Y') . ")";
+        }
+
+        // Terapkan filter tanggal ke query dasar
+        $query->where('created_at', '>=', $startDate);
+
+        // 2. Hitung Statistik Card (Top)
+        // Kita hitung total dulu
+        $total = $query->count();
+        
+        // Cloning query agar tidak merusak query dasar
+        $approved = (clone $query)->where('status', 'approved')->count();
+        $rejected = (clone $query)->where('status', 'rejected')->count();
+        $pending  = (clone $query)->where('status', 'pending')->count();
+
+        // Persentase (cegah error division by zero)
+        $persenApproved = $total > 0 ? round(($approved / $total) * 100, 1) : 0;
+        $persenRejected = $total > 0 ? round(($rejected / $total) * 100, 1) : 0;
+        $persenPending  = $total > 0 ? round(($pending / $total) * 100, 1) : 0;
+
+        // Rata-rata Proses (Selisih created_at dan updated_at untuk status finished)
+        // Hitung rata-rata detik proses
+        $avgSeconds = (clone $query)
+            ->whereIn('status', ['approved', 'rejected'])
+            ->selectRaw('AVG(TIMESTAMPDIFF(SECOND, created_at, updated_at)) as avg_time')
+            ->value('avg_time');
+        
+        $avgDays = $avgSeconds ? round($avgSeconds / 86400, 1) : 0; // Konversi detik ke hari
+
+        // 3. Data Chart Pie (Jenis Cuti)
+        $jenisCutiStats = (clone $query)
+            ->select('jenis_cuti', DB::raw('count(*) as total'))
+            ->groupBy('jenis_cuti')
+            ->pluck('total', 'jenis_cuti');
+            
+        $chartLabels = $jenisCutiStats->keys();
+        $chartValues = $jenisCutiStats->values();
+
+        // 4. Data Tabel (Statistik per Unit Kerja)
+        // Asumsi: Table users punya kolom 'unit_kerja' atau 'jabatan'
+        $rawRequests = (clone $query)->with('user')->get();
+
+        $unitStats = $rawRequests->groupBy(function($item) {
+            // Cek apakah user ada, lalu ambil unit_kerja (default 'Lainnya' jika null)
+            return $item->user->unit_kerja ?? $item->user->jabatan ?? 'Umum';
+        })->map(function($group, $unitName) {
+            $totalUnit = $group->count();
+            $appUnit   = $group->where('status', 'approved')->count();
+            $rejUnit   = $group->where('status', 'rejected')->count();
+            $pendUnit  = $group->where('status', 'pending')->count();
+            
+            return [
+                'name' => $unitName,
+                'total' => $totalUnit,
+                'approved' => $appUnit,
+                'rejected' => $rejUnit,
+                'pending' => $pendUnit,
+                'rate' => $totalUnit > 0 ? round(($appUnit / $totalUnit) * 100, 1) : 0
+            ];
+        })->sortByDesc('total'); // Urutkan dari yang paling banyak mengajukan
+
+        return view('admin.laporan', compact(
+            'filter', 'labelWaktu',
+            'total', 'approved', 'rejected', 'pending',
+            'persenApproved', 'persenRejected', 'persenPending',
+            'avgDays',
+            'chartLabels', 'chartValues',
+            'unitStats'
+        ));
     }
 }
