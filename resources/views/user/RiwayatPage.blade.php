@@ -65,6 +65,8 @@
         padding: 8px 20px; border-radius: 99px;
         font-size: 14px; font-weight: 500; color: var(--muted);
         cursor: pointer; transition: all 0.2s;
+        text-decoration: none; 
+        display: inline-block; 
     }
     .filter-btn:hover { background: #f9fafb; }
     .filter-btn.active { 
@@ -215,94 +217,87 @@
 
   <div class="container">
     
-    <div class="filter-section">
-        <div class="filter-label"><i class="fa-solid fa-filter"></i> Filter Status</div>
-        <div class="filter-buttons">
-            <button class="filter-btn active" onclick="filterList('all', this)">Semua</button>
-            <button class="filter-btn" onclick="filterList('approved', this)">Disetujui</button>
-            <button class="filter-btn" onclick="filterList('pending', this)">Tertunda</button>
-            <button class="filter-btn" onclick="filterList('rejected', this)">Ditolak</button>
-        </div>
+<div class="filter-section">
+    <div class="filter-label"><i class="fa-solid fa-filter"></i> Filter Status</div>
+    <div class="filter-buttons">
+        <a href="{{ route('user.riwayat') }}" class="filter-btn {{ $status == 'all' ? 'active' : '' }}">Semua</a>
+        <a href="{{ route('user.riwayat', ['status' => 'approved']) }}" class="filter-btn {{ $status == 'approved' ? 'active' : '' }}">Disetujui</a>
+        <a href="{{ route('user.riwayat', ['status' => 'pending']) }}" class="filter-btn {{ $status == 'pending' ? 'active' : '' }}">Tertunda</a>
+        <a href="{{ route('user.riwayat', ['status' => 'rejected']) }}" class="filter-btn {{ $status == 'rejected' ? 'active' : '' }}">Ditolak</a>
     </div>
+</div>
 
     <div class="history-list-container">
+        @forelse($leaves as $leave)
+        @php
+            $leaveData = [
+                'id' => 'CUTI-' . now()->year . '-' . str_pad($leave->id, 4, '0', STR_PAD_LEFT),
+                'status' => $leave->status == 'approved' ? 'Diterima' : ($leave->status == 'pending' ? 'Diproses' : 'Ditolak'),
+                'jenis' => $leave->jenis_cuti,
+                'mulai' => $leave->start_date->format('Y-m-d'),
+                'selesai' => $leave->end_date->format('Y-m-d'),
+                'alamat' => $leave->address ?? '-',
+                'kontak' => $leave->phone ?? '-',
+                'alasan' => $leave->reason,
+                'lampiran' => $leave->file_path ? basename($leave->file_path) : '-',
+                'catatan' => $leave->rejection_reason ?? '-'
+            ];
+        @endphp
         
-        <div class="h-card" data-status="approved">
+        <div class="h-card" data-status="{{ $leave->status }}">
             <div class="hc-left">
-                <div class="st-icon-circle st-ok"><i class="fa-solid fa-check"></i></div>
+                <div class="st-icon-circle 
+                    @if($leave->status == 'approved') st-ok 
+                    @elseif($leave->status == 'pending') st-pen 
+                    @else st-rej @endif">
+                    <i class="fa-solid 
+                        @if($leave->status == 'approved') fa-check 
+                        @elseif($leave->status == 'pending') fa-clock 
+                        @else fa-xmark @endif"></i>
+                </div>
                 <div class="hc-info">
-                    <h4>Cuti Tahunan</h4>
-                    <div class="hc-date"><i class="fa-regular fa-calendar"></i> 2026-02-10 s/d 2026-02-12</div>
+                    <h4>{{ $leave->jenis_cuti }}</h4>
+                    <div class="hc-date">
+                        <i class="fa-regular fa-calendar"></i> 
+                        {{ $leave->start_date->format('d M Y') }} s/d {{ $leave->end_date->format('d M Y') }}
+                    </div>
                 </div>
             </div>
             <div class="hc-right">
-                <span class="duration-badge">3 Hari</span>
-                <button class="btn-detail-sm" onclick="openModal(this)" data-leave='{
-                    "id":"CT-2026-0001",
-                    "status":"Diterima",
-                    "jenis":"Cuti Tahunan",
-                    "mulai":"2026-02-10",
-                    "selesai":"2026-02-12",
-                    "alamat":"Semarang",
-                    "kontak":"0812xxxxxxx",
-                    "alasan":"Keperluan Keluarga",
-                    "lampiran":"Formulir_Cuti.pdf",
-                    "catatan":"Disetujui"
-                }'>Lihat Detail</button>
+                <span class="duration-badge">{{ $leave->duration }} Hari</span>
+                <button class="btn-detail-sm" onclick="openModal(this)" data-leave='{{ json_encode($leaveData) }}'>
+                    Lihat Detail
+                </button>
             </div>
         </div>
-
-        <div class="h-card" data-status="rejected">
-            <div class="hc-left">
-                <div class="st-icon-circle st-rej"><i class="fa-solid fa-xmark"></i></div>
-                <div class="hc-info">
-                    <h4>Cuti Sakit</h4>
-                    <div class="hc-date"><i class="fa-regular fa-calendar"></i> 2026-01-25 s/d 2026-01-27</div>
-                </div>
-            </div>
-            <div class="hc-right">
-                <span class="duration-badge">3 Hari</span>
-                <button class="btn-detail-sm" onclick="openModal(this)" data-leave='{
-                    "id":"CS-2026-0002",
-                    "status":"Ditolak",
-                    "jenis":"Cuti Sakit",
-                    "mulai":"2026-01-25",
-                    "selesai":"2026-01-27",
-                    "alamat":"Semarang",
-                    "kontak":"0812xxxxxxx",
-                    "alasan":"Sakit Demam Tinggi",
-                    "lampiran":"surat_dokter_lama.pdf",
-                    "catatan":"Mohon lampirkan surat dokter yang valid (Cap RS kurang jelas)"
-                }'>Lihat Detail</button>
-            </div>
+        @empty
+        <div style="text-align:center; padding: 60px 20px; color: var(--muted);">
+            <i class="fa-regular fa-folder-open" style="font-size: 60px; margin-bottom: 20px; opacity: 0.2;"></i>
+            <h3 style="font-weight: 600; color: #374151; margin-bottom: 8px;">Tidak Ada Riwayat</h3>
+            <p style="font-size: 14px;">
+                @if($status == 'all')
+                    Belum ada pengajuan cuti yang dibuat
+                @elseif($status == 'approved')
+                    Belum ada pengajuan yang disetujui
+                @elseif($status == 'pending')
+                    Belum ada pengajuan yang tertunda
+                @else
+                    Belum ada pengajuan yang ditolak
+                @endif
+            </p>
+            <a href="{{ route('user.cuti.create') }}" style="display:inline-block; margin-top:20px; background:var(--primary); color:white; padding:12px 24px; border-radius:8px; text-decoration:none; font-weight:600;">
+                <i class="fa-solid fa-plus"></i> Buat Pengajuan Baru
+            </a>
         </div>
-
-        <div class="h-card" data-status="pending">
-            <div class="hc-left">
-                <div class="st-icon-circle st-pen"><i class="fa-solid fa-clock"></i></div>
-                <div class="hc-info">
-                    <h4>Cuti Tahunan</h4>
-                    <div class="hc-date"><i class="fa-regular fa-calendar"></i> 2026-03-15 s/d 2026-03-20</div>
-                </div>
-            </div>
-            <div class="hc-right">
-                <span class="duration-badge">6 Hari</span>
-                <button class="btn-detail-sm" onclick="openModal(this)" data-leave='{
-                    "id":"CT-2026-0003",
-                    "status":"Diproses",
-                    "jenis":"Cuti Tahunan",
-                    "mulai":"2026-03-15",
-                    "selesai":"2026-03-20",
-                    "alamat":"Semarang",
-                    "kontak":"0812xxxxxxx",
-                    "alasan":"Urusan pribadi",
-                    "lampiran":"Tiket.pdf",
-                    "catatan":"-"
-                }'>Lihat Detail</button>
-            </div>
-        </div>
-
+        @endforelse
     </div>
+
+    {{-- Pagination --}}
+    @if($leaves->hasPages())
+    <div style="margin-top: 40px; display: flex; justify-content: center;">
+        {{ $leaves->appends(['status' => $status])->links() }}
+    </div>
+    @endif
 
     <div style="text-align: center; margin-top: 60px; color: #999; font-size: 13px;">
         SIIPUL © 2026 | Disdikbudpora Kab Semarang

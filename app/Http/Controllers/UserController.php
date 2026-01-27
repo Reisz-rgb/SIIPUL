@@ -6,37 +6,46 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Cuti;
+use App\Models\LeaveRequest;
+use App\Models\LeaveBalance;
 
 class UserController extends Controller
 {
+
     /**
      * Show user dashboard
      */
     public function dashboard()
     {
         $user = Auth::user();
+        $currentYear = now()->year;
         
-        // Hitung statistik cuti
-        $totalQuota = $user->annual_leave_quota ?? 12;
-        $usedLeave = Cuti::where('user_id', $user->id)
-            ->where('status', 'disetujui')
-            ->sum('jumlah_hari');
-        $remainingLeave = $totalQuota - $usedLeave;
+        // Hitung saldo cuti dengan LeaveBalance
+        $leaveBalance = LeaveBalance::calculateTotalAvailable($user->id, $currentYear);
+        $totalQuota = $leaveBalance['n']['quota'];
+        $usedLeave = $leaveBalance['n']['used'];
+        $remainingLeave = $leaveBalance['total_available'];
         
-        // Ambil riwayat pengajuan terbaru (3 terakhir)
-        $recentLeaves = Cuti::where('user_id', $user->id)
+        // Ambil riwayat pengajuan terbaru (3 terakhir) dari LeaveRequest
+        $recentLeaves = LeaveRequest::where('user_id', $user->id)
             ->orderBy('created_at', 'desc')
             ->limit(3)
             ->get();
         
-        // Hitung statistik status (untuk donut chart)
-        $totalSubmissions = Cuti::where('user_id', $user->id)->count();
-        $approvedCount = Cuti::where('user_id', $user->id)->where('status', 'disetujui')->count();
-        $pendingCount = Cuti::where('user_id', $user->id)->where('status', 'pending')->count();
-        $rejectedCount = Cuti::where('user_id', $user->id)->where('status', 'ditolak')->count();
+        // Hitung statistik status untuk donut chart
+        $totalSubmissions = LeaveRequest::where('user_id', $user->id)->count();
         
-        // Hitung persentase untuk donut
         if ($totalSubmissions > 0) {
+            $approvedCount = LeaveRequest::where('user_id', $user->id)
+                ->where('status', LeaveRequest::STATUS_APPROVED)
+                ->count();
+            $pendingCount = LeaveRequest::where('user_id', $user->id)
+                ->where('status', LeaveRequest::STATUS_PENDING)
+                ->count();
+            $rejectedCount = LeaveRequest::where('user_id', $user->id)
+                ->where('status', LeaveRequest::STATUS_REJECTED)
+                ->count();
+            
             $approvedPercent = round(($approvedCount / $totalSubmissions) * 100);
             $pendingPercent = round(($pendingCount / $totalSubmissions) * 100);
             $rejectedPercent = round(($rejectedCount / $totalSubmissions) * 100);
@@ -161,14 +170,31 @@ class UserController extends Controller
     /**
      * Show user leave history
      */
-    public function history()
+    public function history(Request $request)
     {
         $user = Auth::user();
         
-        $leaves = Cuti::where('user_id', $user->id)
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
+        // Filter berdasarkan status
+        $status = $request->get('status', 'all');
         
-        return view('user.RiwayatPage', compact('leaves', 'user'));
+        $query = LeaveRequest::where('user_id', $user->id)
+            ->orderBy('created_at', 'desc');
+        
+        // Apply filter
+        if ($status !== 'all') {
+            $statusMap = [
+                'approved' => LeaveRequest::STATUS_APPROVED,
+                'pending' => LeaveRequest::STATUS_PENDING,
+                'rejected' => LeaveRequest::STATUS_REJECTED,
+            ];
+            
+            if (isset($statusMap[$status])) {
+                $query->where('status', $statusMap[$status]);
+            }
+        }
+        
+        $leaves = $query->paginate(10);
+        
+        return view('user.RiwayatPage', compact('leaves', 'user', 'status'));
     }
 }
