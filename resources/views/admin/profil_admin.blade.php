@@ -175,7 +175,7 @@
             <div class="profile-avatar-large">DS</div>
             <div>
                 <h4 class="mb-0 fw-bold">Drs. Sutrisno</h4>
-                <small class="text-white-50">Administrator</small>
+                <small class="text-white-50">{{ ucfirst(Auth::user()->role) }}</small>
             </div>
         </div>
 
