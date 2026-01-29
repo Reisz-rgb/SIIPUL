@@ -4,239 +4,276 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kelola Pegawai - SIIPUL</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
-        /* --- STYLE DASAR DASHBOARD (Konsisten) --- */
+        /* --- 1. CORE VARIABLES & LAYOUT --- */
         :root {
-            --primary-color: #9E2A2B;
-            --primary-hover: #7F1D1D;
-            --bg-body: #F3F4F6;
-            --sidebar-width: 260px;
-            --border-color: #E5E7EB;
-            --text-main: #111827;
-            --text-muted: #6B7280;
+            --primary: #9E2A2B;         
+            --primary-dark: #781F1F;    
+            --secondary: #64748B;
+            --bg-body: #F1F5F9;         
+            --sidebar-width: 270px;
         }
 
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Plus Jakarta Sans', sans-serif;
             background-color: var(--bg-body);
-            color: var(--text-main);
+            color: #334155;
             overflow-x: hidden;
         }
 
-        /* Sidebar & Layout */
+        /* --- SIDEBAR & OVERLAY --- */
         .sidebar {
-            width: var(--sidebar-width); height: 100vh; position: fixed; top: 0; left: 0;
-            background: white; border-right: 1px solid var(--border-color); z-index: 1000;
+            width: var(--sidebar-width);
+            height: 100vh;
+            position: fixed;
+            background: #FFFFFF;
+            border-right: 1px dashed #E2E8F0;
+            z-index: 1001;
+            padding: 24px;
             display: flex; flex-direction: column;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
+
+        .sidebar-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            display: none; opacity: 0; transition: opacity 0.3s ease;
+        }
+        .sidebar-overlay.show { display: block; opacity: 1; }
+
         .sidebar-brand {
-            padding: 24px; display: flex; align-items: center; gap: 12px;
-            font-weight: 700; font-size: 1.25rem; color: var(--primary-color);
-            text-decoration: none; border-bottom: 1px solid var(--border-color);
-        }
-        .nav-item {
-            padding: 10px 24px; color: var(--text-muted); text-decoration: none;
-            display: flex; align-items: center; gap: 12px; font-weight: 500; transition: all 0.2s;
-            margin-bottom: 2px;
-        }
-        .nav-item:hover { color: var(--primary-color); background-color: #FEF2F2; }
-        .nav-item.active { color: var(--primary-color); background-color: #FEF2F2; border-right: 3px solid var(--primary-color); }
-        .nav-section-label {
-            font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;
-            color: #9CA3AF; padding: 24px 24px 8px 24px; font-weight: 600;
+            display: flex; align-items: center; gap: 12px;
+            padding-bottom: 30px; text-decoration: none; color: var(--primary);
         }
         
-        .main-wrapper { margin-left: var(--sidebar-width); min-height: 100vh; display: flex; flex-direction: column; }
-        
-        /* Header */
-        .top-header {
-            background: white; height: 70px; border-bottom: 1px solid var(--border-color);
-            display: flex; align-items: center; justify-content: space-between; padding: 0 32px;
-        }
-        .user-menu-btn { display: flex; align-items: center; gap: 10px; cursor: pointer; text-decoration: none; color: var(--text-main); }
-        .avatar-header {
-            width: 36px; height: 36px; background-color: var(--primary-color);
-            color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-weight: 600; font-size: 0.9rem;
+        .nav-label {
+            font-size: 0.7rem; font-weight: 700; color: #94A3B8;
+            text-transform: uppercase; letter-spacing: 0.08em;
+            margin: 20px 0 10px 12px;
         }
 
-        /* --- CONTENT AREA --- */
-        .content-area { padding: 32px; width: 100%; }
-        
-        .card-clean {
-            background: white; border: 1px solid var(--border-color);
-            border-radius: 12px; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            padding: 24px; margin-bottom: 24px;
+        .nav-link {
+            display: flex; align-items: center; gap: 12px;
+            padding: 12px 16px; color: #64748B;
+            border-radius: 12px; font-weight: 500;
+            transition: all 0.2s; text-decoration: none; margin-bottom: 4px;
         }
 
-        /* Table Styling */
+        .nav-link:hover { background-color: #FEF2F2; color: var(--primary); }
+
+        .nav-link.active {
+            background: linear-gradient(90deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white; box-shadow: 0 4px 12px rgba(158, 42, 43, 0.3);
+        }
+        .nav-link.active i { color: white; }
+
+        /* --- MAIN CONTENT --- */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            min-height: 100vh;
+            transition: margin-left 0.3s ease-in-out;
+        }
+
+        .hero-banner {
+            background: linear-gradient(135deg, var(--primary) 0%, #561616 100%);
+            height: 280px; padding: 40px; color: white;
+            border-bottom-left-radius: 30px; border-bottom-right-radius: 30px;
+        }
+
+        .glass-profile {
+            background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2); padding: 8px 16px;
+            border-radius: 50px; color: white; display: flex; align-items: center; gap: 12px;
+            cursor: pointer; transition: 0.2s;
+        }
+        .glass-profile:hover { background: rgba(255, 255, 255, 0.2); }
+
+        .dashboard-container { padding: 0 40px 40px 40px; margin-top: -80px; }
+
+        .card-content {
+            background: white; border-radius: 16px; border: 1px solid #F1F5F9;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.06);
+            overflow: hidden; margin-bottom: 24px; padding: 0;
+        }
+
+        /* --- TABLE & SEARCH STYLING --- */
+        .table-custom { width: 100%; border-collapse: separate; border-spacing: 0; }
+        
         .table-custom thead th {
-            background-color: #F9FAFB; color: var(--text-muted); font-size: 0.75rem;
-            font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;
-            border-bottom: 1px solid var(--border-color); padding: 12px 16px; border-top: none;
+            background: #F8FAFC; color: #64748B; padding: 16px 24px;
+            font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+            border-bottom: 1px solid #E2E8F0;
         }
+        
         .table-custom tbody td {
-            padding: 16px; vertical-align: middle; border-bottom: 1px solid #F3F4F6;
-            color: var(--text-main); font-size: 0.9rem;
+            padding: 16px 24px; vertical-align: middle;
+            border-bottom: 1px solid #F1F5F9; color: #334155; font-size: 0.95rem;
         }
-        .table-custom tbody tr:last-child td { border-bottom: none; }
         
-        .avatar-initials {
-            width: 40px; height: 40px; background-color: #FEF2F2; color: var(--primary-color);
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-weight: 700; font-size: 0.9rem;
-        }
-
-        /* Status Badges */
-        .badge-status { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
-        .badge-active { background-color: #ECFDF5; color: #059669; border: 1px solid #D1FAE5; }
-        .badge-inactive { background-color: #F3F4F6; color: #6B7280; border: 1px solid #E5E7EB; }
-
-        /* Buttons & Form */
-        .btn-primary-custom {
-            background-color: var(--primary-color); border: none; padding: 10px 20px;
-            border-radius: 8px; color: white; font-weight: 500; text-decoration: none;
-            display: inline-flex; align-items: center; gap: 8px; transition: 0.2s;
-        }
-        .btn-primary-custom:hover { background-color: var(--primary-hover); color: white; }
+        .table-custom tbody tr:hover { background-color: #FAFAFA; }
         
-        .btn-back-link {
-            display: inline-flex; align-items: center; gap: 8px; 
-            color: var(--text-muted); text-decoration: none; font-weight: 500; margin-right: 15px;
+        /* Action Buttons */
+        .btn-action {
+            width: 34px; height: 34px; border-radius: 8px; 
+            display: flex; align-items: center; justify-content: center;
+            border: 1px solid #E2E8F0; background: white; color: #64748B;
+            transition: 0.2s; text-decoration: none;
         }
-        .btn-back-link:hover { color: var(--primary-color); }
+        .btn-action:hover { border-color: var(--primary); color: var(--primary); background: #FEF2F2; }
+        .btn-action.delete:hover { border-color: #EF4444; color: #EF4444; background: #FEF2F2; }
 
-        .form-control-clean {
-            border: 1px solid var(--border-color); border-radius: 8px; padding: 10px 14px;
+        /* Badges */
+        .status-badge { padding: 6px 12px; border-radius: 30px; font-size: 0.75rem; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+        .status-active { background: #F0FDF4; color: #15803D; border: 1px solid #DCFCE7; }
+        .status-inactive { background: #F1F5F9; color: #64748B; border: 1px solid #E2E8F0; }
+
+        /* Search Box */
+        .search-box { position: relative; }
+        .search-box input {
+            padding-left: 42px; border-radius: 50px; height: 45px;
+            border: 1px solid #E2E8F0; background: #F8FAFC;
+            transition: 0.2s; font-size: 0.9rem;
         }
-        .form-control-clean:focus { border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(158, 42, 43, 0.1); }
+        .search-box input:focus { border-color: var(--secondary); background: white; box-shadow: 0 0 0 4px rgba(100, 116, 139, 0.1); outline: none; }
+        .search-box i {
+            position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #94A3B8;
+        }
 
-        /* Pagination Fix */
-        .pagination { margin-bottom: 0; }
-        .page-item.active .page-link { background-color: var(--primary-color); border-color: var(--primary-color); }
-        .page-link { color: var(--text-main); border-radius: 6px; margin: 0 2px; }
-
+        /* Mobile */
+        .mobile-toggler { display: none; color: white; font-size: 1.5rem; background: none; border: none; margin-right: 15px; }
+        
         @media (max-width: 992px) {
-            .sidebar { transform: translateX(-100%); transition: transform 0.3s; }
-            .main-wrapper { margin-left: 0; }
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.show { transform: translateX(0); }
+            .main-content { margin-left: 0; }
+            .hero-banner { padding: 20px; height: auto; padding-bottom: 100px; }
+            .dashboard-container { padding: 0 20px 20px; }
+            .mobile-toggler { display: block; }
+            .table-responsive { overflow-x: auto; }
         }
     </style>
 </head>
 <body>
 
-    <nav class="sidebar">
-        <a href="{{ route('admin.dashboard') }}" class="sidebar-brand">
-            <img src="{{ asset('logokabupatensemarang.png') }}" alt="Logo" width="32">
-            <span>SIIPUL</span>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <nav class="sidebar" id="sidebar">
+        <a href="#" class="sidebar-brand">
+            <img src="{{ asset('logokabupatensemarang.png') }}" alt="Logo" width="36">
+            <div style="line-height: 1.1;">
+                <div style="font-weight: 800; font-size: 1.1rem; letter-spacing: -0.5px;">SIIPUL</div>
+                <div style="font-size: 0.7rem; color: #94A3B8; font-weight: 500;">Kab. Semarang</div>
+            </div>
         </a>
 
-        <div class="d-flex flex-column flex-grow-1 py-3">
-            <div class="nav-section-label">UTAMA</div>
-            <a href="{{ route('admin.dashboard') }}" class="nav-item">
+        <div style="overflow-y: auto; flex: 1;">
+            <div class="nav-label">Main Menu</div>
+            
+            <a href="{{ route('admin.dashboard') }}" class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
                 <i class="bi bi-grid"></i> Dashboard
             </a>
-            <a href="{{ route('admin.kelola_pengajuan') }}" class="nav-item">
-                <i class="bi bi-journal-check"></i> Kelola Pengajuan
+            
+            <a href="{{ route('admin.kelola_pengajuan') }}" class="nav-link {{ request()->routeIs('admin.kelola_pengajuan') ? 'active' : '' }}">
+                <i class="bi bi-file-earmark-text-fill"></i> Pengajuan Cuti
             </a>
-            <a href="{{ route('admin.kelola_pegawai') }}" class="nav-item active">
+            
+            <a href="{{ route('admin.kelola_pegawai') }}" class="nav-link {{ request()->routeIs('admin.kelola_pegawai') || request()->routeIs('admin.pegawai.*') ? 'active' : '' }}">
                 <i class="bi bi-people"></i> Data Pegawai
             </a>
-
-            <div class="nav-section-label">LAPORAN</div>
-            <a href="{{ route('admin.laporan') }}" class="nav-item">
-                <i class="bi bi-file-earmark-bar-graph"></i> Rekap Bulanan
+            
+            <div class="nav-label">Laporan</div>
+            <a href="{{ route('admin.laporan') }}" class="nav-link {{ request()->routeIs('admin.laporan') ? 'active' : '' }}">
+                <i class="bi bi-printer"></i> Rekapitulasi
             </a>
+        </div>
+        
+        <div class="mt-auto pt-4 border-top border-dashed">
+             <form action="{{ route('logout') }}" method="POST">
+                @csrf
+                <button type="submit" class="btn btn-outline-danger w-100 border-0 d-flex align-items-center gap-2 px-3 py-2 bg-light" style="font-size: 0.9rem;">
+                    <i class="bi bi-box-arrow-left"></i> Keluar Aplikasi
+                </button>
+            </form>
         </div>
     </nav>
 
-    <div class="main-wrapper">
+    <div class="main-content">
         
-        <header class="top-header">
-            <div class="d-flex align-items-center gap-3">
-                <h5 class="m-0 fw-bold">Data Pegawai</h5>
-            </div>
-            
-            <div class="dropdown">
-                <a href="#" class="user-menu-btn" data-bs-toggle="dropdown">
-                    <div class="text-end d-none d-sm-block">
-                        <div class="fw-bold" style="font-size: 0.9rem;">{{ Auth::user()->name ?? 'Admin' }}</div>
-                        <div class="text-muted" style="font-size: 0.75rem;">{{ ucfirst(Auth::user()->role) }}</div>
-                    </div>
-                    <div class="avatar-header">{{ substr(Auth::user()->name ?? 'A', 0, 2) }}</div>
-                </a>
-                <ul class="dropdown-menu dropdown-menu-end shadow-sm border mt-2 p-2 rounded-3">
-                    <li>
-                        <form action="{{ route('logout') }}" method="POST">
-                            @csrf
-                            <button type="submit" class="dropdown-item rounded text-danger">Log Out</button>
-                        </form>
-                    </li>
-                </ul>
-            </div>
-        </header>
-
-        <div class="content-area">
-
-            <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="hero-banner">
+            <div class="d-flex justify-content-between align-items-start">
                 <div class="d-flex align-items-center">
-                    <a href="{{ route('admin.dashboard') }}" class="btn-back-link"><i class="bi bi-arrow-left fs-5"></i></a>
+                    <button class="mobile-toggler" id="btnToggleSidebar">
+                        <i class="bi bi-list"></i>
+                    </button>
                     <div>
-                        <h4 class="fw-bold mb-0">Kelola Pegawai</h4>
-                        <div class="text-muted small">Daftar seluruh pegawai terdaftar</div>
+                        <div class="text-white text-opacity-75 small mb-1 fw-medium">
+                            Administrator <i class="bi bi-chevron-right mx-1" style="font-size: 0.7rem"></i> Master Data
+                        </div>
+                        <h2 class="fw-bold m-0 text-white">Kelola Pegawai</h2>
                     </div>
                 </div>
-                <a href="{{ route('admin.tambah_pegawai') }}" class="btn-primary-custom shadow-sm">
-                    <i class="bi bi-plus-lg"></i> Tambah Pegawai
-                </a>
-            </div>
-
-            @if (session('success'))
-                <div class="alert alert-success d-flex align-items-center mb-4 border-0 shadow-sm" role="alert" style="background-color: #ECFDF5; color: #065F46;">
-                    <i class="bi bi-check-circle-fill me-2 fs-5"></i>
-                    <div>{{ session('success') }}</div>
-                    <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
-                </div>
-            @endif
-
-            @if (session('error'))
-                <div class="alert alert-danger d-flex align-items-center mb-4 border-0 shadow-sm" role="alert" style="background-color: #FEF2F2; color: #991B1B;">
-                    <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
-                    <div>{{ session('error') }}</div>
-                    <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
-                </div>
-            @endif
-
-            <div class="card-clean">
-                <form action="{{ route('admin.kelola_pegawai') }}" method="GET">
-                    <div class="row g-3 align-items-end">
-                        <div class="col-md-9">
-                            <label class="form-label small text-muted fw-bold">PENCARIAN</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-white border-end-0 border-muted text-muted"><i class="bi bi-search"></i></span>
-                                <input type="text" name="search" class="form-control form-control-clean border-start-0 ps-0" placeholder="Cari nama pegawai atau NIP..." value="{{ request('search') }}">
-                            </div>
+                
+                <div class="dropdown">
+                    <div class="glass-profile" data-bs-toggle="dropdown">
+                        <div class="rounded-circle bg-white text-danger fw-bold d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                            {{ substr(Auth::user()->name, 0, 1) }}
                         </div>
-                        <div class="col-md-3">
-                            <button type="submit" class="btn btn-dark w-100 py-2 rounded-3 fw-medium">
-                                Cari Data
-                            </button>
+                        <span class="d-none d-md-block small fw-medium">{{ Auth::user()->name }}</span>
+                        <i class="bi bi-chevron-down small d-none d-md-block"></i>
+                    </div>
+                     <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 mt-2 p-2 rounded-3">
+                        <li><a class="dropdown-item rounded small" href="#">Profile Saya</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item rounded small text-danger" href="#">Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-container">
+            
+            @if(session('success'))
+            <div class="alert alert-success d-flex align-items-center border-0 shadow-sm rounded-3 mb-4" role="alert" style="background-color: #F0FDF4; color: #15803D;">
+                <i class="bi bi-check-circle-fill me-2 fs-5"></i>
+                <div>{{ session('success') }}</div>
+                <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            @endif
+
+            <div class="card-content">
+                
+                <div class="p-4 border-bottom border-light bg-white">
+                    <div class="row g-3 align-items-center">
+                        <div class="col-md-4">
+                            <form action="{{ route('admin.kelola_pegawai') }}" method="GET">
+                                <div class="search-box">
+                                    <i class="bi bi-search"></i>
+                                    <input type="text" name="search" class="form-control" placeholder="Cari nama atau NIP..." value="{{ request('search') }}">
+                                </div>
+                            </form>
+                        </div>
+                        <div class="col-md-8 text-md-end">
+                            <a href="{{ route('admin.tambah_pegawai') }}" class="btn btn-primary rounded-pill px-4 py-2 fw-bold shadow-sm" style="background: var(--primary); border:none;">
+                                <i class="bi bi-plus-lg me-2"></i>Tambah Pegawai
+                            </a>
                         </div>
                     </div>
-                </form>
-            </div>
+                </div>
 
-            <div class="card-clean p-0 overflow-hidden">
                 <div class="table-responsive">
-                    <table class="table table-custom mb-0">
+                    <table class="table-custom">
                         <thead>
                             <tr>
-                                <th class="ps-4">No</th>
-                                <th>Nama & NIP</th>
-                                <th>Posisi</th>
+                                <th class="ps-4">Nama Pegawai</th>
+                                <th>NIP</th>
+                                <th>Jabatan</th>
                                 <th>Unit Kerja</th>
                                 <th>Sisa Cuti</th>
                                 <th>Status</th>
@@ -246,42 +283,47 @@
                         <tbody>
                             @forelse($pegawai as $p)
                             <tr>
-                                <td class="ps-4">{{ $loop->iteration + $pegawai->firstItem() - 1 }}</td>
-                                <td>
+                                <td class="ps-4">
                                     <div class="d-flex align-items-center gap-3">
-                                        <div class="avatar-initials">
-                                            {{ substr($p->name, 0, 2) }}
+                                        <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold" 
+                                             style="width: 40px; height: 40px; background: #F1F5F9; color: var(--secondary);">
+                                            {{ substr($p->name, 0, 1) }}
                                         </div>
+                                        
                                         <div>
-                                            <span class="fw-bold d-block text-dark">{{ $p->name }}</span>
-                                            <span class="text-muted small" style="font-family: monospace;">{{ $p->nip }}</span>
+                                            <div class="fw-bold text-dark">{{ $p->name }}</div>
+                                            <div class="text-muted small" style="font-size: 0.75rem;">{{ $p->email }}</div>
                                         </div>
                                     </div>
                                 </td>
+                                <td class="text-secondary fw-medium font-monospace">{{ $p->nip }}</td>
                                 <td>{{ $p->jabatan ?? '-' }}</td>
                                 <td>{{ $p->bidang_unit ?? '-' }}</td>
                                 <td>
-                                    <span class="fw-bold">{{ $p->annual_leave_quota ?? 12 }}</span>
-                                    <span class="text-muted small">/ 12 Hari</span>
+                                    <span class="fw-bold text-dark">{{ $p->annual_leave_quota }}</span>
+                                    <span class="text-muted small">/ 12</span>
                                 </td>
                                 <td>
                                     @if($p->status == 'nonaktif')
-                                        <span class="badge-status badge-inactive">Non-aktif</span>
+                                        <span class="status-badge status-inactive">
+                                            <i class="bi bi-circle-fill" style="font-size: 6px;"></i> Non-Aktif
+                                        </span>
                                     @else
-                                        <span class="badge-status badge-active">Aktif</span>
+                                        <span class="status-badge status-active">
+                                            <i class="bi bi-circle-fill" style="font-size: 6px;"></i> Aktif
+                                        </span>
                                     @endif
                                 </td>
-                                <td class="text-end pe-4">
+                                <td class="pe-4">
                                     <div class="d-flex justify-content-end gap-2">
-                                        <a href="{{ route('admin.pegawai.edit', $p->id) }}" class="btn btn-sm btn-outline-warning" title="Edit">
+                                        <a href="{{ route('admin.pegawai.edit', $p->id) }}" class="btn-action" title="Edit Data">
                                             <i class="bi bi-pencil-square"></i>
                                         </a>
                                         
-                                        <form id="delete-form-{{ $p->id }}" action="{{ route('admin.pegawai.destroy', $p->id) }}" method="POST" class="d-inline">
+                                        <form id="delete-form-{{ $p->id }}" action="{{ route('admin.pegawai.destroy', $p->id) }}" method="POST">
                                             @csrf
                                             @method('DELETE')
-                                            
-                                            <button type="button" onclick="konfirmasiHapus({{ $p->id }})" class="btn btn-sm btn-outline-danger" title="Hapus">
+                                            <button type="button" onclick="konfirmasiHapus({{ $p->id }})" class="btn-action delete" title="Hapus Pegawai">
                                                 <i class="bi bi-trash"></i>
                                             </button>
                                         </form>
@@ -291,8 +333,8 @@
                             @empty
                             <tr>
                                 <td colspan="7" class="text-center py-5">
-                                    <div class="text-muted opacity-50 mb-2"><i class="bi bi-inbox fs-1"></i></div>
-                                    <p class="text-muted small mb-0">Belum ada data pegawai ditemukan.</p>
+                                    <div class="text-muted opacity-25 mb-3"><i class="bi bi-people fs-1"></i></div>
+                                    <p class="text-muted small m-0">Tidak ada data pegawai ditemukan.</p>
                                 </td>
                             </tr>
                             @endforelse
@@ -300,16 +342,22 @@
                     </table>
                 </div>
 
-                <div class="d-flex flex-column flex-md-row justify-content-between align-items-center p-4 border-top bg-light bg-opacity-10">
-                    <small class="text-muted mb-2 mb-md-0">
-                        Menampilkan {{ $pegawai->firstItem() }} s/d {{ $pegawai->lastItem() }} dari {{ $pegawai->total() }} data
+                @if($pegawai->hasPages())
+                <div class="p-4 border-top border-light d-flex justify-content-between align-items-center bg-white">
+                    <small class="text-muted fw-medium">
+                        Menampilkan {{ $pegawai->firstItem() }}-{{ $pegawai->lastItem() }} dari {{ $pegawai->total() }} pegawai
                     </small>
                     <div>
                         {{ $pegawai->links('pagination::bootstrap-5') }}
                     </div>
                 </div>
+                @endif
+                
             </div>
 
+            <div class="mt-5 text-center">
+                <p class="text-muted small opacity-50">&copy; 2026 Pemerintah Kabupaten Semarang.</p>
+            </div>
         </div>
     </div>
 
@@ -317,17 +365,32 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
+        // --- 1. SCRIPT SIDEBAR MOBILE ---
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        const btnToggle = document.getElementById('btnToggleSidebar');
+
+        function toggleSidebar() {
+            sidebar.classList.toggle('show');
+            overlay.classList.toggle('show');
+        }
+
+        btnToggle.addEventListener('click', toggleSidebar);
+        overlay.addEventListener('click', toggleSidebar);
+
+        // --- 2. SCRIPT DELETE CONFIRMATION ---
         function konfirmasiHapus(id) {
             Swal.fire({
-                title: 'Hapus Pegawai?',
+                title: 'Hapus Data Pegawai?',
                 text: "Data yang dihapus tidak dapat dikembalikan!",
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#9E2A2B', // Sesuaikan warna merah dashboard
-                cancelButtonColor: '#6B7280',
-                confirmButtonText: 'Ya, Hapus!',
+                confirmButtonColor: '#9E2A2B', 
+                cancelButtonColor: '#64748B',
+                confirmButtonText: 'Ya, Hapus',
                 cancelButtonText: 'Batal',
-                reverseButtons: true
+                reverseButtons: true,
+                focusCancel: true
             }).then((result) => {
                 if (result.isConfirmed) {
                     document.getElementById('delete-form-' + id).submit();
@@ -335,28 +398,5 @@
             })
         }
     </script>
-
-    @if(session('success'))
-    <script>
-        Swal.fire({
-            icon: 'success',
-            title: 'Berhasil!',
-            text: '{{ session('success') }}',
-            confirmButtonColor: '#9E2A2B'
-        });
-    </script>
-    @endif
-
-    @if(session('error'))
-    <script>
-        Swal.fire({
-            icon: 'error',
-            title: 'Gagal!',
-            text: '{{ session('error') }}',
-            confirmButtonColor: '#9E2A2B'
-        });
-    </script>
-    @endif
-
 </body>
 </html>

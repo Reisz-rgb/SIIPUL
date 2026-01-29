@@ -4,410 +4,351 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Admin - SIIPUL</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
+        /* Variables */
         :root {
-            --primary-color: #9E2A2B;
-            --primary-hover: #7F1D1D;
-            --bg-body: #F3F4F6; /* Cool Gray */
-            --sidebar-width: 260px;
-            --border-color: #E5E7EB;
-            --text-main: #111827;
-            --text-muted: #6B7280;
+            --primary: #9E2A2B;       /* Red Maroon */
+            --primary-dark: #781F1F;  /* Dark Red */
+            --secondary: #64748B;     /* Slate Grey */
+            --bg-body: #F1F5F9;       /* Slate 100 */
+            --sidebar-width: 270px;
         }
 
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Plus Jakarta Sans', sans-serif;
             background-color: var(--bg-body);
-            color: var(--text-main);
-            overflow-x: hidden;
+            color: #334155;
+            overflow-x: hidden; /* Prevent horizontal scroll */
         }
 
-        /* --- SIDEBAR --- */
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+
+        /* Sidebar */
         .sidebar {
             width: var(--sidebar-width);
             height: 100vh;
             position: fixed;
             top: 0; left: 0;
-            background: white;
-            border-right: 1px solid var(--border-color);
-            z-index: 1000;
-            display: flex;
-            flex-direction: column;
+            background: #FFFFFF;
+            border-right: 1px dashed #E2E8F0;
+            z-index: 1050; /* Di atas konten utama */
+            padding: 24px;
+            display: flex; flex-direction: column;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .sidebar-brand {
-            padding: 24px;
-            display: flex; align-items: center; gap: 12px;
-            font-weight: 700; font-size: 1.25rem; color: var(--primary-color);
-            text-decoration: none; border-bottom: 1px solid var(--border-color);
+            display: flex; align-items: center; gap: 12px; padding-bottom: 30px;
+            text-decoration: none; color: var(--primary);
+        }
+        
+        .nav-label {
+            font-size: 0.7rem; font-weight: 700; color: #94A3B8;
+            text-transform: uppercase; letter-spacing: 0.08em;
+            margin: 20px 0 10px 12px;
         }
 
-        .nav-item {
-            padding: 10px 24px;
-            color: var(--text-muted);
-            text-decoration: none;
-            display: flex; align-items: center; gap: 12px;
-            font-weight: 500;
-            transition: all 0.2s;
-            margin-bottom: 2px;
+        .nav-link {
+            display: flex; align-items: center; gap: 12px; padding: 12px 16px;
+            color: #64748B; border-radius: 12px; font-weight: 500;
+            transition: all 0.2s; margin-bottom: 4px; text-decoration: none;
         }
 
-        .nav-item:hover { color: var(--primary-color); background-color: #FEF2F2; }
-        .nav-item.active { color: var(--primary-color); background-color: #FEF2F2; border-right: 3px solid var(--primary-color); }
-        .nav-section-label {
-            font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;
-            color: #9CA3AF; padding: 24px 24px 8px 24px; font-weight: 600;
-        }
+        .nav-link:hover { background-color: #FEF2F2; color: var(--primary); }
 
-        /* --- MAIN CONTENT --- */
-        .main-wrapper {
+        /* Active State */
+        .nav-link.active {
+            background: linear-gradient(90deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(158, 42, 43, 0.3);
+        }
+        .nav-link.active i { color: white; }
+
+        /* Main Layout */
+        .main-content {
             margin-left: var(--sidebar-width);
             min-height: 100vh;
-            display: flex; flex-direction: column;
+            transition: margin-left 0.3s ease-in-out;
         }
 
-        /* --- TOP HEADER --- */
-        .top-header {
-            background: white;
-            height: 70px;
-            border-bottom: 1px solid var(--border-color);
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 0 32px;
+        /* Hero Banner */
+        .hero-banner {
+            background: linear-gradient(135deg, var(--primary) 0%, #561616 100%);
+            height: 280px;
+            padding: 40px;
+            color: white;
+            border-bottom-left-radius: 30px;
+            border-bottom-right-radius: 30px;
         }
 
-        /* --- CARDS & WIDGETS --- */
-        .content-area { padding: 32px; }
+        /* Glass Profile */
+        .glass-profile {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 8px 16px;
+            border-radius: 50px;
+            color: white;
+            display: flex; align-items: center; gap: 12px;
+            cursor: pointer; transition: 0.2s;
+        }
+        .glass-profile:hover { background: rgba(255, 255, 255, 0.2); }
 
-        .card-clean {
-            background: white;
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            margin-bottom: 24px;
+        /* Cards & Widgets */
+        .dashboard-container {
+            padding: 0 40px 40px 40px;
+            margin-top: -80px; /* Overlap */
+        }
+
+        .card-stat {
+            background: white; border: none; border-radius: 16px;
+            padding: 24px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.06);
+            height: 100%; transition: transform 0.2s;
+        }
+        .card-stat:hover { transform: translateY(-5px); }
+
+        .stat-icon {
+            width: 48px; height: 48px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.4rem; margin-bottom: 16px;
+        }
+
+        .card-content {
+            background: white; border-radius: 16px;
+            border: 1px solid #F1F5F9;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
             overflow: hidden;
         }
-
-        .stat-card {
-            padding: 24px;
-            display: flex; justify-content: space-between; align-items: flex-start;
-        }
-        .stat-title { font-size: 0.875rem; color: var(--text-muted); font-weight: 500; margin-bottom: 4px; }
-        .stat-value { font-size: 1.75rem; font-weight: 700; color: var(--text-main); margin: 0; }
-        .stat-icon {
-            width: 48px; height: 48px; border-radius: 10px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.25rem;
+        .card-header-custom {
+            padding: 24px; border-bottom: 1px dashed #E2E8F0;
+            display: flex; justify-content: space-between; align-items: center;
         }
 
-        /* Activity Feed */
-        .activity-item {
-            padding: 16px 20px;
-            border-bottom: 1px solid var(--border-color);
-            display: flex; gap: 12px;
+        .list-item-custom {
+            padding: 16px 24px; border-bottom: 1px solid #F8FAFC;
+            transition: background 0.1s;
         }
-        .activity-item:last-child { border-bottom: none; }
-        .activity-dot {
-            width: 10px; height: 10px; border-radius: 50%;
-            margin-top: 6px; flex-shrink: 0;
-        }
+        .list-item-custom:hover { background-color: #FDFDFD; }
 
-        /* Custom Form Elements */
-        .form-control, .form-select {
-            border-color: #D1D5DB; padding: 10px 14px; font-size: 0.9rem; border-radius: 8px;
+        /* Mobile UX */
+        .mobile-toggler { 
+            display: none; color: white; font-size: 1.5rem; 
+            border: none; background: none; margin-right: 15px; 
         }
-        .form-control:focus, .form-select:focus {
-            border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(158, 42, 43, 0.1);
-        }
-
-        /* User Dropdown */
-        .user-menu-btn {
-            display: flex; align-items: center; gap: 10px;
-            padding: 6px 12px; border-radius: 8px;
-            cursor: pointer; transition: background 0.2s;
-            text-decoration: none; color: var(--text-main);
-        }
-        .user-menu-btn:hover { background-color: #F3F4F6; }
-        .avatar-circle {
-            width: 36px; height: 36px; background-color: var(--primary-color);
-            color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-weight: 600; font-size: 0.9rem;
+        
+        #sidebarOverlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.5); z-index: 1040;
+            display: none; backdrop-filter: blur(2px);
         }
 
         @media (max-width: 992px) {
-            .sidebar { transform: translateX(-100%); transition: transform 0.3s; }
-            .main-wrapper { margin-left: 0; }
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.show { transform: translateX(0); }
+            .main-content { margin-left: 0; }
+            .hero-banner { border-radius: 0; padding: 20px; height: auto; padding-bottom: 100px; }
+            .dashboard-container { padding: 0 20px 20px 20px; }
+            .mobile-toggler { display: block; }
         }
     </style>
 </head>
 <body>
 
-    <nav class="sidebar">
+    <div id="sidebarOverlay"></div>
+
+    <nav class="sidebar" id="sidebar">
         <a href="#" class="sidebar-brand">
-            <img src="{{ asset('logokabupatensemarang.png') }}" alt="Logo" width="32">
-            <span>SIIPUL</span>
+            <img src="{{ asset('logokabupatensemarang.png') }}" alt="Logo" width="36">
+            <div style="line-height: 1.1;">
+                <div style="font-weight: 800; font-size: 1.1rem; letter-spacing: -0.5px;">SIIPUL</div>
+                <div style="font-size: 0.7rem; color: #94A3B8; font-weight: 500;">Kab. Semarang</div>
+            </div>
         </a>
 
-        <div class="d-flex flex-column flex-grow-1 py-3">
-            <div class="nav-section-label">UTAMA</div>
-            <a href="#" class="nav-item active">
-                <i class="bi bi-grid"></i> Dashboard
-            </a>
-            <a href="{{ route('admin.kelola_pengajuan') }}" class="nav-item">
-                <i class="bi bi-journal-check"></i> Kelola Pengajuan
-            </a>
-            <a href="{{ route('admin.kelola_pegawai') }}" class="nav-item">
-                <i class="bi bi-people"></i> Data Pegawai
+        <div style="overflow-y: auto; flex: 1;" class="custom-scrollbar">
+            <div class="nav-label">Main Menu</div>
+            
+            <a href="{{ route('admin.dashboard') }}" class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                <i class="bi bi-grid-fill"></i> Dashboard
             </a>
 
-            <div class="nav-section-label">LAPORAN</div>
-            <a href="{{ route('admin.laporan') }}" class="nav-item">
-                <i class="bi bi-file-earmark-bar-graph"></i> Rekap Bulanan
+            <a href="{{ route('admin.kelola_pengajuan') }}" class="nav-link {{ request()->routeIs('admin.kelola_pengajuan*') ? 'active' : '' }}">
+                <i class="bi bi-file-earmark-text"></i> Pengajuan Cuti
+                @if(isset($menunggu) && $menunggu > 0)
+                    <span class="badge bg-danger rounded-pill ms-auto" style="font-size: 0.7rem">{{ $menunggu }}</span>
+                @endif
+            </a>
+
+            <a href="{{ route('admin.kelola_pegawai') }}" class="nav-link {{ request()->routeIs('admin.kelola_pegawai*') ? 'active' : '' }}">
+                <i class="bi bi-people"></i> Data Pegawai
+            </a>
+            
+            <div class="nav-label">Laporan</div>
+            <a href="{{ route('admin.laporan') }}" class="nav-link {{ request()->routeIs('admin.laporan*') ? 'active' : '' }}">
+                <i class="bi bi-printer"></i> Rekapitulasi
             </a>
         </div>
 
-        <div class="p-4 border-top">
-            <div class="alert alert-light border mb-0 p-2 d-flex align-items-center gap-2">
-                <i class="bi bi-database text-muted"></i>
-                <div style="font-size: 0.75rem; line-height: 1.2;" class="text-muted">
-                    Database Sinkron<br>
-                    <strong>{{ $totalPengajuan }} Data</strong>
-                </div>
-            </div>
+        <div class="mt-auto pt-4 border-top border-dashed">
+             <form action="{{ route('logout') }}" method="POST">
+                @csrf
+                <button type="submit" class="btn btn-outline-danger w-100 border-0 d-flex align-items-center gap-2 px-3 py-2 bg-light" style="font-size: 0.9rem;">
+                    <i class="bi bi-box-arrow-left"></i> Keluar Aplikasi
+                </button>
+            </form>
         </div>
     </nav>
 
-    <div class="main-wrapper">
+    <div class="main-content">
         
-        <header class="top-header">
-            <div class="d-flex align-items-center">
-                <h5 class="m-0 fw-bold">Dashboard Overview</h5>
-            </div>
-            
-            <div class="dropdown">
-                <a href="#" class="user-menu-btn" data-bs-toggle="dropdown">
-                    <div class="text-end d-none d-sm-block">
-                        <div class="fw-bold" style="font-size: 0.9rem;">{{ Auth::user()->name }}</div>
-                        <div class="text-muted" style="font-size: 0.75rem;">{{ ucfirst(Auth::user()->role) }}</div>
+        <div class="hero-banner">
+            <div class="d-flex justify-content-between align-items-start">
+                <div class="d-flex align-items-center">
+                    <button class="mobile-toggler">
+                        <i class="bi bi-list"></i>
+                    </button>
+                    <div>
+                        <h2 class="fw-bold m-0 text-white">Dashboard Overview</h2>
+                        <p class="text-white text-opacity-75 m-0 small mt-1">Pantau aktivitas cuti pegawai secara real-time.</p>
                     </div>
-                    <div class="avatar-circle">{{ substr(Auth::user()->name, 0, 2) }}</div>
-                </a>
-                <ul class="dropdown-menu dropdown-menu-end shadow-sm border mt-2 p-2" style="border-radius: 8px;">
-                    <li><a class="dropdown-item rounded" href="#">Profile Saya</a></li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li>
-                        <form action="{{ route('logout') }}" method="POST">
-                            @csrf
-                            <button type="submit" class="dropdown-item rounded text-danger">Log Out</button>
-                        </form>
-                    </li>
-                </ul>
-            </div>
-        </header>
+                </div>
 
-        <div class="content-area">
-            
-            <div class="row g-4 mb-4">
-                <div class="col-xl col-md-6"> <div class="card-clean stat-card h-100">
-                        <div>
-                            <div class="stat-title">Total Pengajuan</div>
-                            <h2 class="stat-value">{{ $totalPengajuan }}</h2>
-                            <small class="text-success fw-medium"><i class="bi bi-arrow-up-short"></i> All time</small>
+                <div class="dropdown">
+                    <div class="glass-profile" data-bs-toggle="dropdown">
+                        <div class="rounded-circle bg-white text-danger fw-bold d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                            {{ substr(Auth::user()->name ?? 'A', 0, 1) }}
                         </div>
-                        <div class="stat-icon bg-primary bg-opacity-10 text-primary">
+                        <span class="d-none d-md-block small fw-medium">{{ Auth::user()->name ?? 'Admin' }}</span>
+                        <i class="bi bi-chevron-down small d-none d-md-block"></i>
+                    </div>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 mt-2 p-2 rounded-3">
+                        <li><a class="dropdown-item rounded small" href="#">Profile Saya</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form action="{{ route('logout') }}" method="POST">
+                                @csrf
+                                <button type="submit" class="dropdown-item rounded small text-danger">Logout</button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-container">
+            <div class="row g-4 mb-4">
+                <div class="col-12 col-sm-6 col-xl-3">
+                    <div class="card-stat">
+                        <div class="stat-icon" style="background: #EFF6FF; color: #3B82F6;">
                             <i class="bi bi-files"></i>
                         </div>
+                        <div class="text-muted small fw-bold text-uppercase">Total Pengajuan</div>
+                        <div class="fs-2 fw-bold text-dark mt-1">{{ $totalPengajuan ?? 0 }}</div>
+                        <div class="small text-muted mt-2"><i class="bi bi-calendar me-1"></i> Sepanjang waktu</div>
                     </div>
                 </div>
 
-                <div class="col-xl col-md-6"> <div class="card-clean stat-card h-100">
-                        <div>
-                            <div class="stat-title">Disetujui</div>
-                            <h2 class="stat-value">{{ $disetujui }}</h2>
-                            <small class="text-muted">Permohonan sukses</small>
-                        </div>
-                        <div class="stat-icon bg-success bg-opacity-10 text-success">
+                <div class="col-12 col-sm-6 col-xl-3">
+                    <div class="card-stat">
+                        <div class="stat-icon" style="background: #F0FDF4; color: #16A34A;">
                             <i class="bi bi-check-lg"></i>
                         </div>
+                        <div class="text-muted small fw-bold text-uppercase">Disetujui</div>
+                        <div class="fs-2 fw-bold text-dark mt-1">{{ $disetujui ?? 0 }}</div>
+                        <div class="small text-success mt-2"><i class="bi bi-graph-up-arrow me-1"></i> Sukses</div>
                     </div>
                 </div>
 
-                <div class="col-xl col-md-6"> <div class="card-clean stat-card h-100">
-                        <div>
-                            <div class="stat-title">Ditolak</div>
-                            <h2 class="stat-value text-danger">{{ $ditolak ?? 0 }}</h2> 
-                            <small class="text-danger fw-medium">Permohonan ditolak</small>
+                <div class="col-12 col-sm-6 col-xl-3">
+                    <div class="card-stat">
+                        <div class="stat-icon" style="background: #FFF7ED; color: #EA580C;">
+                            <i class="bi bi-hourglass-split"></i>
                         </div>
-                        <div class="stat-icon bg-danger bg-opacity-10 text-danger">
-                            <i class="bi bi-x-circle"></i>
-                        </div>
+                        <div class="text-muted small fw-bold text-uppercase">Perlu Review</div>
+                        <div class="fs-2 fw-bold text-dark mt-1">{{ $menunggu ?? 0 }}</div>
+                        <div class="small text-warning mt-2"><i class="bi bi-exclamation-circle me-1"></i> Menunggu</div>
                     </div>
                 </div>
 
-                <div class="col-xl col-md-6"> <div class="card-clean stat-card h-100">
-                        <div>
-                            <div class="stat-title">Menunggu</div>
-                            <h2 class="stat-value text-warning">{{ $menunggu }}</h2>
-                            <small class="text-warning fw-medium">Perlu tindakan</small>
+                <div class="col-12 col-sm-6 col-xl-3">
+                    <div class="card-stat">
+                        <div class="stat-icon" style="background: #FEF2F2; color: #DC2626;">
+                            <i class="bi bi-x-octagon"></i>
                         </div>
-                        <div class="stat-icon bg-warning bg-opacity-10 text-warning">
-                            <i class="bi bi-clock"></i>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-xl col-md-6"> <div class="card-clean stat-card h-100">
-                        <div>
-                            <div class="stat-title">Pegawai Aktif</div>
-                            <h2 class="stat-value">{{ $totalPegawai }}</h2>
-                            <small class="text-muted">User terdaftar</small>
-                        </div>
-                        <div class="stat-icon bg-secondary bg-opacity-10 text-secondary">
-                            <i class="bi bi-people"></i>
-                        </div>
+                        <div class="text-muted small fw-bold text-uppercase">Ditolak</div>
+                        <div class="fs-2 fw-bold text-dark mt-1">{{ $ditolak ?? 0 }}</div>
+                        <div class="small text-danger mt-2">Tidak disetujui</div>
                     </div>
                 </div>
             </div>
 
             <div class="row g-4">
                 <div class="col-lg-8">
-                    
-                    <div class="card-clean p-4">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h6 class="fw-bold m-0">Statistik Cuti (6 Bulan)</h6>
+                    <div class="card-content mb-4 h-100">
+                        <div class="card-header-custom bg-white">
+                            <h6 class="m-0 fw-bold text-dark">Statistik Bulanan</h6>
                             <button class="btn btn-sm btn-outline-light text-muted border">
-                                <i class="bi bi-download me-1"></i> Save Report
+                                <i class="bi bi-download me-1"></i> Report
                             </button>
                         </div>
-                        <div style="height: 320px;">
+                        <div class="p-4" style="height: 320px;">
                             <canvas id="statsChart"></canvas>
                         </div>
-                    </div>
-
-                    <div class="card-clean">
-                        <div class="p-3 px-4 border-bottom bg-light bg-opacity-25 d-flex justify-content-between align-items-center">
-                            <h6 class="fw-bold m-0 text-dark">
-                                <i class="bi bi-hourglass-split text-warning me-2"></i>Menunggu Persetujuan
-                            </h6>
-                            <span class="badge bg-warning text-dark rounded-pill">{{ $menunggu }} Pending</span>
-                        </div>
-                        
-                        <div class="list-group list-group-flush">
-                            @forelse($pendingRequests as $request)
-                                <div class="list-group-item p-4 border-bottom">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div class="d-flex align-items-center gap-3">
-                                            <div class="avatar-circle bg-light text-secondary" style="font-size: 0.8rem;">
-                                                {{ substr($request->user->name, 0, 2) }}
-                                            </div>
-                                            <div>
-                                                <h6 class="mb-1 fw-bold text-dark">{{ $request->user->name }}</h6>
-                                                <div class="small text-muted mb-1">
-                                                    {{ $request->jenis_cuti }} &bull; {{ $request->duration }} Hari
-                                                </div>
-                                                <div class="small text-secondary bg-light px-2 py-1 rounded d-inline-block">
-                                                    {{ \Carbon\Carbon::parse($request->start_date)->format('d M') }} - 
-                                                    {{ \Carbon\Carbon::parse($request->end_date)->format('d M Y') }}
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <a href="{{ route('admin.pengajuan.show', $request->id) }}" class="btn btn-sm btn-outline-dark">
-                                                Review
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            @empty
-                                <div class="p-5 text-center text-muted">
-                                    <i class="bi bi-check-circle fs-1 text-light mb-3 d-block" style="color: #e5e7eb !important;"></i>
-                                    Tidak ada pengajuan yang menunggu.
-                                </div>
-                            @endforelse
-                        </div>
-                        @if($menunggu > 0)
-                        <div class="p-3 text-center bg-light bg-opacity-10">
-                            <a href="{{ route('admin.kelola_pengajuan') }}" class="text-decoration-none fw-semibold" style="font-size: 0.9rem; color: var(--primary-color);">
-                                Lihat Semua Pengajuan
-                            </a>
-                        </div>
-                        @endif
                     </div>
                 </div>
 
                 <div class="col-lg-4">
-                    
-                    <div class="card-clean p-4">
-                        <h6 class="fw-bold mb-3">Export Laporan</h6>
-                        <form>
-                            <div class="mb-3">
-                                <label class="form-label small text-muted fw-bold">Periode Tanggal</label>
-                                <div class="input-group">
-                                    <input type="date" class="form-control" style="font-size: 0.8rem;">
-                                    <span class="input-group-text bg-white text-muted">-</span>
-                                    <input type="date" class="form-control" style="font-size: 0.8rem;">
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label small text-muted fw-bold">Filter</label>
-                                <select class="form-select mb-2">
-                                    <option value="">Semua Pegawai</option>
-                                    @foreach($listPegawai as $pegawai)
-                                        <option value="{{ $pegawai->id }}">{{ $pegawai->name }}</option>
-                                    @endforeach
-                                </select>
-                                <select class="form-select">
-                                    <option value="">Semua Status</option>
-                                    <option value="approved">Disetujui</option>
-                                    <option value="pending">Menunggu</option>
-                                    <option value="rejected">Ditolak</option>
-                                </select>
-                            </div>
-                            <div class="d-grid gap-2">
-                                <button type="submit" formaction="{{ route('admin.download.excel') }}" class="btn btn-success text-white btn-sm py-2 fw-medium">
-                                    <i class="bi bi-file-excel me-2"></i>Download Excel
-                                </button>
-                                <button type="submit" formaction="{{ route('admin.download.pdf') }}" class="btn btn-danger btn-sm py-2 fw-medium" style="background-color: #9E2A2B; border:none;">
-                                    <i class="bi bi-file-pdf me-2"></i>Download PDF
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-
-                    <div class="card-clean">
-                        <div class="p-3 border-bottom">
-                            <h6 class="fw-bold m-0">Aktivitas Terakhir</h6>
+                    <div class="card-content h-100">
+                        <div class="card-header-custom bg-white">
+                            <h6 class="m-0 fw-bold text-dark">
+                                Menunggu Persetujuan
+                                @if(isset($menunggu) && $menunggu > 0)
+                                    <span class="badge bg-danger rounded-pill ms-1">{{ $menunggu }}</span>
+                                @endif
+                            </h6>
+                            <a href="{{ route('admin.kelola_pengajuan') }}" class="small text-decoration-none fw-bold" style="color: var(--primary);">View All</a>
                         </div>
-                        <div class="bg-white">
-                            @forelse($recentActivities as $activity)
-                                <div class="activity-item">
-                                    <div class="activity-dot {{ $activity->status == 'approved' ? 'bg-success' : ($activity->status == 'rejected' ? 'bg-danger' : 'bg-warning') }}"></div>
+                        
+                        <div class="list-group list-group-flush">
+                            @forelse($pendingRequests ?? [] as $request)
+                                <div class="list-item-custom d-flex gap-3 align-items-center">
+                                    <div class="rounded-circle bg-light d-flex align-items-center justify-content-center flex-shrink-0" style="width: 42px; height: 42px; color: var(--secondary); font-weight: 700;">
+                                        {{ substr(optional($request->user)->name ?? '?', 0, 1) }}
+                                    </div>
+                                    <div style="flex: 1; min-width: 0;">
+                                        <div class="fw-bold text-dark text-truncate">{{ optional($request->user)->name ?? 'User Tidak Dikenal' }}</div>
+                                        <div class="small text-muted">
+                                            {{ $request->jenis_cuti }} &bull; {{ $request->duration }} Hari
+                                        </div>
+                                    </div>
                                     <div>
-                                        <div class="small text-dark fw-medium">
-                                            {{ $activity->status == 'approved' ? 'Menyetujui cuti' : ($activity->status == 'rejected' ? 'Menolak cuti' : 'Pengajuan baru dari') }}
-                                            <span class="fw-bold">{{ $activity->user->name }}</span>
-                                        </div>
-                                        <div class="text-muted" style="font-size: 0.75rem;">
-                                            {{ $activity->jenis_cuti }} &bull; {{ $activity->updated_at->diffForHumans() }}
-                                        </div>
+                                        <a href="{{ route('admin.pengajuan.show', $request->id) }}" class="btn btn-sm btn-light border text-secondary fw-medium rounded-pill px-3">Review</a>
                                     </div>
                                 </div>
                             @empty
-                                <div class="p-4 text-center small text-muted">Belum ada aktivitas.</div>
+                                <div class="p-5 text-center">
+                                    <i class="bi bi-clipboard-check fs-1 text-muted opacity-25"></i>
+                                    <p class="text-muted small m-0 mt-2">Tidak ada pengajuan baru.</p>
+                                </div>
                             @endforelse
                         </div>
                     </div>
-
                 </div>
             </div>
-            
-            <div class="text-center mt-4 mb-5">
-                <small class="text-muted">&copy; 2026 Pemerintah Kabupaten Semarang. SIIPUL v2.0</small>
-            </div>
 
+            <div class="mt-5 text-center">
+                <p class="text-muted small opacity-50">&copy; 2026 Pemerintah Kabupaten Semarang. Hak Cipta Dilindungi.</p>
+            </div>
         </div>
     </div>
 
@@ -415,31 +356,67 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <script>
+        // Toggle Sidebar Mobile
+        const toggleBtn = document.querySelector('.mobile-toggler');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+
+        function toggleSidebar() {
+            sidebar.classList.toggle('show');
+            if(sidebar.classList.contains('show')) {
+                overlay.style.display = 'block';
+            } else {
+                overlay.style.display = 'none';
+            }
+        }
+
+        if(toggleBtn) {
+            toggleBtn.addEventListener('click', toggleSidebar);
+        }
+
+        // Close when clicking overlay
+        if(overlay) {
+            overlay.addEventListener('click', function() {
+                sidebar.classList.remove('show');
+                overlay.style.display = 'none';
+            });
+        }
+
+        // Chart Configuration
         const ctx = document.getElementById('statsChart').getContext('2d');
-        const labels = @json($chartLabels);
-        const dataApproved = @json($dataApproved);
-        const dataRejected = @json($dataRejected);
-        const dataPending = @json($dataPending);
+        const labels = @json($chartLabels ?? ['Jan', 'Feb', 'Mar']);
+        const approvedData = @json($dataApproved ?? [0, 0, 0]);
+        const pendingData = @json($dataPending ?? [0, 0, 0]);
+        const rejectedData = @json($dataRejected ?? [0, 0, 0]);
 
         new Chart(ctx, {
             type: 'bar',
             data: {
                 labels: labels,
                 datasets: [
-                    { label: 'Disetujui', data: dataApproved, backgroundColor: '#198754', borderRadius: 4, barPercentage: 0.6 },
-                    { label: 'Ditolak', data: dataRejected, backgroundColor: '#dc3545', borderRadius: 4, barPercentage: 0.6 },
-                    { label: 'Menunggu', data: dataPending, backgroundColor: '#ffc107', borderRadius: 4, barPercentage: 0.6 }
+                    { label: 'Disetujui', data: approvedData, backgroundColor: '#16A34A', borderRadius: 6, barPercentage: 0.6 },
+                    { label: 'Menunggu', data: pendingData, backgroundColor: '#EA580C', borderRadius: 6, barPercentage: 0.6 },
+                    { label: 'Ditolak', data: rejectedData, backgroundColor: '#DC2626', borderRadius: 6, barPercentage: 0.6 }
                 ]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: { 
-                    legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20 } } 
+                    legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20, boxWidth: 8 } },
+                    tooltip: { backgroundColor: '#1e293b', padding: 12, cornerRadius: 8 }
                 },
                 scales: {
-                    y: { beginAtZero: true, grid: { borderDash: [2, 4], color: '#f3f4f6' }, ticks: { stepSize: 1 } },
-                    x: { grid: { display: false } }
+                    y: { 
+                        beginAtZero: true, 
+                        border: { display: false }, 
+                        grid: { borderDash: [4, 4], color: '#f1f5f9' },
+                        ticks: { font: { size: 11 } }
+                    },
+                    x: { 
+                        grid: { display: false },
+                        ticks: { font: { size: 11 } }
+                    }
                 }
             }
         });

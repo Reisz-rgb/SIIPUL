@@ -4,255 +4,313 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Pegawai - SIIPUL</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
     
     <style>
-        /* --- STYLE DASAR DASHBOARD (Konsisten) --- */
+        /* --- 1. CORE VARIABLES (SAMA PERSIS DENGAN INDEX) --- */
         :root {
-            --primary-color: #9E2A2B;
-            --primary-hover: #7F1D1D;
-            --bg-body: #F3F4F6;
-            --sidebar-width: 260px;
-            --border-color: #E5E7EB;
-            --text-main: #111827;
-            --text-muted: #6B7280;
+            --primary: #9E2A2B;        
+            --primary-dark: #781F1F;    
+            --secondary: #64748B;
+            --bg-body: #F1F5F9;        
+            --sidebar-width: 270px;
         }
 
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Plus Jakarta Sans', sans-serif;
             background-color: var(--bg-body);
-            color: var(--text-main);
+            color: #334155;
             overflow-x: hidden;
         }
 
-        /* Sidebar & Layout */
+        /* --- SIDEBAR --- */
         .sidebar {
-            width: var(--sidebar-width); height: 100vh; position: fixed; top: 0; left: 0;
-            background: white; border-right: 1px solid var(--border-color); z-index: 1000;
-            display: flex; flex-direction: column;
+            width: var(--sidebar-width); height: 100vh; position: fixed;
+            background: #FFFFFF; border-right: 1px dashed #E2E8F0; z-index: 1000;
+            padding: 24px; display: flex; flex-direction: column; transition: 0.3s;
         }
         .sidebar-brand {
-            padding: 24px; display: flex; align-items: center; gap: 12px;
-            font-weight: 700; font-size: 1.25rem; color: var(--primary-color);
-            text-decoration: none; border-bottom: 1px solid var(--border-color);
+            display: flex; align-items: center; gap: 12px; padding-bottom: 30px;
+            text-decoration: none; color: var(--primary);
         }
-        .nav-item {
-            padding: 10px 24px; color: var(--text-muted); text-decoration: none;
-            display: flex; align-items: center; gap: 12px; font-weight: 500; transition: all 0.2s;
-            margin-bottom: 2px;
+        .nav-label {
+            font-size: 0.7rem; font-weight: 700; color: #94A3B8;
+            text-transform: uppercase; letter-spacing: 0.08em; margin: 20px 0 10px 12px;
         }
-        .nav-item:hover { color: var(--primary-color); background-color: #FEF2F2; }
-        .nav-item.active { color: var(--primary-color); background-color: #FEF2F2; border-right: 3px solid var(--primary-color); }
-        .nav-section-label {
-            font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;
-            color: #9CA3AF; padding: 24px 24px 8px 24px; font-weight: 600;
+        .nav-link {
+            display: flex; align-items: center; gap: 12px; padding: 12px 16px;
+            color: #64748B; border-radius: 12px; font-weight: 500;
+            transition: all 0.2s; text-decoration: none; margin-bottom: 4px;
         }
-        
-        .main-wrapper { margin-left: var(--sidebar-width); min-height: 100vh; display: flex; flex-direction: column; }
-        
-        /* Header */
-        .top-header {
-            background: white; height: 70px; border-bottom: 1px solid var(--border-color);
-            display: flex; align-items: center; justify-content: space-between; padding: 0 32px;
+        .nav-link:hover { background-color: #FEF2F2; color: var(--primary); }
+        .nav-link.active {
+            background: linear-gradient(90deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white; box-shadow: 0 4px 12px rgba(158, 42, 43, 0.3);
         }
-        .user-menu-btn { display: flex; align-items: center; gap: 10px; cursor: pointer; text-decoration: none; color: var(--text-main); }
-        .avatar-header {
-            width: 36px; height: 36px; background-color: var(--primary-color);
-            color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-weight: 600; font-size: 0.9rem;
+        .nav-link.active i { color: white; }
+
+        /* --- HERO & MAIN CONTENT --- */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            min-height: 100vh;
+            transition: margin-left 0.3s ease-in-out;
         }
 
-        /* --- CONTENT AREA & FORM --- */
-        .content-area { padding: 32px; width: 100%; max-width: 1000px; margin: 0 auto; }
-        
-        .card-clean {
-            background: white; border: 1px solid var(--border-color);
-            border-radius: 12px; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            padding: 32px; margin-bottom: 24px;
+        .hero-banner {
+            background: linear-gradient(135deg, var(--primary) 0%, #561616 100%);
+            height: 280px; padding: 40px; color: white;
+            border-bottom-left-radius: 30px; border-bottom-right-radius: 30px;
         }
 
-        .btn-back-link {
-            display: inline-flex; align-items: center; gap: 8px; 
-            color: var(--text-muted); text-decoration: none; font-weight: 500; margin-right: 15px;
+        /* Glass Profile */
+        .glass-profile {
+            background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2); padding: 8px 16px;
+            border-radius: 50px; color: white; display: flex; align-items: center; gap: 12px;
+            cursor: pointer; transition: 0.2s;
         }
-        .btn-back-link:hover { color: var(--primary-color); }
+        .glass-profile:hover { background: rgba(255, 255, 255, 0.2); }
 
-        .form-label { font-weight: 500; font-size: 0.9rem; color: var(--text-main); margin-bottom: 8px; }
+        /* --- FLOATING CONTENT --- */
+        .dashboard-container { padding: 0 40px 40px 40px; margin-top: -80px; }
+
+        .card-content {
+            background: white; border-radius: 16px; border: 1px solid #F1F5F9;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.06);
+            padding: 32px;
+        }
+
+        /* --- FORM STYLES --- */
+        .form-label {
+            font-size: 0.85rem; font-weight: 700; color: #64748B; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.02em;
+        }
         
-        .form-control-clean, .form-select-clean {
-            border: 1px solid var(--border-color); border-radius: 8px; padding: 10px 14px;
-            font-size: 0.95rem; color: var(--text-main); background-color: white;
-            width: 100%; transition: border-color 0.2s, box-shadow 0.2s;
+        .form-control, .form-select {
+            padding: 12px 16px; border-radius: 10px; border: 1px solid #E2E8F0;
+            font-size: 0.95rem; color: #334155; background-color: #F8FAFC;
+            transition: all 0.2s;
         }
-        .form-control-clean:focus, .form-select-clean:focus { 
-            border-color: var(--primary-color); outline: none; 
-            box-shadow: 0 0 0 3px rgba(158, 42, 43, 0.1); 
+        .form-control:focus, .form-select:focus {
+            background-color: #fff; border-color: var(--secondary);
+            box-shadow: 0 0 0 4px rgba(100, 116, 139, 0.1); outline: none;
         }
+        
+        .input-group-text {
+            background-color: #F1F5F9; border: 1px solid #E2E8F0;
+            border-radius: 10px 0 0 10px; color: #64748B;
+        }
+        /* Fix border radius for inputs inside groups */
+        .input-group .form-control { border-top-left-radius: 0; border-bottom-left-radius: 0; }
 
         /* Buttons */
-        .btn-warning-custom {
-            background-color: #F59E0B; border: none; padding: 12px 24px;
-            border-radius: 8px; color: white; font-weight: 600; width: 100%;
-            display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s;
+        .btn-cancel {
+            padding: 12px 24px; border-radius: 10px; font-weight: 600; font-size: 0.9rem;
+            background: #F1F5F9; color: #64748B; border: none; transition: 0.2s;
+            text-decoration: none; display: inline-block;
         }
-        .btn-warning-custom:hover { background-color: #D97706; color: white; transform: translateY(-1px); }
-        
-        .btn-secondary-custom {
-            background-color: white; border: 1px solid var(--border-color); padding: 12px 24px;
-            border-radius: 8px; color: var(--text-main); font-weight: 600; width: 100%;
-            display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none;
-            transition: 0.2s;
+        .btn-cancel:hover { background: #E2E8F0; color: #334155; }
+
+        .btn-submit {
+            padding: 12px 24px; border-radius: 10px; font-weight: 600; font-size: 0.9rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white; border: none; transition: 0.2s; box-shadow: 0 4px 12px rgba(158, 42, 43, 0.2);
         }
-        .btn-secondary-custom:hover { background-color: #F9FAFB; border-color: #D1D5DB; color: var(--text-main); }
+        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(158, 42, 43, 0.3); }
 
-        .is-invalid { border-color: #DC2626 !important; }
-        .invalid-feedback { font-size: 0.85rem; color: #DC2626; margin-top: 6px; }
-
+        /* Mobile */
+        .mobile-toggler { display: none; color: white; font-size: 1.5rem; background: none; border: none; margin-right: 15px; }
         @media (max-width: 992px) {
-            .sidebar { transform: translateX(-100%); transition: transform 0.3s; }
-            .main-wrapper { margin-left: 0; }
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.show { transform: translateX(0); }
+            .main-content { margin-left: 0; }
+            .hero-banner { padding: 20px; height: auto; padding-bottom: 100px; }
+            .dashboard-container { padding: 0 20px 20px; }
+            .mobile-toggler { display: block; }
         }
     </style>
 </head>
 <body>
 
-    <nav class="sidebar">
-        <a href="{{ route('admin.dashboard') }}" class="sidebar-brand">
-            <img src="{{ asset('logokabupatensemarang.png') }}" alt="Logo" width="32">
-            <span>SIIPUL</span>
+    <nav class="sidebar" id="sidebar">
+        <a href="#" class="sidebar-brand">
+            <img src="{{ asset('logokabupatensemarang.png') }}" alt="Logo" width="36">
+            <div style="line-height: 1.1;">
+                <div style="font-weight: 800; font-size: 1.1rem; letter-spacing: -0.5px;">SIIPUL</div>
+                <div style="font-size: 0.7rem; color: #94A3B8; font-weight: 500;">Kab. Semarang</div>
+            </div>
         </a>
 
-        <div class="d-flex flex-column flex-grow-1 py-3">
-            <div class="nav-section-label">UTAMA</div>
-            <a href="{{ route('admin.dashboard') }}" class="nav-item">
+        <div style="overflow-y: auto; flex: 1;">
+            <div class="nav-label">Main Menu</div>
+            <a href="{{ route('admin.dashboard') }}" class="nav-link">
                 <i class="bi bi-grid"></i> Dashboard
             </a>
-            <a href="{{ route('admin.kelola_pengajuan') }}" class="nav-item">
-                <i class="bi bi-journal-check"></i> Kelola Pengajuan
+            <a href="{{ route('admin.kelola_pengajuan') }}" class="nav-link">
+                <i class="bi bi-file-earmark-text-fill"></i> Pengajuan Cuti
             </a>
-            <a href="{{ route('admin.kelola_pegawai') }}" class="nav-item active">
+            <a href="{{ route('admin.kelola_pegawai') }}" class="nav-link active">
                 <i class="bi bi-people"></i> Data Pegawai
             </a>
-
-            <div class="nav-section-label">LAPORAN</div>
-            <a href="{{ route('admin.laporan') }}" class="nav-item">
-                <i class="bi bi-file-earmark-bar-graph"></i> Rekap Bulanan
+            <div class="nav-label">Laporan</div>
+            <a href="{{ route('admin.laporan') }}" class="nav-link">
+                <i class="bi bi-printer"></i> Rekapitulasi
             </a>
+        </div>
+        <div class="mt-auto pt-4 border-top border-dashed">
+             <form action="{{ route('logout') }}" method="POST">
+                @csrf
+                <button type="submit" class="btn btn-outline-danger w-100 border-0 d-flex align-items-center gap-2 px-3 py-2 bg-light" style="font-size: 0.9rem;">
+                    <i class="bi bi-box-arrow-left"></i> Keluar Aplikasi
+                </button>
+            </form>
         </div>
     </nav>
 
-    <div class="main-wrapper">
+    <div class="main-content">
         
-        <header class="top-header">
-            <div class="d-flex align-items-center gap-3">
-                <h5 class="m-0 fw-bold">Data Pegawai</h5>
-            </div>
-            
-            <div class="dropdown">
-                <a href="#" class="user-menu-btn" data-bs-toggle="dropdown">
-                    <div class="text-end d-none d-sm-block">
-                        <div class="fw-bold" style="font-size: 0.9rem;">{{ Auth::user()->name ?? 'Admin' }}</div>
-                        <div class="text-muted" style="font-size: 0.75rem;">{{ ucfirst(Auth::user()->role) }}</div>
+        <div class="hero-banner">
+            <div class="d-flex justify-content-between align-items-start">
+                <div class="d-flex align-items-center">
+                    <button class="mobile-toggler" onclick="document.getElementById('sidebar').classList.toggle('show')">
+                        <i class="bi bi-list"></i>
+                    </button>
+                    <div>
+                        <div class="text-white text-opacity-75 small mb-1 fw-medium">
+                            Data Pegawai <i class="bi bi-chevron-right mx-1" style="font-size: 0.7rem"></i> Edit
+                        </div>
+                        <h2 class="fw-bold m-0 text-white">Edit Data Pegawai</h2>
                     </div>
-                    <div class="avatar-header">{{ substr(Auth::user()->name ?? 'A', 0, 2) }}</div>
-                </a>
-                <ul class="dropdown-menu dropdown-menu-end shadow-sm border mt-2 p-2 rounded-3">
-                    <li>
-                        <form action="{{ route('logout') }}" method="POST">
-                            @csrf
-                            <button type="submit" class="dropdown-item rounded text-danger">Log Out</button>
-                        </form>
-                    </li>
-                </ul>
-            </div>
-        </header>
-
-        <div class="content-area">
-
-            <div class="d-flex align-items-center mb-4">
-                <a href="{{ route('admin.kelola_pegawai') }}" class="btn-back-link"><i class="bi bi-arrow-left fs-5"></i></a>
-                <div>
-                    <h4 class="fw-bold mb-0">Edit Pegawai</h4>
-                    <div class="text-muted small">Perbarui informasi data diri pegawai</div>
+                </div>
+                
+                <div class="dropdown">
+                    <div class="glass-profile" data-bs-toggle="dropdown">
+                        <div class="rounded-circle bg-white text-danger fw-bold d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                            {{ substr(Auth::user()->name ?? 'A', 0, 1) }}
+                        </div>
+                        <span class="d-none d-md-block small fw-medium">{{ Auth::user()->name ?? 'Admin' }}</span>
+                        <i class="bi bi-chevron-down small d-none d-md-block"></i>
+                    </div>
+                     <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 mt-2 p-2 rounded-3">
+                        <li><a class="dropdown-item rounded small" href="#">Profile Saya</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item rounded small text-danger" href="#">Logout</a></li>
+                    </ul>
                 </div>
             </div>
+        </div>
 
-            <div class="card-clean">
+        <div class="dashboard-container">
+            <div class="card-content">
+                
+                <div class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom border-light">
+                    <a href="{{ route('admin.kelola_pegawai') }}" class="btn btn-light rounded-circle p-2 text-secondary" style="width: 40px; height: 40px; display: grid; place-items: center; transition: 0.2s;" onmouseover="this.style.background='#E2E8F0'" onmouseout="this.style.background='#F8FAFC'">
+                        <i class="bi bi-arrow-left fs-5"></i>
+                    </a>
+                    <div>
+                        <h5 class="fw-bold m-0 text-dark">Formulir Perubahan Data</h5>
+                        <div class="text-muted small">Silakan perbarui informasi pegawai dengan teliti.</div>
+                    </div>
+                </div>
+
                 <form id="formEditPegawai" action="{{ route('admin.pegawai.update', $pegawai->id) }}" method="POST">
                     @csrf
                     @method('PUT') 
 
                     <div class="row g-4">
-                        <div class="col-md-6">
+                        <div class="col-12 col-md-6">
                             <label class="form-label">Nama Lengkap</label>
-                            <input type="text" name="name" class="form-control-clean @error('name') is-invalid @enderror" 
-                                   value="{{ old('name', $pegawai->name) }}" required>
-                            @error('name') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-person"></i></span>
+                                <input type="text" name="name" class="form-control @error('name') is-invalid @enderror" 
+                                       value="{{ old('name', $pegawai->name) }}" placeholder="Nama Lengkap" required>
+                            </div>
+                            @error('name') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                         </div>
                         
-                        <div class="col-md-6">
-                            <label class="form-label">NIP</label>
-                            <input type="number" name="nip" class="form-control-clean @error('nip') is-invalid @enderror" 
-                                   value="{{ old('nip', $pegawai->nip) }}" required>
-                            @error('nip') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        <div class="col-12 col-md-6">
+                            <label class="form-label">NIP (Nomor Induk Pegawai)</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-card-text"></i></span>
+                                <input type="number" name="nip" class="form-control @error('nip') is-invalid @enderror" 
+                                       value="{{ old('nip', $pegawai->nip) }}" placeholder="19xxxxxxxxxx" required>
+                            </div>
+                            @error('nip') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                         </div>
                         
-                        <div class="col-md-6">
-                            <label class="form-label">Email</label>
-                            <input type="email" name="email" class="form-control-clean @error('email') is-invalid @enderror" 
-                                   value="{{ old('email', $pegawai->email) }}" required>
-                            @error('email') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        <div class="col-12 col-md-6">
+                            <label class="form-label">Alamat Email</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                                <input type="email" name="email" class="form-control @error('email') is-invalid @enderror" 
+                                       value="{{ old('email', $pegawai->email) }}" placeholder="contoh@semarangkab.go.id" required>
+                            </div>
+                            @error('email') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                         </div>
                         
-                        <div class="col-md-6">
-                            <label class="form-label">Nomor Telepon</label>
-                            <input type="text" name="phone" class="form-control-clean @error('phone') is-invalid @enderror" 
-                                   value="{{ old('phone', $pegawai->phone) }}" required>
-                            @error('phone') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        <div class="col-12 col-md-6">
+                            <label class="form-label">Nomor WhatsApp / Telepon</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-telephone"></i></span>
+                                <input type="text" name="phone" class="form-control @error('phone') is-invalid @enderror" 
+                                       value="{{ old('phone', $pegawai->phone) }}" placeholder="08xxxxxxxxxx" required>
+                            </div>
+                            @error('phone') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                         </div>
                         
-                        <div class="col-md-6">
+                        <div class="col-12 col-md-6">
                             <label class="form-label">Posisi / Jabatan</label>
-                            <input type="text" name="jabatan" class="form-control-clean @error('jabatan') is-invalid @enderror" 
-                                   value="{{ old('jabatan', $pegawai->jabatan) }}" required>
-                            @error('jabatan') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-briefcase"></i></span>
+                                <input type="text" name="jabatan" class="form-control @error('jabatan') is-invalid @enderror" 
+                                       value="{{ old('jabatan', $pegawai->jabatan) }}" placeholder="Contoh: Staf Teknis" required>
+                            </div>
+                            @error('jabatan') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                         </div>
                         
-                        <div class="col-md-6">
-                            <label class="form-label">Unit Kerja</label>
-                            <input type="text" name="bidang_unit" class="form-control-clean @error('bidang_unit') is-invalid @enderror" 
-                                   value="{{ old('bidang_unit', $pegawai->bidang_unit) }}" required>
-                            @error('bidang_unit') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        <div class="col-12 col-md-6">
+                            <label class="form-label">Bidang / Unit Kerja</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-building"></i></span>
+                                <input type="text" name="bidang_unit" class="form-control @error('bidang_unit') is-invalid @enderror" 
+                                       value="{{ old('bidang_unit', $pegawai->bidang_unit) }}" placeholder="Contoh: Dinas Kominfo" required>
+                            </div>
+                            @error('bidang_unit') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                         </div>
                         
-                        <div class="col-md-12">
-                             <label class="form-label">Status Akun</label>
-                             <select name="status" class="form-select-clean">
-                                 <option value="aktif" {{ old('status', $pegawai->status) == 'aktif' ? 'selected' : '' }}>Aktif</option>
-                                 <option value="nonaktif" {{ old('status', $pegawai->status) == 'nonaktif' ? 'selected' : '' }}>Non-aktif</option>
-                             </select>
+                        <div class="col-12">
+                            <div class="p-3 rounded-3 bg-light border border-secondary-subtle">
+                                <label class="form-label mb-2">Status Akun Sistem</label>
+                                <select name="status" class="form-select w-auto">
+                                    <option value="aktif" {{ old('status', $pegawai->status) == 'aktif' ? 'selected' : '' }}>Aktif</option>
+                                    <option value="nonaktif" {{ old('status', $pegawai->status) == 'nonaktif' ? 'selected' : '' }}>Non-aktif</option>
+                                </select>
+                                <div class="d-flex align-items-start gap-2 mt-2 text-muted small">
+                                    <i class="bi bi-info-circle-fill mt-1 text-primary"></i>
+                                    <span style="line-height: 1.4;">Akun dengan status <strong>Non-aktif</strong> tidak akan bisa login ke dalam sistem aplikasi SIIPUL. Pastikan status benar sebelum menyimpan.</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <hr class="my-4 border-light">
-
-                    <div class="row g-3">
-                        <div class="col-md-6 order-md-2">
-                            <button type="button" onclick="simpanPerubahan()" class="btn-warning-custom">
-                                <i class="bi bi-pencil-square"></i> Update Data
-                            </button>
-                        </div>
-                        <div class="col-md-6 order-md-1">
-                            <a href="{{ route('admin.kelola_pegawai') }}" class="btn-secondary-custom">
-                                Batal
-                            </a>
-                        </div>
+                    <div class="d-flex justify-content-end gap-3 mt-5 pt-3 border-top border-light">
+                        <a href="{{ route('admin.kelola_pegawai') }}" class="btn-cancel">Batal</a>
+                        <button type="button" onclick="simpanPerubahan()" class="btn-submit">
+                            <i class="bi bi-save me-2"></i>Simpan Perubahan
+                        </button>
                     </div>
+
                 </form>
             </div>
+            
+            <div class="mt-5 text-center">
+                <p class="text-muted small opacity-50">&copy; 2026 Pemerintah Kabupaten Semarang.</p>
+            </div>
+
         </div>
     </div>
 
@@ -261,8 +319,9 @@
     
     <script>
         function simpanPerubahan() {
-            // Cek validitas form HTML5 sederhana
             const form = document.getElementById('formEditPegawai');
+            
+            // Validasi HTML5 dasar
             if(!form.checkValidity()) {
                 form.reportValidity();
                 return;
@@ -270,16 +329,17 @@
 
             Swal.fire({
                 title: 'Simpan Perubahan?',
-                text: "Data pegawai akan diperbarui.",
-                icon: 'warning',
+                text: "Pastikan data pegawai yang Anda masukkan sudah benar.",
+                icon: 'question',
                 showCancelButton: true,
-                confirmButtonColor: '#F59E0B', // Warna Warning
-                cancelButtonColor: '#6B7280', // Warna Secondary/Gray
-                confirmButtonText: 'Ya, Update!',
+                confirmButtonColor: '#9E2A2B', 
+                cancelButtonColor: '#64748B',
+                confirmButtonText: 'Ya, Simpan',
                 cancelButtonText: 'Batal',
                 reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
+                    // Loading state
                     Swal.fire({
                         title: 'Menyimpan...',
                         html: 'Mohon tunggu sebentar.',

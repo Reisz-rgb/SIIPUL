@@ -4,321 +4,420 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Laporan & Analytics - SIIPUL</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
-        /* --- STYLE DASAR DASHBOARD (Konsisten) --- */
+        /* --- 1. CORE VARIABLES & LAYOUT (KONSISTEN) --- */
         :root {
-            --primary-color: #9E2A2B;
-            --primary-hover: #7F1D1D;
-            --bg-body: #F3F4F6;
-            --sidebar-width: 260px;
-            --border-color: #E5E7EB;
-            --text-main: #111827;
-            --text-muted: #6B7280;
+            --primary: #9E2A2B;
+            --primary-dark: #781F1F;
+            --bg-body: #F1F5F9;
+            --text-secondary: #64748B;
+            --sidebar-width: 270px;
         }
 
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Plus Jakarta Sans', sans-serif;
             background-color: var(--bg-body);
-            color: var(--text-main);
+            color: #334155;
             overflow-x: hidden;
         }
 
-        /* Sidebar & Layout */
+        /* --- SIDEBAR --- */
         .sidebar {
-            width: var(--sidebar-width); height: 100vh; position: fixed; top: 0; left: 0;
-            background: white; border-right: 1px solid var(--border-color); z-index: 1000;
-            display: flex; flex-direction: column;
+            width: var(--sidebar-width); height: 100vh; position: fixed;
+            background: #FFFFFF; border-right: 1px dashed #E2E8F0; z-index: 1000;
+            padding: 20px; display: flex; flex-direction: column; transition: 0.3s;
         }
         .sidebar-brand {
-            padding: 24px; display: flex; align-items: center; gap: 12px;
-            font-weight: 700; font-size: 1.25rem; color: var(--primary-color);
-            text-decoration: none; border-bottom: 1px solid var(--border-color);
+            display: flex; align-items: center; gap: 12px; padding: 0 12px 30px 12px;
+            text-decoration: none; color: var(--primary);
         }
-        .nav-item {
-            padding: 10px 24px; color: var(--text-muted); text-decoration: none;
-            display: flex; align-items: center; gap: 12px; font-weight: 500; transition: all 0.2s;
-            margin-bottom: 2px;
+        .nav-label {
+            font-size: 0.7rem; font-weight: 700; color: #94A3B8;
+            text-transform: uppercase; letter-spacing: 0.08em; margin: 20px 0 10px 12px;
         }
-        .nav-item:hover { color: var(--primary-color); background-color: #FEF2F2; }
-        .nav-item.active { color: var(--primary-color); background-color: #FEF2F2; border-right: 3px solid var(--primary-color); }
-        .nav-section-label {
-            font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;
-            color: #9CA3AF; padding: 24px 24px 8px 24px; font-weight: 600;
+        .nav-link {
+            display: flex; align-items: center; gap: 12px; padding: 12px 16px;
+            color: #64748B; border-radius: 12px; font-weight: 500;
+            transition: all 0.2s; text-decoration: none; margin-bottom: 4px;
         }
+        .nav-link:hover { background-color: #FEF2F2; color: var(--primary); }
+        .nav-link.active {
+            background: linear-gradient(90deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white; box-shadow: 0 4px 12px rgba(158, 42, 43, 0.3);
+        }
+        .nav-link.active i { color: white; }
+
+        /* --- HERO & MAIN CONTENT --- */
+        .main-content { margin-left: var(--sidebar-width); min-height: 100vh; }
         
-        .main-wrapper { margin-left: var(--sidebar-width); min-height: 100vh; display: flex; flex-direction: column; }
-        
-        /* Header */
-        .top-header {
-            background: white; height: 70px; border-bottom: 1px solid var(--border-color);
-            display: flex; align-items: center; justify-content: space-between; padding: 0 32px;
-        }
-        .user-menu-btn { display: flex; align-items: center; gap: 10px; cursor: pointer; text-decoration: none; color: var(--text-main); }
-        .avatar-header {
-            width: 36px; height: 36px; background-color: var(--primary-color);
-            color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-weight: 600; font-size: 0.9rem;
+        .hero-banner {
+            background: linear-gradient(135deg, var(--primary) 0%, #561616 100%);
+            padding: 40px 40px 100px 40px; color: white;
+            border-bottom-left-radius: 30px; border-bottom-right-radius: 30px;
         }
 
-        /* --- CONTENT AREA & COMPONENTS --- */
-        .content-area { padding: 32px; width: 100%; max-width: 1200px; margin: 0 auto; }
-        
-        .card-clean {
-            background: white; border: 1px solid var(--border-color);
-            border-radius: 12px; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            padding: 24px; height: 100%;
+        .glass-profile {
+            background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2); padding: 8px 16px;
+            border-radius: 50px; color: white; display: flex; align-items: center; gap: 12px;
+            cursor: pointer; transition: 0.2s;
+        }
+        .glass-profile:hover { background: rgba(255, 255, 255, 0.2); }
+
+        /* --- DASHBOARD CONTAINER & CARDS --- */
+        .dashboard-container { padding: 0 40px 40px 40px; margin-top: -60px; }
+
+        .card-content {
+            background: white; border-radius: 16px; border: none;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.06);
+            padding: 24px; margin-bottom: 24px; transition: transform 0.2s;
         }
 
-        .btn-back-link {
-            display: inline-flex; align-items: center; gap: 8px; 
-            color: var(--text-muted); text-decoration: none; font-weight: 500; margin-right: 15px;
+        /* --- FILTERS & INPUTS --- */
+        .form-label-custom {
+            font-size: 0.75rem; font-weight: 700; color: #94A3B8; margin-bottom: 6px; text-transform: uppercase;
         }
-        .btn-back-link:hover { color: var(--primary-color); }
+        .form-control-custom, .form-select-custom {
+            border: 1px solid #E2E8F0; border-radius: 10px; padding: 10px 14px;
+            font-size: 0.9rem; background-color: #F8FAFC; color: #334155;
+            transition: all 0.2s;
+        }
+        .form-control-custom:focus, .form-select-custom:focus {
+            background-color: white; border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(158, 42, 43, 0.1); outline: none;
+        }
 
-        /* Filter & Inputs */
-        .form-select-clean {
-            border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 14px;
-            font-size: 0.9rem; color: var(--text-main); background-color: white;
-            cursor: pointer;
-        }
-        
-        /* Export Buttons */
+        /* Buttons Export */
         .btn-export {
-            padding: 8px 16px; border-radius: 8px; font-size: 0.85rem; font-weight: 500;
-            display: flex; align-items: center; gap: 8px; text-decoration: none; transition: 0.2s; border: 1px solid transparent;
+            padding: 10px 16px; border-radius: 10px; font-weight: 600; font-size: 0.85rem;
+            text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s;
+            height: 42px; /* Samakan tinggi dengan input */
         }
-        .btn-export-pdf { background-color: #FEF2F2; color: #991B1B; border-color: #FECACA; }
-        .btn-export-pdf:hover { background-color: #FEE2E2; color: #7F1D1D; }
-        .btn-export-excel { background-color: #ECFDF5; color: #065F46; border-color: #A7F3D0; }
-        .btn-export-excel:hover { background-color: #D1FAE5; color: #047857; }
+        .btn-pdf { background-color: #FEF2F2; color: #991B1B; border: 1px solid #FCA5A5; }
+        .btn-pdf:hover { background-color: #FEE2E2; transform: translateY(-2px); }
+        .btn-excel { background-color: #ECFDF5; color: #065F46; border: 1px solid #6EE7B7; }
+        .btn-excel:hover { background-color: #D1FAE5; transform: translateY(-2px); }
+        .btn-search {
+            background-color: var(--primary); color: white; border: none; border-radius: 10px;
+            padding: 0 20px; font-weight: 600; transition: 0.2s;
+        }
+        .btn-search:hover { background-color: var(--primary-dark); }
 
-        /* Stat Cards */
-        .stat-label { font-size: 0.85rem; color: var(--text-muted); font-weight: 500; }
-        .stat-value { font-size: 1.75rem; font-weight: 700; margin: 8px 0; color: var(--text-main); }
-        .stat-desc { font-size: 0.75rem; color: #9CA3AF; }
+        /* --- STAT CARDS --- */
+        .stat-card {
+            background: white; border-radius: 16px; padding: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); border: 1px solid #F1F5F9;
+            height: 100%; transition: 0.2s;
+        }
+        .stat-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+        .stat-icon-wrapper {
+            width: 48px; height: 48px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; margin-bottom: 16px;
+        }
+        .stat-label { font-size: 0.85rem; color: #64748B; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .stat-value { font-size: 2rem; font-weight: 800; color: #1E293B; line-height: 1.2; margin: 5px 0; }
+        
+        /* --- CHART & TABLE --- */
+        .chart-title { font-weight: 700; font-size: 1.1rem; color: #1E293B; margin-bottom: 20px; }
+        .progress-custom { height: 10px; border-radius: 20px; background-color: #F1F5F9; margin-bottom: 20px; }
+        .progress-bar { border-radius: 20px; }
 
-        /* Progress Bars */
-        .chart-title { font-weight: 600; font-size: 1rem; margin-bottom: 20px; color: var(--text-main); }
-        .progress-label { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 6px; color: var(--text-main); font-weight: 500; }
-        .progress-custom { height: 8px; border-radius: 4px; background-color: #F3F4F6; margin-bottom: 20px; box-shadow: inset 0 1px 2px rgba(0,0,0,0.05); }
-        
-        /* Table Styles */
-        .table-custom { width: 100%; border-collapse: separate; border-spacing: 0; }
-        .table-custom th { 
-            font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; 
-            color: var(--text-muted); font-weight: 600; padding: 12px 16px; 
-            background-color: #F9FAFB; border-bottom: 1px solid var(--border-color); 
+        .table-custom th {
+            font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;
+            color: #64748B; background-color: #F8FAFC; border-bottom: 1px solid #E2E8F0;
+            padding: 16px; font-weight: 600;
         }
-        .table-custom td { padding: 16px; vertical-align: middle; font-size: 0.9rem; border-bottom: 1px solid var(--border-color); }
-        .table-custom tr:last-child td { border-bottom: none; }
-        
-        .badge-num { 
-            display: inline-flex; align-items: center; justify-content: center;
-            padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; min-width: 40px; 
+        .table-custom td { padding: 16px; vertical-align: middle; border-bottom: 1px solid #F1F5F9; font-size: 0.9rem; }
+        .badge-stat { 
+            padding: 6px 12px; border-radius: 8px; font-weight: 700; font-size: 0.8rem; min-width: 40px; display: inline-block; text-align: center;
         }
-        .bg-light-green { background-color: #ECFDF5; color: #059669; }
-        .bg-light-red { background-color: #FEF2F2; color: #DC2626; }
-        .bg-light-yellow { background-color: #FFFBEB; color: #D97706; }
-        
+
+        /* Mobile */
+        .mobile-toggler { display: none; color: white; font-size: 1.5rem; background: none; border: none; margin-right: 15px; }
         @media (max-width: 992px) {
-            .sidebar { transform: translateX(-100%); transition: transform 0.3s; }
-            .main-wrapper { margin-left: 0; }
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.show { transform: translateX(0); }
+            .main-content { margin-left: 0; }
+            .hero-banner { padding: 20px 20px 80px 20px; }
+            .dashboard-container { padding: 0 20px 20px; }
+            .mobile-toggler { display: block; }
+            .stat-value { font-size: 1.75rem; }
         }
     </style>
 </head>
 <body>
 
-    <nav class="sidebar">
-        <a href="{{ route('admin.dashboard') }}" class="sidebar-brand">
-            <img src="{{ asset('logokabupatensemarang.png') }}" alt="Logo" width="32">
-            <span>SIIPUL</span>
+    <div class="position-fixed top-0 start-0 w-100 h-100 bg-dark bg-opacity-50 z-3 d-none" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <nav class="sidebar" id="sidebar">
+        <a href="#" class="sidebar-brand">
+            <img src="{{ asset('logokabupatensemarang.png') }}" alt="Logo" width="36">
+            <div style="line-height: 1.1;">
+                <div style="font-weight: 800; font-size: 1.1rem; letter-spacing: -0.5px;">SIIPUL</div>
+                <div style="font-size: 0.7rem; color: #94A3B8; font-weight: 500;">Kab. Semarang</div>
+            </div>
         </a>
 
-        <div class="d-flex flex-column flex-grow-1 py-3">
-            <div class="nav-section-label">UTAMA</div>
-            <a href="{{ route('admin.dashboard') }}" class="nav-item">
+        <div style="overflow-y: auto; flex: 1;">
+            <div class="nav-label">Main Menu</div>
+            <a href="{{ route('admin.dashboard') }}" class="nav-link">
                 <i class="bi bi-grid"></i> Dashboard
             </a>
-            <a href="{{ route('admin.kelola_pengajuan') }}" class="nav-item">
-                <i class="bi bi-journal-check"></i> Kelola Pengajuan
+            <a href="{{ route('admin.kelola_pengajuan') }}" class="nav-link">
+                <i class="bi bi-file-earmark-text-fill"></i> Pengajuan Cuti
             </a>
-            <a href="{{ route('admin.kelola_pegawai') }}" class="nav-item">
+            <a href="{{ route('admin.kelola_pegawai') }}" class="nav-link">
                 <i class="bi bi-people"></i> Data Pegawai
             </a>
-
-            <div class="nav-section-label">LAPORAN</div>
-            <a href="{{ route('admin.laporan') }}" class="nav-item active">
-                <i class="bi bi-file-earmark-bar-graph"></i> Rekap Bulanan
+            <div class="nav-label">Laporan</div>
+            <a href="{{ route('admin.laporan') }}" class="nav-link active">
+                <i class="bi bi-printer"></i> Rekapitulasi
             </a>
+        </div>
+        <div class="mt-auto pt-3 border-top border-dashed">
+             <form action="{{ route('logout') }}" method="POST">
+                @csrf
+                <button type="submit" class="btn btn-outline-danger w-100 border-0 d-flex align-items-center gap-2 px-3 py-2 bg-light" style="font-size: 0.9rem;">
+                    <i class="bi bi-box-arrow-left"></i> Keluar Aplikasi
+                </button>
+            </form>
         </div>
     </nav>
 
-    <div class="main-wrapper">
+    <div class="main-content">
         
-        <header class="top-header">
-            <div class="d-flex align-items-center gap-3">
-                <h5 class="m-0 fw-bold">Rekap Laporan</h5>
-            </div>
-            
-            <div class="dropdown">
-                <a href="#" class="user-menu-btn" data-bs-toggle="dropdown">
-                    <div class="text-end d-none d-sm-block">
-                        <div class="fw-bold" style="font-size: 0.9rem;">{{ Auth::user()->name ?? 'Admin' }}</div>
-                        <div class="text-muted" style="font-size: 0.75rem;">{{ ucfirst(Auth::user()->role) }}</div>
-                    </div>
-                    <div class="avatar-header">{{ substr(Auth::user()->name ?? 'A', 0, 2) }}</div>
-                </a>
-                <ul class="dropdown-menu dropdown-menu-end shadow-sm border mt-2 p-2 rounded-3">
-                    <li>
-                        <form action="{{ route('logout') }}" method="POST">
-                            @csrf
-                            <button type="submit" class="dropdown-item rounded text-danger">Log Out</button>
-                        </form>
-                    </li>
-                </ul>
-            </div>
-        </header>
-
-        <div class="content-area">
-
-            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+        <div class="hero-banner">
+            <div class="d-flex justify-content-between align-items-start">
                 <div class="d-flex align-items-center">
-                    <a href="{{ route('admin.dashboard') }}" class="btn-back-link"><i class="bi bi-arrow-left fs-5"></i></a>
+                    <button class="mobile-toggler" onclick="toggleSidebar()">
+                        <i class="bi bi-list"></i>
+                    </button>
                     <div>
-                        <h4 class="fw-bold mb-0">Analytics & Statistik</h4>
-                        <div class="text-muted small">Data Periode: {{ $labelWaktu }}</div>
+                        <div class="text-white text-opacity-75 small mb-1">
+                            Administrator <i class="bi bi-chevron-right mx-1" style="font-size: 0.7rem"></i> Laporan
+                        </div>
+                        <h2 class="fw-bold m-0 text-white">Analytics & Statistik</h2>
+                        <div class="mt-2 text-white text-opacity-75 small">
+                            <i class="bi bi-calendar3 me-1"></i> Data Periode: {{ $labelWaktu }}
+                        </div>
                     </div>
                 </div>
-                <div class="d-flex gap-2">
-                    <a href="{{ route('admin.download.pdf', request()->all()) }}" class="btn-export btn-export-pdf">
-                        <i class="bi bi-file-earmark-pdf"></i> Download PDF
-                    </a>
-                    <a href="{{ route('admin.download.excel', request()->all()) }}" class="btn-export btn-export-excel">
-                        <i class="bi bi-file-earmark-spreadsheet"></i> Export Excel
-                    </a>
+                
+                <div class="dropdown">
+                    <div class="glass-profile" data-bs-toggle="dropdown">
+                        <div class="rounded-circle bg-white text-danger fw-bold d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                            {{ substr(Auth::user()->name ?? 'A', 0, 1) }}
+                        </div>
+                        <span class="d-none d-md-block small fw-medium">{{ Auth::user()->name ?? 'Admin' }}</span>
+                        <i class="bi bi-chevron-down small d-none d-md-block"></i>
+                    </div>
+                     <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 mt-2 p-2 rounded-3">
+                         <li>
+                            <form action="{{ route('logout') }}" method="POST">
+                                @csrf
+                                <button type="submit" class="dropdown-item rounded small text-danger">Logout</button>
+                            </form>
+                        </li>
+                    </ul>
                 </div>
             </div>
+        </div>
 
-            <div class="card-clean mb-4 p-3 d-flex align-items-center gap-3">
-                <label class="small text-muted fw-bold m-0"><i class="bi bi-funnel"></i> FILTER WAKTU:</label>
-                <form action="{{ route('admin.laporan') }}" method="GET" class="flex-grow-1">
-                    <select name="filter" class="form-select-clean" style="max-width: 250px;" onchange="this.form.submit()">
-                        <option value="1_bulan" {{ $filter == '1_bulan' ? 'selected' : '' }}>1 Bulan Terakhir</option>
-                        <option value="3_bulan" {{ $filter == '3_bulan' ? 'selected' : '' }}>3 Bulan Terakhir</option>
-                        <option value="tahun_ini" {{ $filter == 'tahun_ini' ? 'selected' : '' }}>Tahun Ini</option>
-                    </select>
+        <div class="dashboard-container">
+
+            <div class="card-content">
+                <div class="d-flex align-items-center gap-2 text-danger fw-bold small mb-3">
+                    <i class="bi bi-sliders"></i> PENGATURAN LAPORAN
+                </div>
+
+                <form action="{{ route('admin.laporan') }}" method="GET">
+                    <div class="row g-3 align-items-end">
+                        
+                        <div class="col-12 col-md-3">
+                            <label class="form-label-custom">Periode Waktu</label>
+                            <select name="filter" class="form-select-custom w-100" onchange="this.form.submit()">
+                                <option value="1_bulan" {{ $filter == '1_bulan' ? 'selected' : '' }}>1 Bulan Terakhir</option>
+                                <option value="3_bulan" {{ $filter == '3_bulan' ? 'selected' : '' }}>3 Bulan Terakhir</option>
+                                <option value="tahun_ini" {{ $filter == 'tahun_ini' ? 'selected' : '' }}>Tahun Ini (Jan-Des)</option>
+                            </select>
+                        </div>
+
+                        <div class="col-12 col-md-3">
+                            <label class="form-label-custom">Filter Pegawai</label>
+                            <select name="pegawai_id" class="form-select-custom w-100" onchange="this.form.submit()">
+                                <option value="">Semua Pegawai</option>
+                                @if(isset($listPegawai))
+                                    @foreach($listPegawai as $p)
+                                        <option value="{{ $p->id }}" {{ request('pegawai_id') == $p->id ? 'selected' : '' }}>
+                                            {{ $p->name }} - {{ $p->nip }}
+                                        </option>
+                                    @endforeach
+                                @endif
+                            </select>
+                        </div>
+
+                        <div class="col-12 col-md-3">
+                            <label class="form-label-custom">Cari Nama / Unit</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0" style="border-radius: 10px 0 0 10px; border-color: #E2E8F0;">
+                                    <i class="bi bi-search text-muted"></i>
+                                </span>
+                                <input type="text" name="search" class="form-control form-control-custom border-start-0 ps-0" 
+                                       placeholder="Ketik kata kunci..." value="{{ request('search') }}" style="border-radius: 0 10px 10px 0;">
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-3">
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn-search flex-grow-1" style="height: 42px;">
+                                    Terapkan
+                                </button>
+                                
+                                <div class="dropdown">
+                                    <button class="btn btn-light border dropdown-toggle" type="button" data-bs-toggle="dropdown" style="height: 42px; border-radius: 10px;">
+                                        <i class="bi bi-download"></i>
+                                    </button>
+                                    <ul class="dropdown-menu shadow-sm border-0">
+                                        <li><a class="dropdown-item small" href="{{ route('admin.download.pdf', request()->all()) }}"><i class="bi bi-file-pdf text-danger me-2"></i>Export PDF</a></li>
+                                        <li><a class="dropdown-item small" href="{{ route('admin.download.excel', request()->all()) }}"><i class="bi bi-file-excel text-success me-2"></i>Export Excel</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
                 </form>
             </div>
 
-            <div class="row g-3 mb-4">
-                <div class="col-md-3">
-                    <div class="card-clean">
-                        <span class="stat-label">Total Pengajuan</span>
-                        <h3 class="stat-value">{{ $total }}</h3>
-                        <span class="stat-desc">Dalam periode ini</span>
+            <div class="row g-4 mb-4">
+                <div class="col-12 col-sm-6 col-xl-3">
+                    <div class="stat-card">
+                        <div class="stat-icon-wrapper bg-light text-dark">
+                            <i class="bi bi-files"></i>
+                        </div>
+                        <div class="stat-label">Total Pengajuan</div>
+                        <div class="stat-value">{{ $total }}</div>
+                        <div class="small text-muted">Periode ini</div>
                     </div>
                 </div>
-                <div class="col-md-3">
-                    <div class="card-clean">
-                        <span class="stat-label">Tingkat Persetujuan</span>
-                        <h3 class="stat-value" style="color: #059669;">{{ $persenApproved }}%</h3>
-                        <span class="stat-desc">{{ $approved }} dari {{ $total }} disetujui</span>
+                <div class="col-12 col-sm-6 col-xl-3">
+                    <div class="stat-card">
+                        <div class="stat-icon-wrapper" style="background-color: #ECFDF5; color: #059669;">
+                            <i class="bi bi-check-lg"></i>
+                        </div>
+                        <div class="stat-label">Tingkat Persetujuan</div>
+                        <div class="stat-value text-success">{{ $persenApproved }}%</div>
+                        <div class="small text-muted">{{ $approved }} Disetujui</div>
                     </div>
                 </div>
-                <div class="col-md-3">
-                    <div class="card-clean">
-                        <span class="stat-label">Rata-rata Proses</span>
-                        <h3 class="stat-value" style="color: #D97706;">{{ $avgDays }} hari</h3>
-                        <span class="stat-desc">Durasi review</span>
+                <div class="col-12 col-sm-6 col-xl-3">
+                    <div class="stat-card">
+                        <div class="stat-icon-wrapper" style="background-color: #FFFBEB; color: #D97706;">
+                            <i class="bi bi-clock-history"></i>
+                        </div>
+                        <div class="stat-label">Rata-rata Proses</div>
+                        <div class="stat-value text-warning">{{ $avgDays }} <span class="fs-6 fw-normal text-muted">Hari</span></div>
+                        <div class="small text-muted">Durasi Peninjauan</div>
                     </div>
                 </div>
-                <div class="col-md-3">
-                    <div class="card-clean">
-                        <span class="stat-label">Sedang Menunggu</span>
-                        <h3 class="stat-value" style="color: #2563EB;">{{ $pending }}</h3>
-                        <span class="stat-desc">{{ $persenPending }}% dari total</span>
+                <div class="col-12 col-sm-6 col-xl-3">
+                    <div class="stat-card">
+                        <div class="stat-icon-wrapper" style="background-color: #EFF6FF; color: #2563EB;">
+                            <i class="bi bi-hourglass-split"></i>
+                        </div>
+                        <div class="stat-label">Sedang Menunggu</div>
+                        <div class="stat-value text-primary">{{ $pending }}</div>
+                        <div class="small text-muted">{{ $persenPending }}% dari total</div>
                     </div>
                 </div>
             </div>
 
             <div class="row g-4 mb-4">
-                <div class="col-md-6">
-                    <div class="card-clean">
+                <div class="col-12 col-lg-6">
+                    <div class="card-content h-100">
                         <h6 class="chart-title">Status Pengajuan</h6>
-                        
                         <div class="mt-4">
-                            <div class="progress-label">
-                                <span>Disetujui</span> <span class="fw-bold text-success">{{ $approved }}</span>
+                            <div class="d-flex justify-content-between small fw-bold mb-1">
+                                <span>Disetujui</span> <span class="text-success">{{ $approved }}</span>
                             </div>
                             <div class="progress progress-custom">
-                                <div class="progress-bar bg-success" role="progressbar" style="width: {{ $persenApproved }}%"></div>
+                                <div class="progress-bar bg-success" style="width: {{ $persenApproved }}%"></div>
                             </div>
 
-                            <div class="progress-label">
-                                <span>Ditolak</span> <span class="fw-bold text-danger">{{ $rejected }}</span>
+                            <div class="d-flex justify-content-between small fw-bold mb-1">
+                                <span>Ditolak</span> <span class="text-danger">{{ $rejected }}</span>
                             </div>
                             <div class="progress progress-custom">
-                                <div class="progress-bar bg-danger" role="progressbar" style="width: {{ $persenRejected }}%"></div>
+                                <div class="progress-bar bg-danger" style="width: {{ $persenRejected }}%"></div>
                             </div>
 
-                            <div class="progress-label">
-                                <span>Menunggu</span> <span class="fw-bold text-warning">{{ $pending }}</span>
+                            <div class="d-flex justify-content-between small fw-bold mb-1">
+                                <span>Menunggu</span> <span class="text-warning">{{ $pending }}</span>
                             </div>
                             <div class="progress progress-custom">
-                                <div class="progress-bar bg-warning" role="progressbar" style="width: {{ $persenPending }}%"></div>
+                                <div class="progress-bar bg-warning" style="width: {{ $persenPending }}%"></div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="col-md-6">
-                    <div class="card-clean">
+                <div class="col-12 col-lg-6">
+                    <div class="card-content h-100">
                         <h6 class="chart-title">Distribusi Jenis Cuti</h6>
-                        <div style="height: 250px; display: flex; justify-content: center; position: relative;">
+                        <div style="height: 250px; position: relative;">
                             <canvas id="jenisCutiChart"></canvas>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="card-clean p-0 overflow-hidden">
-                <div class="p-4 border-bottom border-light">
-                    <h6 class="chart-title mb-0">Statistik Detail per Unit Kerja</h6>
+            <div class="card-content p-0 overflow-hidden">
+                <div class="p-4 border-bottom border-light bg-white">
+                    <h6 class="chart-title mb-0">Statistik Detail per Unit Kerja / Pegawai</h6>
                 </div>
                 <div class="table-responsive">
-                    <table class="table-custom mb-0">
+                    <table class="table table-custom mb-0 w-100">
                         <thead>
                             <tr>
-                                <th style="padding-left: 24px;">Unit Kerja</th>
+                                <th class="ps-4">Unit Kerja / Nama</th>
                                 <th class="text-center">Disetujui</th>
                                 <th class="text-center">Ditolak</th>
                                 <th class="text-center">Menunggu</th>
                                 <th class="text-center">Total</th>
-                                <th class="text-end" style="padding-right: 24px;">Rate Setuju</th>
+                                <th class="text-end pe-4">Rate Setuju</th>
                             </tr>
                         </thead>
                         <tbody>
                             @forelse($unitStats as $stat)
                             <tr>
-                                <td style="padding-left: 24px; font-weight: 500;">{{ $stat['name'] }}</td>
-                                <td class="text-center"><span class="badge-num bg-light-green">{{ $stat['approved'] }}</span></td>
-                                <td class="text-center"><span class="badge-num bg-light-red">{{ $stat['rejected'] }}</span></td>
-                                <td class="text-center"><span class="badge-num bg-light-yellow">{{ $stat['pending'] }}</span></td>
-                                <td class="text-center text-muted fw-bold">{{ $stat['total'] }}</td>
-                                <td class="text-end fw-bold" style="padding-right: 24px; color: #059669;">{{ $stat['rate'] }}%</td>
+                                <td class="ps-4 fw-bold text-dark">{{ $stat['name'] }}</td>
+                                <td class="text-center"><span class="badge-stat" style="background: #ECFDF5; color: #059669;">{{ $stat['approved'] }}</span></td>
+                                <td class="text-center"><span class="badge-stat" style="background: #FEF2F2; color: #DC2626;">{{ $stat['rejected'] }}</span></td>
+                                <td class="text-center"><span class="badge-stat" style="background: #FFFBEB; color: #D97706;">{{ $stat['pending'] }}</span></td>
+                                <td class="text-center fw-bold">{{ $stat['total'] }}</td>
+                                <td class="text-end pe-4 fw-bold text-success">{{ $stat['rate'] }}%</td>
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="6" class="text-center py-5 text-muted">Belum ada data pengajuan pada periode ini.</td>
+                                <td colspan="6" class="text-center py-5 text-muted">
+                                    <i class="bi bi-inbox fs-1 opacity-25"></i>
+                                    <p class="small mt-2">Tidak ada data yang sesuai dengan filter Anda.</p>
+                                </td>
                             </tr>
                             @endforelse
                         </tbody>
                     </table>
                 </div>
+            </div>
+
+            <div class="mt-5 text-center text-muted small opacity-50">
+                &copy; 2026 Pemerintah Kabupaten Semarang.
             </div>
 
         </div>
@@ -328,46 +427,48 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script>
-        // Data dari Controller
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('show');
+            const overlay = document.getElementById('sidebarOverlay');
+            if (overlay.classList.contains('d-none')) {
+                overlay.classList.remove('d-none');
+            } else {
+                overlay.classList.add('d-none');
+            }
+        }
+
         const labels = {!! json_encode($chartLabels) !!};
         const dataValues = {!! json_encode($chartValues) !!};
 
-        // Inisialisasi Pie Chart
         const ctx = document.getElementById('jenisCutiChart').getContext('2d');
         new Chart(ctx, {
-            type: 'pie',
+            type: 'doughnut',
             data: {
                 labels: labels.length ? labels : ['Belum ada data'],
                 datasets: [{
                     data: dataValues.length ? dataValues : [1], 
                     backgroundColor: [
-                        '#10B981', // Emerald 500
-                        '#F59E0B', // Amber 500
-                        '#EF4444', // Red 500
-                        '#3B82F6', // Blue 500
-                        '#6B7280', // Gray 500
-                        '#8B5CF6'  // Violet 500
+                        '#10B981', '#F59E0B', '#EF4444', '#3B82F6', '#6B7280', '#8B5CF6'
                     ],
-                    borderWidth: 2,
-                    borderColor: '#ffffff'
+                    borderWidth: 0,
+                    hoverOffset: 10
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                cutout: '65%',
                 plugins: {
                     legend: {
-                        position: 'bottom',
+                        position: 'right',
                         labels: { 
                             usePointStyle: true, 
                             boxWidth: 8, 
                             padding: 20,
-                            font: { family: "'Inter', sans-serif", size: 11 }
+                            font: { family: "'Plus Jakarta Sans', sans-serif", size: 12 }
                         }
                     },
-                    tooltip: {
-                        enabled: labels.length > 0
-                    }
+                    tooltip: { enabled: labels.length > 0 }
                 }
             }
         });

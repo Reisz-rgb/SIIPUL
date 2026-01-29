@@ -4,262 +4,356 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kelola Pengajuan - SIIPUL</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
-        /* --- COPY STYLE DARI DASHBOARD BIAR KONSISTEN --- */
+        /* --- VARIABLES (SAMA DENGAN DASHBOARD) --- */
         :root {
-            --primary-color: #9E2A2B;
-            --primary-hover: #7F1D1D;
-            --bg-body: #F3F4F6;
-            --sidebar-width: 260px;
-            --border-color: #E5E7EB;
-            --text-main: #111827;
-            --text-muted: #6B7280;
+            --primary: #9E2A2B;       
+            --primary-dark: #781F1F;  
+            --secondary: #64748B;
+            --bg-body: #F1F5F9;       
+            --sidebar-width: 270px;
         }
 
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Plus Jakarta Sans', sans-serif;
             background-color: var(--bg-body);
-            color: var(--text-main);
+            color: #334155;
             overflow-x: hidden;
         }
 
-        /* Sidebar & Layout */
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+
+        /* --- SIDEBAR --- */
         .sidebar {
             width: var(--sidebar-width);
             height: 100vh;
             position: fixed;
             top: 0; left: 0;
-            background: white;
-            border-right: 1px solid var(--border-color);
-            z-index: 1000;
+            background: #FFFFFF;
+            border-right: 1px dashed #E2E8F0;
+            z-index: 1050;
+            padding: 24px;
             display: flex; flex-direction: column;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
+
         .sidebar-brand {
-            padding: 24px; display: flex; align-items: center; gap: 12px;
-            font-weight: 700; font-size: 1.25rem; color: var(--primary-color);
-            text-decoration: none; border-bottom: 1px solid var(--border-color);
-        }
-        .nav-item {
-            padding: 10px 24px; color: var(--text-muted); text-decoration: none;
-            display: flex; align-items: center; gap: 12px; font-weight: 500; transition: all 0.2s;
-            margin-bottom: 2px;
-        }
-        .nav-item:hover { color: var(--primary-color); background-color: #FEF2F2; }
-        .nav-item.active { color: var(--primary-color); background-color: #FEF2F2; border-right: 3px solid var(--primary-color); }
-        .nav-section-label {
-            font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;
-            color: #9CA3AF; padding: 24px 24px 8px 24px; font-weight: 600;
+            display: flex; align-items: center; gap: 12px;
+            padding-bottom: 30px;
+            text-decoration: none;
+            color: var(--primary);
         }
         
-        .main-wrapper { margin-left: var(--sidebar-width); min-height: 100vh; display: flex; flex-direction: column; }
-        
-        /* Header */
-        .top-header {
-            background: white; height: 70px; border-bottom: 1px solid var(--border-color);
-            display: flex; align-items: center; justify-content: space-between; padding: 0 32px;
-        }
-        .user-menu-btn { display: flex; align-items: center; gap: 10px; cursor: pointer; text-decoration: none; color: var(--text-main); }
-        .avatar-circle {
-            width: 36px; height: 36px; background-color: var(--primary-color);
-            color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-weight: 600; font-size: 0.9rem;
+        .nav-label {
+            font-size: 0.7rem; font-weight: 700; color: #94A3B8;
+            text-transform: uppercase; letter-spacing: 0.08em;
+            margin: 20px 0 10px 12px;
         }
 
-        /* --- STYLE KHUSUS HALAMAN INI --- */
-        .content-area { padding: 32px; }
-        
-        .card-clean {
-            background: white; border: 1px solid var(--border-color);
-            border-radius: 12px; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        .nav-link {
+            display: flex; align-items: center; gap: 12px;
+            padding: 12px 16px;
+            color: #64748B;
+            border-radius: 12px;
+            font-weight: 500;
+            transition: all 0.2s;
+            margin-bottom: 4px;
+            text-decoration: none;
+        }
+
+        .nav-link:hover { background-color: #FEF2F2; color: var(--primary); }
+
+        .nav-link.active {
+            background: linear-gradient(90deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(158, 42, 43, 0.3);
+        }
+        .nav-link.active i { color: white; }
+
+        /* --- MAIN LAYOUT & HERO --- */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            min-height: 100vh;
+            transition: margin-left 0.3s ease-in-out;
+        }
+
+        .hero-banner {
+            background: linear-gradient(135deg, var(--primary) 0%, #561616 100%);
+            height: 280px;
+            padding: 40px;
+            color: white;
+            border-bottom-left-radius: 30px;
+            border-bottom-right-radius: 30px;
+        }
+
+        .glass-profile {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 8px 16px;
+            border-radius: 50px;
+            color: white;
+            display: flex; align-items: center; gap: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .glass-profile:hover { background: rgba(255, 255, 255, 0.2); }
+
+        /* --- CONTENT CARD --- */
+        .dashboard-container {
+            padding: 0 40px 40px 40px;
+            margin-top: -80px; /* Efek overlap */
+        }
+
+        .card-content {
+            background: white;
+            border-radius: 16px;
+            border: 1px solid #F1F5F9;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.06);
             overflow: hidden;
+            min-height: 400px;
         }
 
-        /* Filter Toolbar */
-        .filter-toolbar {
-            display: flex; gap: 16px; margin-bottom: 24px; align-items: center; flex-wrap: wrap;
+        .card-header-custom {
+            padding: 24px;
+            border-bottom: 1px dashed #E2E8F0;
+            background: #fff;
+            display: flex; flex-wrap: wrap; gap: 15px; align-items: center; justify-content: space-between;
         }
-        .search-input { min-width: 300px; }
-        
-        /* Table Styling (SaaS Style) */
-        .table { margin-bottom: 0; }
-        .table thead th {
-            background-color: #F9FAFB; color: var(--text-muted);
-            font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;
-            padding: 16px 24px; border-bottom: 1px solid var(--border-color); border-top: none;
+
+        /* --- TABLE STYLING --- */
+        .table-custom th {
+            font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;
+            color: #64748B; background-color: #F8FAFC;
+            padding: 16px 24px; border-bottom: 1px solid #E2E8F0; font-weight: 700;
         }
-        .table tbody td {
+        .table-custom td {
             padding: 16px 24px; vertical-align: middle;
-            border-bottom: 1px solid var(--border-color); color: var(--text-main); font-size: 0.9rem;
+            border-bottom: 1px solid #F1F5F9; color: #334155; font-size: 0.9rem;
         }
-        .table tbody tr:last-child td { border-bottom: none; }
-        .table tbody tr:hover { background-color: #F9FAFB; }
+        .table-custom tr:last-child td { border-bottom: none; }
+        .table-custom tr:hover td { background-color: #FAFAFA; }
 
-        /* Status Badge (Modern Pill) */
-        .badge-status {
-            padding: 4px 12px; border-radius: 99px; font-size: 0.75rem; font-weight: 600;
-            display: inline-flex; align-items: center; gap: 6px;
+        /* --- BADGES --- */
+        .badge-pill { padding: 6px 12px; border-radius: 30px; font-size: 0.75rem; font-weight: 600; }
+        .badge-warning-soft { background: #FFF7ED; color: #C2410C; border: 1px solid #FFEDD5; }
+        .badge-success-soft { background: #F0FDF4; color: #15803D; border: 1px solid #DCFCE7; }
+        .badge-danger-soft { background: #FEF2F2; color: #B91C1C; border: 1px solid #FECACA; }
+
+        /* --- INPUTS --- */
+        .search-group { position: relative; min-width: 250px; }
+        .search-group input { padding-left: 40px; border-radius: 10px; border-color: #E2E8F0; background: #fff; }
+        .search-group input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(158, 42, 43, 0.1); }
+        .search-group i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #94A3B8; }
+        
+        .form-select-custom { border-radius: 10px; border-color: #E2E8F0; cursor: pointer; }
+        .form-select-custom:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(158, 42, 43, 0.1); }
+
+        /* Mobile Responsive */
+        .mobile-toggler { display: none; color: white; font-size: 1.5rem; background: none; border: none; margin-right: 15px; }
+        
+        #sidebarOverlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.5); z-index: 1040;
+            display: none; backdrop-filter: blur(2px);
         }
-        .badge-status::before { content: ""; width: 6px; height: 6px; border-radius: 50%; }
-        
-        .status-pending { background-color: #FFFBEB; color: #B45309; }
-        .status-pending::before { background-color: #B45309; }
-        
-        .status-approved { background-color: #ECFDF5; color: #047857; }
-        .status-approved::before { background-color: #047857; }
-        
-        .status-rejected { background-color: #FEF2F2; color: #B91C1C; }
-        .status-rejected::before { background-color: #B91C1C; }
-
-        /* Pagination Customization */
-        .pagination .page-link { color: var(--text-main); border-color: var(--border-color); font-size: 0.875rem; }
-        .pagination .page-item.active .page-link { background-color: var(--primary-color); border-color: var(--primary-color); color: white; }
 
         @media (max-width: 992px) {
-            .sidebar { transform: translateX(-100%); transition: transform 0.3s; }
-            .main-wrapper { margin-left: 0; }
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.show { transform: translateX(0); }
+            .main-content { margin-left: 0; }
+            .hero-banner { padding: 20px; height: auto; padding-bottom: 100px; }
+            .dashboard-container { padding: 0 20px 20px; }
+            .mobile-toggler { display: block; }
+            .search-group { width: 100%; }
         }
     </style>
 </head>
 <body>
 
-    <nav class="sidebar">
-        <a href="{{ route('admin.dashboard') }}" class="sidebar-brand">
-            <img src="{{ asset('logokabupatensemarang.png') }}" alt="Logo" width="32">
-            <span>SIIPUL</span>
+    <div id="sidebarOverlay"></div>
+
+    <nav class="sidebar" id="sidebar">
+        <a href="#" class="sidebar-brand">
+            <img src="{{ asset('logokabupatensemarang.png') }}" alt="Logo" width="36">
+            <div style="line-height: 1.1;">
+                <div style="font-weight: 800; font-size: 1.1rem; letter-spacing: -0.5px;">SIIPUL</div>
+                <div style="font-size: 0.7rem; color: #94A3B8; font-weight: 500;">Kab. Semarang</div>
+            </div>
         </a>
 
-        <div class="d-flex flex-column flex-grow-1 py-3">
-            <div class="nav-section-label">UTAMA</div>
-            <a href="{{ route('admin.dashboard') }}" class="nav-item">
-                <i class="bi bi-grid"></i> Dashboard
-            </a>
-            <a href="#" class="nav-item active"> <i class="bi bi-journal-check"></i> Kelola Pengajuan
-            </a>
-            <a href="{{ route('admin.kelola_pegawai') }}" class="nav-item">
-                <i class="bi bi-people"></i> Data Pegawai
+        <div style="overflow-y: auto; flex: 1;">
+            <div class="nav-label">Main Menu</div>
+            
+            <a href="{{ route('admin.dashboard') }}" class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                <i class="bi bi-grid-fill"></i> Dashboard
             </a>
 
-            <div class="nav-section-label">LAPORAN</div>
-            <a href="{{ route('admin.laporan') }}" class="nav-item">
-                <i class="bi bi-file-earmark-bar-graph"></i> Rekap Bulanan
+            <a href="{{ route('admin.kelola_pengajuan') }}" class="nav-link {{ request()->routeIs('admin.kelola_pengajuan*') ? 'active' : '' }}">
+                <i class="bi bi-file-earmark-text"></i> Pengajuan Cuti
+                @if(isset($menunggu) && $menunggu > 0)
+                    <span class="badge bg-danger rounded-pill ms-auto" style="font-size: 0.7rem">{{ $menunggu }}</span>
+                @endif
             </a>
+
+            <a href="{{ route('admin.kelola_pegawai') }}" class="nav-link {{ request()->routeIs('admin.kelola_pegawai*') ? 'active' : '' }}">
+                <i class="bi bi-people"></i> Data Pegawai
+            </a>
+            
+            <div class="nav-label">Laporan</div>
+            <a href="{{ route('admin.laporan') }}" class="nav-link {{ request()->routeIs('admin.laporan*') ? 'active' : '' }}">
+                <i class="bi bi-printer"></i> Rekapitulasi
+            </a>
+        </div>
+
+        <div class="mt-auto pt-4 border-top border-dashed">
+             <form action="{{ route('logout') }}" method="POST">
+                @csrf
+                <button type="submit" class="btn btn-outline-danger w-100 border-0 d-flex align-items-center gap-2 px-3 py-2 bg-light" style="font-size: 0.9rem;">
+                    <i class="bi bi-box-arrow-left"></i> Keluar Aplikasi
+                </button>
+            </form>
         </div>
     </nav>
 
-    <div class="main-wrapper">
+    <div class="main-content">
         
-        <header class="top-header">
-            <div class="d-flex align-items-center gap-3">
-                <h5 class="m-0 fw-bold">Kelola Pengajuan Cuti</h5>
-            </div>
-            
-            <div class="dropdown">
-                <a href="#" class="user-menu-btn" data-bs-toggle="dropdown">
-                    <div class="text-end d-none d-sm-block">
-                        <div class="fw-bold" style="font-size: 0.9rem;">{{ Auth::user()->name }}</div>
-                        <div class="text-muted" style="font-size: 0.75rem;">{{ ucfirst(Auth::user()->role) }}</div>
-                    </div>
-                    <div class="avatar-circle">{{ substr(Auth::user()->name, 0, 2) }}</div>
-                </a>
-                <ul class="dropdown-menu dropdown-menu-end shadow-sm border mt-2 p-2" style="border-radius: 8px;">
-                    <li><a class="dropdown-item rounded" href="#">Profile Saya</a></li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li>
-                        <form action="{{ route('logout') }}" method="POST">
-                            @csrf
-                            <button type="submit" class="dropdown-item rounded text-danger">Log Out</button>
-                        </form>
-                    </li>
-                </ul>
-            </div>
-        </header>
-
-        <div class="content-area">
-
-            <form action="{{ route('admin.kelola_pengajuan') }}" method="GET">
-                <div class="filter-toolbar">
-                    <div class="search-input flex-grow-1">
-                        <div class="input-group">
-                            <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
-                            <input type="text" name="search" value="{{ request('search') }}" class="form-control border-start-0 ps-0" placeholder="Cari nama pegawai atau NIP...">
-                        </div>
-                    </div>
-                    <div style="min-width: 200px;">
-                        <select name="status" class="form-select" onchange="this.form.submit()">
-                            <option value="Semua" {{ request('status') == 'Semua' ? 'selected' : '' }}>Semua Status</option>
-                            <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Menunggu</option>
-                            <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Disetujui</option>
-                            <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Ditolak</option>
-                        </select>
+        <div class="hero-banner">
+            <div class="d-flex justify-content-between align-items-start">
+                <div class="d-flex align-items-center">
+                    <button class="mobile-toggler">
+                        <i class="bi bi-list"></i>
+                    </button>
+                    <div>
+                        <h2 class="fw-bold m-0 text-white">Kelola Pengajuan</h2>
+                        <p class="text-white text-opacity-75 m-0 small mt-1">
+                            Dashboard <i class="bi bi-chevron-right mx-1" style="font-size: 0.7rem"></i> Pengajuan Cuti
+                        </p>
                     </div>
                 </div>
-            </form>
+                
+                <div class="dropdown">
+                    <div class="glass-profile" data-bs-toggle="dropdown">
+                        <div class="rounded-circle bg-white text-danger fw-bold d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                            {{ substr(Auth::user()->name ?? 'A', 0, 1) }}
+                        </div>
+                        <span class="d-none d-md-block small fw-medium">{{ Auth::user()->name ?? 'Admin' }}</span>
+                        <i class="bi bi-chevron-down small d-none d-md-block"></i>
+                    </div>
+                     <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 mt-2 p-2 rounded-3">
+                        <li><a class="dropdown-item rounded small" href="#">Profile Saya</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form action="{{ route('logout') }}" method="POST">
+                                @csrf
+                                <button type="submit" class="dropdown-item rounded small text-danger">Logout</button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
 
-            <div class="card-clean">
+        <div class="dashboard-container">
+            <div class="card-content">
+                
+                <div class="card-header-custom">
+                    <div class="d-flex gap-3 align-items-center flex-grow-1 flex-wrap">
+                        <h5 class="m-0 fw-bold text-dark me-2">Daftar Cuti</h5>
+                        
+                        <form action="{{ route('admin.kelola_pengajuan') }}" method="GET" class="d-flex">
+                             <input type="hidden" name="search" value="{{ request('search') }}">
+                            
+                            <select name="status" class="form-select form-select-sm form-select-custom fw-medium text-secondary" onchange="this.form.submit()" style="min-width: 150px;">
+                                <option value="Semua" {{ request('status') == 'Semua' ? 'selected' : '' }}>Semua Status</option>
+                                <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>⏳ Menunggu</option>
+                                <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>✅ Disetujui</option>
+                                <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>❌ Ditolak</option>
+                            </select>
+                         </form>
+                    </div>
+
+                    <form action="{{ route('admin.kelola_pengajuan') }}" method="GET" class="search-group">
+                        <input type="hidden" name="status" value="{{ request('status', 'Semua') }}">
+                        <i class="bi bi-search"></i>
+                        <input type="text" name="search" class="form-control" placeholder="Cari Pegawai atau NIP..." value="{{ request('search') }}">
+                    </form>
+                </div>
+
                 <div class="table-responsive">
-                    <table class="table align-middle">
+                    <table class="table table-custom w-100 m-0">
                         <thead>
                             <tr>
-                                <th>Pegawai</th>
-                                <th>Jenis Cuti</th>
-                                <th>Periode Tanggal</th>
+                                <th style="padding-left: 30px;">Pegawai</th>
+                                <th>Jenis & Tanggal</th>
                                 <th>Durasi</th>
+                                <th>Tgl Pengajuan</th>
                                 <th>Status</th>
-                                <th class="text-end">Aksi</th>
+                                <th class="text-end" style="padding-right: 30px;">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
                             @forelse($pengajuan as $item)
                             <tr>
-                                <td>
+                                <td style="padding-left: 30px;">
                                     <div class="d-flex align-items-center gap-3">
-                                        <div class="avatar-circle bg-light text-secondary border" style="width: 32px; height: 32px; font-size: 0.75rem;">
-                                            {{ substr($item->user->name, 0, 2) }}
+                                        <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold" 
+                                             style="width: 40px; height: 40px; background: #F1F5F9; color: var(--secondary);">
+                                             {{ substr(optional($item->user)->name ?? '?', 0, 1) }}
                                         </div>
                                         <div>
-                                            <div class="fw-semibold text-dark">{{ $item->user->name }}</div>
-                                            <div class="text-muted small" style="font-size: 0.75rem;">NIP: {{ $item->user->nip ?? '-' }}</div>
+                                            <div class="fw-bold text-dark">{{ optional($item->user)->name ?? 'User Terhapus' }}</div>
+                                            <div class="text-muted small" style="font-size: 0.8rem;">{{ optional($item->user)->nip ?? '-' }}</div>
                                         </div>
                                     </div>
                                 </td>
-                                <td>{{ $item->jenis_cuti }}</td>
                                 <td>
-                                    <div class="text-dark">{{ \Carbon\Carbon::parse($item->start_date)->format('d M Y') }}</div>
-                                    <div class="text-muted small" style="font-size: 0.75rem;">
-                                        s/d {{ \Carbon\Carbon::parse($item->end_date)->format('d M Y') }}
+                                    <div class="fw-semibold text-dark">{{ $item->jenis_cuti }}</div>
+                                    <div class="small text-muted">
+                                        {{ \Carbon\Carbon::parse($item->start_date)->format('d M') }} - {{ \Carbon\Carbon::parse($item->end_date)->format('d M Y') }}
                                     </div>
                                 </td>
                                 <td>
-                                    <span class="text-dark fw-medium">
+                                    <span class="fw-bold text-dark">
                                         {{ \Carbon\Carbon::parse($item->start_date)->diffInDays(\Carbon\Carbon::parse($item->end_date)) + 1 }}
-                                    </span> 
-                                    <span class="text-muted small">Hari</span>
+                                    </span> Hari
+                                </td>
+                                <td class="text-muted">
+                                    {{ \Carbon\Carbon::parse($item->created_at)->format('d/m/Y') }}
                                 </td>
                                 <td>
-                                    @if($item->status == 'pending')
-                                        <span class="badge-status status-pending">Menunggu</span>
-                                    @elseif($item->status == 'approved')
-                                        <span class="badge-status status-approved">Disetujui</span>
+                                    @if($item->status == 'menunggu' || $item->status == 'pending')
+                                        <span class="badge badge-pill badge-warning-soft"><i class="bi bi-hourglass-split me-1"></i> Menunggu</span>
+                                    @elseif($item->status == 'disetujui' || $item->status == 'approved')
+                                        <span class="badge badge-pill badge-success-soft"><i class="bi bi-check-circle me-1"></i> Disetujui</span>
                                     @else
-                                        <span class="badge-status status-rejected">Ditolak</span>
+                                        <span class="badge badge-pill badge-danger-soft"><i class="bi bi-x-circle me-1"></i> Ditolak</span>
                                     @endif
                                 </td>
-                                <td class="text-end">
-                                    <a href="{{ route('admin.pengajuan.show', $item->id) }}" class="btn btn-sm btn-outline-dark fw-medium" style="font-size: 0.8rem;">
-                                        Review Detail
+                                <td class="text-end" style="padding-right: 30px;">
+                                    <a href="{{ route('admin.pengajuan.show', $item->id) }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 fw-medium" style="font-size: 0.85rem;">
+                                        Review
                                     </a>
                                 </td>
                             </tr>
                             @empty
                             <tr>
                                 <td colspan="6" class="text-center py-5">
-                                    <div class="text-muted mb-2"><i class="bi bi-clipboard-x" style="font-size: 2rem;"></i></div>
-                                    <h6 class="fw-bold text-dark">Data tidak ditemukan</h6>
-                                    <p class="text-muted small mb-0">Coba ubah filter atau kata kunci pencarian Anda.</p>
+                                    <div class="py-4">
+                                        <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" width="60" class="mb-3 opacity-25" alt="Empty">
+                                        <p class="text-muted fw-bold m-0">Tidak ada data pengajuan ditemukan</p>
+                                        <p class="text-muted small m-0">Coba ubah filter atau kata kunci pencarian</p>
+                                    </div>
                                 </td>
                             </tr>
                             @endforelse
@@ -268,15 +362,44 @@
                 </div>
 
                 @if($pengajuan->hasPages())
-                <div class="px-4 py-3 border-top d-flex justify-content-end align-items-center">
+                <div class="p-4 border-top">
                     {{ $pengajuan->withQueryString()->links() }}
                 </div>
                 @endif
             </div>
 
+            <div class="mt-5 text-center">
+                <p class="text-muted small opacity-50">&copy; 2026 Pemerintah Kabupaten Semarang.</p>
+            </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Logic Sidebar Mobile (Sama persis dengan Dashboard)
+        const toggleBtn = document.querySelector('.mobile-toggler');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+
+        function toggleSidebar() {
+            sidebar.classList.toggle('show');
+            if(sidebar.classList.contains('show')) {
+                overlay.style.display = 'block';
+            } else {
+                overlay.style.display = 'none';
+            }
+        }
+
+        if(toggleBtn) {
+            toggleBtn.addEventListener('click', toggleSidebar);
+        }
+
+        if(overlay) {
+            overlay.addEventListener('click', function() {
+                sidebar.classList.remove('show');
+                overlay.style.display = 'none';
+            });
+        }
+    </script>
 </body>
 </html>
