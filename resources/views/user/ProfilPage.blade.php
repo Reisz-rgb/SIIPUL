@@ -1,171 +1,79 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profil Saya - SIIPUL</title>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.tailwindcss.com"></script>
+@extends('layouts.user')
 
-    <style>
-        body { font-family: 'Poppins', sans-serif; }
-        .bg-custom-red { background-color: #961E1E; }
-        .text-custom-red { color: #961E1E; }
-        .bg-custom-dark-red { background-color: #7a1818; }
-        
-        /* Animasi untuk Notifikasi */
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-        @keyframes fadeOut {
-            from { opacity: 1; }
-            to { opacity: 0; }
-        }
-        .toast-animate {
-            animation: slideIn 0.5s ease-out forwards;
-        }
-        .toast-hide {
-            animation: fadeOut 0.5s ease-out forwards;
-        }
-    </style>
-</head>
-<body class="bg-gray-50 flex flex-col min-h-screen relative overflow-x-hidden">
+@section('title', 'Profil Saya')
+@section('page_title', 'Profil')
+@section('page_subtitle', 'Periksa dan kelola informasi akun Anda.')
 
-    <nav class="bg-custom-red text-white py-4 px-6 shadow-md sticky top-0 z-50">
-        <div class="container mx-auto flex items-center gap-4">
-            <a href="{{ route('user.dashboard') }}" class="text-white hover:text-gray-200 transition">
-                <i class="fa-solid fa-arrow-left text-lg"></i>
-            </a>
-            <div class="flex items-center gap-3">
-                <img src="{{ asset('logokabupatensemarang.png') }}" alt="Logo" class="h-8 w-auto">
-                <h1 class="font-medium text-lg tracking-wide">Profil Saya</h1>
-            </div>
-        </div>
-    </nav>
+@section('content')
+    @php($authUser = $user ?? auth()->user())
 
-    <main class="flex-grow container mx-auto px-4 py-8 flex flex-col items-center">
-        
-        <div class="w-full max-w-2xl bg-white rounded-xl shadow-lg overflow-hidden mb-6">
-            
-            {{-- Header --}}
-            <div class="bg-custom-red p-6 flex flex-col md:flex-row items-center md:items-start gap-4 md:gap-6 relative">
-                <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-md shrink-0">
-                    <span class="text-custom-red text-2xl font-bold">{{ strtoupper(substr($user->name, 0, 2)) }}</span>
+    {{-- Card profil --}}
+    <section class="bg-white rounded-3xl shadow-soft border border-slate-100 overflow-hidden">
+        <div class="p-6 md:p-8 bg-gradient-to-br from-[var(--maroon)] to-[var(--maroon-dark)] text-white">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div class="flex items-center gap-4">
+                    <div class="w-16 h-16 rounded-2xl bg-white/15 border border-white/20 flex items-center justify-center">
+                        <div class="w-12 h-12 rounded-xl bg-white text-[var(--maroon)] flex items-center justify-center font-extrabold text-lg">
+                            {{ strtoupper(substr(($authUser->name ?? 'U'), 0, 2)) }}
+                        </div>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-extrabold leading-tight">{{ $authUser->name ?? '-' }}</h2>
+                        <p class="text-white/80 text-sm font-medium mt-1">{{ $authUser->jabatan ?? 'Pegawai' }}</p>
+                        <p class="text-white/70 text-xs font-semibold mt-1">{{ $authUser->bidang_unit ?? '-' }}</p>
+                    </div>
                 </div>
-                <div class="text-center md:text-left flex-grow text-white">
-                    <h2 class="text-2xl font-bold">{{ $user->name }}</h2>
-                    <p class="text-sm font-light opacity-90 mt-1">{{ $user->jabatan ?? 'Pegawai' }}</p>
-                    <p class="text-xs font-light opacity-80">{{ $user->bidang_unit ?? '-' }}</p>
-                </div>
-                <a href="{{ route('user.profil.edit') }}" class="bg-white text-custom-red px-4 py-2 rounded-lg text-sm font-semibold shadow hover:bg-gray-100 transition flex items-center gap-2 mt-4 md:mt-0">
-                    <i class="fa-solid fa-pen"></i> Edit Profil
-                </a>
-            </div>
 
-            {{-- Info Section --}}
-            <div class="p-6 md:p-8 space-y-6">
-                <div class="flex gap-4 border-b border-gray-100 pb-4">
-                    <div class="w-8 flex-shrink-0 pt-1 text-center"><i class="fa-regular fa-user text-custom-red text-lg"></i></div>
-                    <div>
-                        <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">NAMA LENGKAP</p>
-                        <p class="text-slate-800 font-medium text-lg">{{ $user->name }}</p>
-                    </div>
-                </div>
-                <div class="flex gap-4 border-b border-gray-100 pb-4">
-                    <div class="w-8 flex-shrink-0 pt-1 text-center"><i class="fa-regular fa-envelope text-custom-red text-lg"></i></div>
-                    <div>
-                        <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">EMAIL</p>
-                        <p class="text-slate-800 font-medium text-lg">{{ $user->email ?? 'Belum diisi' }}</p>
-                    </div>
-                </div>
-                <div class="flex gap-4 border-b border-gray-100 pb-4">
-                    <div class="w-8 flex-shrink-0 pt-1 text-center"><i class="fa-solid fa-phone text-custom-red text-lg"></i></div>
-                    <div>
-                        <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">NOMOR HP</p>
-                        <p class="text-slate-800 font-medium text-lg">{{ $user->phone }}</p>
-                    </div>
-                </div>
-                <div class="flex gap-4 border-b border-gray-100 pb-4">
-                    <div class="w-8 flex-shrink-0 pt-1 text-center"><i class="fa-solid fa-id-card text-custom-red text-lg"></i></div>
-                    <div>
-                        <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">NIP</p>
-                        <p class="text-slate-800 font-medium text-lg">{{ $user->nip }}</p>
-                    </div>
-                </div>
-                <div class="flex gap-4 border-b border-gray-100 pb-4">
-                    <div class="w-8 flex-shrink-0 pt-1 text-center"><i class="fa-solid fa-briefcase text-custom-red text-lg"></i></div>
-                    <div>
-                        <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">JABATAN</p>
-                        <p class="text-slate-800 font-medium text-lg">{{ $user->jabatan ?? '-' }}</p>
-                    </div>
-                </div>
-                <div class="flex gap-4 pb-2">
-                    <div class="w-8 flex-shrink-0 pt-1 text-center"><i class="fa-regular fa-building text-custom-red text-lg"></i></div>
-                    <div>
-                        <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">SEKOLAH/UNIT KERJA</p>
-                        <p class="text-slate-800 font-medium text-lg">{{ $user->bidang_unit ?? '-' }}</p>
-                    </div>
-                </div>
-                
-                {{-- Tombol Ubah Password --}}
-                <div class="pt-4">
-                    <a href="{{ route('user.password.change') }}" class="block w-full bg-yellow-500 hover:bg-yellow-600 text-white text-center font-semibold py-3 rounded-lg transition">
-                        <i class="fa-solid fa-key mr-2"></i>Ubah Password
+                <div class="flex flex-col sm:flex-row gap-2">
+                    <a href="{{ route('user.profil.edit') }}" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-white text-[var(--maroon)] font-extrabold text-sm hover:bg-slate-50 transition">
+                        <i class="bi bi-pencil-square"></i>
+                        Edit Profil
                     </a>
                 </div>
             </div>
         </div>
 
-        <div class="w-full max-w-2xl bg-blue-50 border border-blue-200 rounded-lg p-6">
-            <h4 class="text-blue-700 font-semibold mb-2 text-sm">Catatan</h4>
-            <p class="text-blue-600/80 text-xs leading-relaxed">
-                Untuk mengubah data yang lebih kompleks seperti NIP atau informasi kontrak, silakan hubungi Bagian HRD. Beberapa data mungkin terlindungi dan hanya dapat diubah oleh administrator.
-            </p>
+        <div class="p-6 md:p-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div class="rounded-2xl border border-slate-100 bg-slate-50/40 p-5">
+                    <p class="text-[10px] font-extrabold text-slate-400 tracking-wider uppercase">Nama Lengkap</p>
+                    <p class="text-slate-800 font-semibold text-base mt-1">{{ $authUser->name ?? '-' }}</p>
+                </div>
+                <div class="rounded-2xl border border-slate-100 bg-slate-50/40 p-5">
+                    <p class="text-[10px] font-extrabold text-slate-400 tracking-wider uppercase">Email</p>
+                    <p class="text-slate-800 font-semibold text-base mt-1">{{ $authUser->email ?? 'Belum diisi' }}</p>
+                </div>
+                <div class="rounded-2xl border border-slate-100 bg-slate-50/40 p-5">
+                    <p class="text-[10px] font-extrabold text-slate-400 tracking-wider uppercase">No. HP</p>
+                    <p class="text-slate-800 font-semibold text-base mt-1">{{ $authUser->phone ?? 'Belum diisi' }}</p>
+                </div>
+                <div class="rounded-2xl border border-slate-100 bg-slate-50/40 p-5">
+                    <p class="text-[10px] font-extrabold text-slate-400 tracking-wider uppercase">NIP</p>
+                    <p class="text-slate-800 font-semibold text-base mt-1">{{ $authUser->nip ?? '-' }}</p>
+                </div>
+                <div class="rounded-2xl border border-slate-100 bg-slate-50/40 p-5">
+                    <p class="text-[10px] font-extrabold text-slate-400 tracking-wider uppercase">Jabatan</p>
+                    <p class="text-slate-800 font-semibold text-base mt-1">{{ $authUser->jabatan ?? '-' }}</p>
+                </div>
+                <div class="rounded-2xl border border-slate-100 bg-slate-50/40 p-5">
+                    <p class="text-[10px] font-extrabold text-slate-400 tracking-wider uppercase">Bidang / Unit</p>
+                    <p class="text-slate-800 font-semibold text-base mt-1">{{ $authUser->bidang_unit ?? '-' }}</p>
+                </div>
+            </div>
+
+            <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-3">
+                <a href="{{ route('user.password.change') }}" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl font-extrabold text-sm bg-amber-500 hover:bg-amber-600 text-white transition">
+                    <i class="bi bi-shield-lock-fill"></i>
+                    Ubah Password
+                </a>
+                <form action="{{ route('logout') }}" method="POST" class="w-full">
+                    @csrf
+                    <button type="submit" class="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl font-extrabold text-sm bg-red-50 hover:bg-red-100 text-red-700 transition">
+                        <i class="bi bi-box-arrow-left"></i>
+                        Logout
+                    </button>
+                </form>
+            </div>
         </div>
-
-    </main>
-
-    <footer class="bg-custom-dark-red text-white py-4 text-center text-xs mt-auto">
-        &copy; 2024 | SIIPUL Disdikbudpora Kab Semarang
-    </footer>
-
-    <div id="notification-toast" class="hidden fixed bottom-16 right-4 md:bottom-10 md:right-10 bg-white border border-gray-200 shadow-2xl rounded-lg p-4 flex items-center gap-3 z-50 max-w-xs md:max-w-sm toast-animate">
-        <div class="bg-black text-white rounded-full w-6 h-6 flex items-center justify-center shrink-0">
-            <i class="fa-solid fa-check text-xs"></i>
-        </div>
-        <div class="flex-grow">
-            <p class="text-sm font-semibold text-slate-800">Profil berhasil diperbarui!</p>
-        </div>
-        <button onclick="closeToast()" class="text-slate-400 hover:text-slate-600">
-            <i class="fa-solid fa-xmark"></i>
-        </button>
-    </div>
-
-    <script>
-        // Cek apakah ada '?status=sukses' di URL
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('status') === 'sukses') {
-            const toast = document.getElementById('notification-toast');
-            toast.classList.remove('hidden');
-
-            // Hilangkan notifikasi otomatis setelah 4 detik
-            setTimeout(() => {
-                closeToast();
-            }, 4000);
-        }
-
-        function closeToast() {
-            const toast = document.getElementById('notification-toast');
-            toast.classList.add('toast-hide');
-            setTimeout(() => {
-                toast.classList.add('hidden');
-                toast.classList.remove('toast-hide');
-            }, 500); // Tunggu animasi selesai
-        }
-    </script>
-
-</body>
-</html>
+    </section>
+@endsection

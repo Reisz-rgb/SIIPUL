@@ -1,78 +1,67 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ubah Password - SIIPUL</title>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.tailwindcss.com"></script>
+@extends('layouts.user')
 
-    <style>
-        body { font-family: 'Poppins', sans-serif; }
-        .bg-custom-red { background-color: #961E1E; }
-        .input-focus:focus { outline: 2px solid #961E1E; border-color: #961E1E; }
-    </style>
-</head>
-<body class="bg-gray-50 flex flex-col min-h-screen">
+@section('title', 'Ubah Password')
+@section('page_title', 'Keamanan Akun')
+@section('page_subtitle', 'Perbarui password untuk menjaga keamanan akun Anda.')
 
-    <nav class="bg-custom-red text-white py-4 px-6 shadow-md">
-        <div class="container mx-auto flex items-center gap-4">
-            <a href="{{ route('user.profil') }}" class="text-white hover:text-gray-200">
-                <i class="fa-solid fa-arrow-left text-lg"></i>
-            </a>
-            <div class="flex items-center gap-3">
-                <img src="{{ asset('logokabupatensemarang.png') }}" alt="Logo" class="h-8 w-auto">
-                <h1 class="font-medium text-lg">Ubah Password</h1>
+@section('content')
+    <div class="max-w-xl mx-auto">
+        <section class="bg-white rounded-3xl shadow-soft border border-slate-100 overflow-hidden">
+            <div class="p-6 md:p-8 border-b border-slate-50">
+                <h3 class="text-lg font-extrabold text-slate-800 flex items-center gap-2">
+                    <i class="bi bi-shield-lock-fill text-[var(--maroon)]"></i>
+                    Ubah Password
+                </h3>
+                <p class="text-sm text-slate-500 font-medium mt-1">Jika belum pernah mengubah password, gunakan NIP Anda sebagai password lama.</p>
             </div>
-        </div>
-    </nav>
 
-    <main class="flex-grow container mx-auto px-4 py-8 flex justify-center">
-        <div class="w-full max-w-md bg-white rounded-xl shadow-lg p-8">
-            
-            @if ($errors->any())
-                <div class="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
-                    <ul class="text-sm text-red-700 space-y-1">
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
+            <div class="p-6 md:p-8">
+                @if ($errors->any())
+                    <div class="mb-6 rounded-2xl border border-red-200 bg-red-50 px-5 py-4">
+                        <ul class="text-sm text-red-700 space-y-1 font-semibold">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
 
-            <form action="{{ route('user.password.update.user') }}" method="POST">
-                @csrf
+                <form action="{{ route('user.password.update.user') }}" method="POST" class="space-y-5">
+                    @csrf
 
-                <div class="mb-5">
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Password Lama</label>
-                    <input type="password" name="current_password" 
-                        class="w-full px-4 py-3 border rounded-lg input-focus" 
-                        placeholder="Masukkan password lama atau NIP" required>
-                    <p class="text-xs text-gray-500 mt-1">Jika belum pernah ubah password, gunakan NIP Anda</p>
-                </div>
+                    <div>
+                        <label class="block text-xs font-extrabold text-slate-600 mb-2">Password Lama</label>
+                        <input type="password" name="current_password" required
+                               class="w-full px-4 py-3 rounded-2xl border border-slate-200 bg-white text-slate-800 font-semibold focus:outline-none focus:ring-4 focus:ring-red-100 focus:border-[var(--maroon)]"
+                               placeholder="Masukkan password lama atau NIP">
+                        <p class="text-[11px] text-slate-400 mt-2 font-semibold">Jika belum pernah ubah password, gunakan NIP Anda</p>
+                    </div>
 
-                <div class="mb-5">
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Password Baru</label>
-                    <input type="password" name="password" 
-                        class="w-full px-4 py-3 border rounded-lg input-focus" 
-                        placeholder="Minimal 6 karakter" required>
-                </div>
+                    <div>
+                        <label class="block text-xs font-extrabold text-slate-600 mb-2">Password Baru</label>
+                        <input type="password" name="password" required
+                               class="w-full px-4 py-3 rounded-2xl border border-slate-200 bg-white text-slate-800 font-semibold focus:outline-none focus:ring-4 focus:ring-red-100 focus:border-[var(--maroon)]"
+                               placeholder="Minimal 6 karakter">
+                    </div>
 
-                <div class="mb-8">
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Konfirmasi Password Baru</label>
-                    <input type="password" name="password_confirmation" 
-                        class="w-full px-4 py-3 border rounded-lg input-focus" 
-                        placeholder="Ulangi password baru" required>
-                </div>
+                    <div>
+                        <label class="block text-xs font-extrabold text-slate-600 mb-2">Konfirmasi Password Baru</label>
+                        <input type="password" name="password_confirmation" required
+                               class="w-full px-4 py-3 rounded-2xl border border-slate-200 bg-white text-slate-800 font-semibold focus:outline-none focus:ring-4 focus:ring-red-100 focus:border-[var(--maroon)]"
+                               placeholder="Ulangi password baru">
+                    </div>
 
-                <button type="submit" class="w-full bg-custom-red text-white font-bold py-3 rounded-lg hover:bg-[#7a1818] transition">
-                    <i class="fa-solid fa-key mr-2"></i>Ubah Password
-                </button>
-            </form>
-        </div>
-    </main>
-
-</body>
-</html>
+                    <div class="pt-2 flex flex-col sm:flex-row gap-3">
+                        <button type="submit" class="flex-1 btn-primary text-white font-extrabold py-3 rounded-2xl transition shadow-lg shadow-red-900/10 inline-flex items-center justify-center gap-2">
+                            <i class="bi bi-key-fill"></i>
+                            Ubah Password
+                        </button>
+                        <a href="{{ route('user.profil') }}" class="flex-1 bg-white border border-slate-200 text-slate-700 font-extrabold py-3 rounded-2xl hover:bg-slate-50 transition text-center">
+                            Kembali
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </section>
+    </div>
+@endsection

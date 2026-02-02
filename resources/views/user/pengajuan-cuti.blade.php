@@ -1,494 +1,319 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIIPUL - Formulir Pengajuan Cuti</title>
-    
-    {{-- FontAwesome untuk Icon --}}
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <style>
-        :root{
-            --primary: #8b1515; /* Merah Marun */
-            --bg: #f3f5fb;
-            --card: #ffffff;
-            --border: #d1d5db;
-            --text: #111827;
-            --muted: #6b7280;
-            --blue-bg: #dbeafe; /* Background Tips */
-            --blue-text: #1e40af; /* Text Tips */
-            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        }
+@extends('layouts.user')
 
-        * { box-sizing: border-box; }
-        body {
-            margin: 0;
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            font-size: 14px;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
+@section('title', 'Ajukan Cuti')
+@section('page_title', 'Pengajuan Cuti')
+@section('page_subtitle', 'Lengkapi formulir berikut untuk mengajukan cuti.')
 
-        /* --- HERO HEADER --- */
-        .topbar {
-            min-height: 280px; 
-            background: var(--primary);
-            color: #fff;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            position: relative;
-            text-align: center;
-            z-index: 1; 
-        }
+@section('content')
+    @php($authUser = $user ?? auth()->user())
 
-        .brand-hero {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 60px; 
-        }
-
-        .brand-hero img {
-            height: 75px;
-            width: auto;
-            object-fit: contain;
-            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
-            margin-bottom: 5px;
-        }
-
-        .brand-title {
-            font-size: 28px;
-            font-weight: 800;
-            letter-spacing: 1px;
-            margin: 0;
-            line-height: 1.2;
-        }
-
-        .brand-subtitle {
-            font-size: 14px;
-            font-weight: 300;
-            opacity: 0.9;
-            margin: 0;
-            letter-spacing: 0.5px;
-        }
-
-        .avatar {
-            width: 38px; height: 38px; border-radius: 999px;
-            background: rgba(255,255,255,0.2); color: #fff;
-            display: flex; align-items: center; justify-content: center;
-            font-weight: 600; font-size: 14px;
-            border: 2px solid white;
-        }
-
-        /* --- FORM CONTAINER --- */
-        .container {
-            max-width: 950px;
-            width: 95%;
-            margin: -70px auto 40px; 
-            position: relative;
-            z-index: 10; 
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            padding: 40px;
-        }
-
-        /* Header Form */
-        .form-header-content {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        .form-title-text {
-            font-size: 24px;
-            font-weight: 800;
-            color: #111;
-            margin-bottom: 8px;
-        }
-        .form-subtitle-text {
-            color: var(--muted);
-            font-size: 14px;
-        }
-
-        /* Tombol Back */
-        .back-btn {
-            display: inline-flex;
-            align-items: center;
-            text-decoration: none;
-            color: #111;
-            font-size: 24px;
-            margin-bottom: 20px;
-            transition: color 0.2s;
-            cursor: pointer;
-        }
-        .back-btn:hover { color: var(--primary); }
-
-        /* Section Box */
-        .section-box {
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 24px;
-            background: #fdfdfd;
-        }
-
-        .section-title {
-            font-size: 14px;
-            font-weight: 800;
-            color: var(--primary);
-            margin-bottom: 16px;
-            text-transform: uppercase;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        /* Inputs */
-        .form-group { margin-bottom: 16px; }
-        .form-label {
-            display: block;
-            font-size: 13px;
-            font-weight: 600;
-            color: #374151;
-            margin-bottom: 6px;
-        }
-        .required { color: #ef4444; margin-left: 2px; }
-
-        .form-input, .form-textarea {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            font-size: 14px;
-            outline: none;
-            color: #374151;
-            background: #fff;
-            transition: all 0.2s;
-        }
-        .form-input:focus, .form-textarea:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(139, 21, 21, 0.1);
-        }
-        .form-input[readonly] {
-            background-color: #f9fafb;
-            color: #6b7280;
-            cursor: default;
-            border-color: #e5e7eb;
-        }
-        .form-textarea { min-height: 100px; resize: vertical; }
-
-        /* Grids */
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .grid-date { display: grid; grid-template-columns: 150px 1fr 1fr; gap: 20px; align-items: end; }
-        .radio-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-
-        /* Radio Item */
-        .radio-item {
-            display: flex; align-items: center; padding: 12px;
-            border: 1px solid var(--border); border-radius: 6px; background: white; cursor: pointer;
-        }
-        .radio-item:hover { border-color: var(--primary); }
-        .radio-item input { margin-right: 10px; width: 16px; height: 16px; accent-color: var(--primary); }
-        .radio-label { font-size: 13px; font-weight: 500; }
-
-        /* Upload Area */
-        .upload-area {
-            position: relative;
-            border: 2px dashed #d1d5db;
-            background: #f8fafc;
-            border-radius: 8px;
-            padding: 30px;
-            text-align: center;
-            transition: all 0.2s;
-            cursor: pointer;
-        }
-        .upload-area:hover {
-            border-color: var(--primary);
-            background: #fff5f5;
-        }
-        .upload-area input[type="file"] {
-            position: absolute; width: 100%; height: 100%; top: 0; left: 0; opacity: 0; cursor: pointer;
-        }
-        .upload-icon { font-size: 28px; color: #9ca3af; margin-bottom: 12px; }
-        .upload-text { font-size: 14px; font-weight: 600; color: #4b5563; }
-        .upload-hint { font-size: 12px; color: #9ca3af; margin-top: 6px; }
-
-        /* Tips Box */
-        .tips-box {
-            background-color: var(--blue-bg); border: 1px solid #bfdbfe; border-radius: 8px;
-            padding: 16px; margin-top: 20px; display: flex; gap: 15px; color: var(--blue-text);
-        }
-        .tips-icon { font-size: 18px; margin-top: 2px; }
-        .tips-content h4 { margin: 0 0 5px 0; font-size: 14px; font-weight: 700; }
-        .tips-content p { margin: 0; font-size: 13px; line-height: 1.5; opacity: 0.9; }
-
-        /* Submit Button */
-        .btn-submit {
-            width: 100%; background: var(--primary); color: white; border: none; padding: 14px;
-            border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer;
-            display: flex; align-items: center; justify-content: center; gap: 10px;
-            transition: background 0.2s; margin-top: 20px;
-        }
-        .btn-submit:hover { background: #711010; }
-
-        .footer-note { text-align: center; font-size: 12px; color: #9ca3af; margin-top: 15px; }
-
-        @media (max-width: 768px) {
-            .grid-2, .grid-date, .radio-grid { grid-template-columns: 1fr; }
-            .container { margin-top: -40px; padding: 20px; }
-            .topbar { min-height: auto; padding-bottom: 70px; }
-        }
-    </style>
-</head>
-<body>
-
-    <div class="topbar">
-        <div class="brand-hero">
-            <img src="{{ asset('logokabupatensemarang.png') }}" alt="Logo Kab Semarang"> 
-            <h1 class="brand-title">SIIPUL</h1>
-            <p class="brand-subtitle">Sistem Informasi Pengajuan Cuti Online</p>
-        </div>
-        <div class="avatar">
-            {{ substr($user->name ?? 'BS', 0, 2) }}
-        </div>
-    </div>
-
-    <div class="container">
-        
-        <a href="{{ route('user.dashboard') }}" class="back-btn">
-            <i class="fa-solid fa-arrow-left"></i>
-        </a>
-
-        <div class="form-header-content">
-            <h2 class="form-title-text">Formulir Pengajuan Cuti Pegawai</h2>
-            <p class="form-subtitle-text">Silakan lengkapi data di bawah ini dengan benar</p>
-        </div>
-
-        <form action="{{ route('user.cuti.store') }}" method="POST" enctype="multipart/form-data">
-            @csrf
-
-            {{-- SECTION I: DATA PEGAWAI (DINAMIS) --}}
-            <div class="section-box">
-                <div class="section-title">I. DATA PEGAWAI</div>
-                
-                <div class="grid-2">
-                    <div class="form-group">
-                        <label class="form-label">Nama Lengkap <span class="required">*</span></label>
-                        <input type="text" class="form-input" value="{{ $user->name }}" readonly>
+    <div class="max-w-5xl mx-auto space-y-6">
+        @if ($errors->any())
+            <div class="rounded-2xl border border-red-200 bg-red-50 px-6 py-5">
+                <div class="flex items-start gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-white border border-red-200 flex items-center justify-center text-red-600">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">NIP <span class="required">*</span></label>
-                        <input type="text" class="form-input" value="{{ $user->nip }}" readonly>
+                    <div>
+                        <h4 class="text-sm font-extrabold text-red-800">Periksa kembali input Anda</h4>
+                        <ul class="list-disc list-inside text-sm text-red-700 mt-2 space-y-1 font-semibold">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
                     </div>
                 </div>
+            </div>
+        @endif
 
-                <div class="grid-2">
-                    <div class="form-group">
-                        <label class="form-label">Jabatan <span class="required">*</span></label>
-                        <input type="text" class="form-input" value="{{ $user->jabatan ?? '-' }}" readonly>
+        <form action="{{ route('user.cuti.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
+            @csrf
+
+            {{-- I. DATA PEGAWAI --}}
+            <section class="bg-white rounded-3xl shadow-soft border border-slate-100 overflow-hidden">
+                <div class="px-6 md:px-8 py-5 border-b border-slate-50 flex items-center justify-between gap-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center text-[var(--maroon)]">
+                            <i class="bi bi-person-badge-fill"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-sm md:text-base font-extrabold text-slate-800">I. Data Pegawai</h3>
+                            <p class="text-xs md:text-sm text-slate-500 font-medium">Data ini otomatis dari akun Anda.</p>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">Masa Kerja <span class="required">*</span></label>
-                        <div style="display: flex; gap: 10px;">
-                            <div style="flex:1; display:flex; align-items:center; gap:5px;">
-                                {{-- Menggunakan floor untuk membuang desimal --}}
-                                <input type="text" class="form-input" value="{{ floor($workYears) }}" readonly> 
-                                <span style="font-size:12px; color:#666;">Tahun</span>
+                    <span class="text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Wajib</span>
+                </div>
+
+                <div class="p-6 md:p-8 grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-xs font-extrabold text-slate-600 mb-2">Nama Lengkap</label>
+                        <input type="text" value="{{ $authUser->name }}" readonly class="w-full px-4 py-3 rounded-2xl border border-slate-200 bg-slate-50 text-slate-700 font-semibold" />
+                    </div>
+                    <div>
+                        <label class="block text-xs font-extrabold text-slate-600 mb-2">NIP</label>
+                        <input type="text" value="{{ $authUser->nip }}" readonly class="w-full px-4 py-3 rounded-2xl border border-slate-200 bg-slate-50 text-slate-700 font-semibold" />
+                    </div>
+                    <div>
+                        <label class="block text-xs font-extrabold text-slate-600 mb-2">Jabatan</label>
+                        <input type="text" value="{{ $authUser->jabatan ?? '-' }}" readonly class="w-full px-4 py-3 rounded-2xl border border-slate-200 bg-slate-50 text-slate-700 font-semibold" />
+                    </div>
+                    <div>
+                        <label class="block text-xs font-extrabold text-slate-600 mb-2">Masa Kerja</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="flex items-center gap-2">
+                                <input type="text" value="{{ floor($workYears ?? 0) }}" readonly class="w-full px-4 py-3 rounded-2xl border border-slate-200 bg-slate-50 text-slate-700 font-semibold" />
+                                <span class="text-xs text-slate-500 font-bold">Tahun</span>
                             </div>
-                            <div style="flex:1; display:flex; align-items:center; gap:5px;">
-                                <input type="text" class="form-input" value="{{ floor($workMonths) }}" readonly> 
-                                <span style="font-size:12px; color:#666;">Bulan</span>
+                            <div class="flex items-center gap-2">
+                                <input type="text" value="{{ floor($workMonths ?? 0) }}" readonly class="w-full px-4 py-3 rounded-2xl border border-slate-200 bg-slate-50 text-slate-700 font-semibold" />
+                                <span class="text-xs text-slate-500 font-bold">Bulan</span>
                             </div>
                         </div>
                     </div>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Unit Kerja <span class="required">*</span></label>
-                    <input type="text" class="form-input" value="{{ $user->bidang_unit ?? 'DISDIKBUDPORA KABUPATEN SEMARANG' }}" readonly>
-                </div>
-            </div>
-
-            {{-- SECTION II: JENIS CUTI --}}
-            <div class="section-box">
-                <div class="section-title">II. JENIS CUTI YANG DIAMBIL</div>
-                <div class="radio-grid">
-                    <label class="radio-item"><input type="radio" name="jenis_cuti" value="Cuti Tahunan" checked><span class="radio-label">Cuti Tahunan</span></label>
-                    <label class="radio-item"><input type="radio" name="jenis_cuti" value="Cuti Besar"><span class="radio-label">Cuti Besar</span></label>
-                    <label class="radio-item"><input type="radio" name="jenis_cuti" value="Cuti Sakit"><span class="radio-label">Cuti Sakit</span></label>
-                    <label class="radio-item"><input type="radio" name="jenis_cuti" value="Cuti Melahirkan"><span class="radio-label">Cuti Melahirkan</span></label>
-                    <label class="radio-item"><input type="radio" name="jenis_cuti" value="Cuti Alasan Penting"><span class="radio-label">Cuti Karena Alasan Penting</span></label>
-                    <label class="radio-item"><input type="radio" name="jenis_cuti" value="Cuti Luar Tanggungan"><span class="radio-label">Cuti di Luar Tanggungan Negara</span></label>
-                </div>
-            </div>
-
-            {{-- SECTION III: ALASAN CUTI --}}
-            <div class="section-box">
-                <div class="section-title">III. ALASAN CUTI</div>
-                <div class="form-group">
-                    <label class="form-label">Uraian Alasan Cuti <span class="required">*</span></label>
-                    <textarea name="alasan" class="form-textarea" 
-                            placeholder="Jelaskan alasan cuti secara detail (Contoh: Menghadiri pernikahan saudara kandung di luar kota)..." 
-                            minlength="20" required>{{ old('alasan') }}</textarea>
-                    <small style="color: #6b7280; font-size: 11px; margin-top: 4px; display: block;">
-                        * Berikan alasan yang jelas, minimal 20 karakter agar mudah diverifikasi.
-                    </small>
-                </div>
-            </div>
-
-            {{-- SECTION IV: LAMA CUTI --}}
-            <div class="section-box">
-                <div class="section-title">IV. LAMANYA CUTI</div>
-                <div class="grid-date">
-                    <div class="form-group">
-                        <label class="form-label">Selama (Hari)</label>
-                        <input type="number" name="lama_hari" class="form-input" placeholder="0" min="1" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Mulai Tanggal</label>
-                        <input type="date" name="tanggal_mulai" class="form-input" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">s/d Tanggal</label>
-                        <input type="date" name="tanggal_selesai" class="form-input" required>
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-extrabold text-slate-600 mb-2">Unit Kerja</label>
+                        <input type="text" value="{{ $authUser->bidang_unit ?? 'DISDIKBUDPORA KABUPATEN SEMARANG' }}" readonly class="w-full px-4 py-3 rounded-2xl border border-slate-200 bg-slate-50 text-slate-700 font-semibold" />
                     </div>
                 </div>
-            </div>
+            </section>
 
-            {{-- SECTION V: CATATAN CUTI (DINAMIS) --}}
-            <div class="section-box">
-                <div class="section-title">V. CATATAN CUTI</div>
-                <div style="overflow-x:auto;">
-                    <table style="width:100%; border-collapse:collapse; font-size:13px;">
+            {{-- II. JENIS CUTI --}}
+            <section class="bg-white rounded-3xl shadow-soft border border-slate-100 overflow-hidden">
+                <div class="px-6 md:px-8 py-5 border-b border-slate-50 flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center text-[var(--maroon)]">
+                        <i class="bi bi-ui-radios"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-sm md:text-base font-extrabold text-slate-800">II. Jenis Cuti yang Diambil</h3>
+                        <p class="text-xs md:text-sm text-slate-500 font-medium">Pilih salah satu jenis cuti.</p>
+                    </div>
+                </div>
+
+                <div class="p-6 md:p-8 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    @php($jenisOld = old('jenis_cuti', 'Cuti Tahunan'))
+                    @foreach([
+                        'Cuti Tahunan' => 'Cuti Tahunan',
+                        'Cuti Besar' => 'Cuti Besar',
+                        'Cuti Sakit' => 'Cuti Sakit',
+                        'Cuti Melahirkan' => 'Cuti Melahirkan',
+                        'Cuti Alasan Penting' => 'Cuti Karena Alasan Penting',
+                        'Cuti Luar Tanggungan' => 'Cuti di Luar Tanggungan Negara',
+                    ] as $value => $label)
+                        <label class="flex items-center gap-3 p-4 rounded-2xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+                            <input type="radio" name="jenis_cuti" value="{{ $value }}" class="h-4 w-4 text-[var(--maroon)]" {{ $jenisOld === $value ? 'checked' : '' }}>
+                            <div class="min-w-0">
+                                <div class="text-sm font-extrabold text-slate-800">{{ $label }}</div>
+                                <div class="text-xs text-slate-500 font-medium">{{ $value }}</div>
+                            </div>
+                        </label>
+                    @endforeach
+                </div>
+            </section>
+
+            {{-- III. ALASAN CUTI --}}
+            <section class="bg-white rounded-3xl shadow-soft border border-slate-100 overflow-hidden">
+                <div class="px-6 md:px-8 py-5 border-b border-slate-50 flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center text-[var(--maroon)]">
+                        <i class="bi bi-chat-left-text-fill"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-sm md:text-base font-extrabold text-slate-800">III. Alasan Cuti</h3>
+                        <p class="text-xs md:text-sm text-slate-500 font-medium">Minimal 20 karakter agar mudah diverifikasi.</p>
+                    </div>
+                </div>
+
+                <div class="p-6 md:p-8">
+                    <label class="block text-xs font-extrabold text-slate-600 mb-2">Uraian Alasan <span class="text-red-600">*</span></label>
+                    <textarea name="alasan" minlength="20" required
+                              class="w-full min-h-[140px] px-4 py-3 rounded-2xl border border-slate-200 bg-white text-slate-800 font-medium focus:outline-none focus:ring-4 focus:ring-red-100 focus:border-[var(--maroon)]"
+                              placeholder="Jelaskan alasan cuti secara detail...">{{ old('alasan') }}</textarea>
+                    <p class="text-[11px] text-slate-400 mt-2 font-semibold">Berikan alasan yang jelas, minimal 20 karakter.</p>
+                </div>
+            </section>
+
+            {{-- IV. LAMA CUTI --}}
+            <section class="bg-white rounded-3xl shadow-soft border border-slate-100 overflow-hidden">
+                <div class="px-6 md:px-8 py-5 border-b border-slate-50 flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center text-[var(--maroon)]">
+                        <i class="bi bi-calendar2-week-fill"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-sm md:text-base font-extrabold text-slate-800">IV. Lamanya Cuti</h3>
+                        <p class="text-xs md:text-sm text-slate-500 font-medium">Isi lama hari dan rentang tanggal cuti.</p>
+                    </div>
+                </div>
+
+                <div class="p-6 md:p-8 grid grid-cols-1 md:grid-cols-3 gap-5">
+                    <div>
+                        <label class="block text-xs font-extrabold text-slate-600 mb-2">Selama (Hari) <span class="text-red-600">*</span></label>
+                        <input type="number" name="lama_hari" min="1" required value="{{ old('lama_hari') }}"
+                               class="w-full px-4 py-3 rounded-2xl border border-slate-200 bg-white text-slate-800 font-semibold focus:outline-none focus:ring-4 focus:ring-red-100 focus:border-[var(--maroon)]"
+                               placeholder="0">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-extrabold text-slate-600 mb-2">Mulai Tanggal <span class="text-red-600">*</span></label>
+                        <input type="date" name="tanggal_mulai" required value="{{ old('tanggal_mulai') }}"
+                               class="w-full px-4 py-3 rounded-2xl border border-slate-200 bg-white text-slate-800 font-semibold focus:outline-none focus:ring-4 focus:ring-red-100 focus:border-[var(--maroon)]">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-extrabold text-slate-600 mb-2">s/d Tanggal <span class="text-red-600">*</span></label>
+                        <input type="date" name="tanggal_selesai" required value="{{ old('tanggal_selesai') }}"
+                               class="w-full px-4 py-3 rounded-2xl border border-slate-200 bg-white text-slate-800 font-semibold focus:outline-none focus:ring-4 focus:ring-red-100 focus:border-[var(--maroon)]">
+                    </div>
+                </div>
+            </section>
+
+            {{-- V. CATATAN CUTI --}}
+            <section class="bg-white rounded-3xl shadow-soft border border-slate-100 overflow-hidden">
+                <div class="px-6 md:px-8 py-5 border-b border-slate-50 flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center text-[var(--maroon)]">
+                        <i class="bi bi-table"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-sm md:text-base font-extrabold text-slate-800">V. Catatan Cuti</h3>
+                        <p class="text-xs md:text-sm text-slate-500 font-medium">Ringkasan sisa cuti berdasarkan tahun.</p>
+                    </div>
+                </div>
+
+                <div class="p-6 md:p-8 overflow-x-auto">
+                    <table class="w-full text-sm">
                         <thead>
-                            <tr style="border-bottom:1px solid #eee; text-align:left; color:#666;">
-                                <th style="padding:8px; width:20%;">Tahun</th>
-                                <th style="padding:8px; width:30%;">Sisa Cuti</th>
-                                <th style="padding:8px;">Keterangan</th>
+                            <tr class="text-left text-xs font-extrabold text-slate-400 uppercase tracking-wider border-b border-slate-100">
+                                <th class="py-3 pr-4">Tahun</th>
+                                <th class="py-3 pr-4">Sisa Cuti</th>
+                                <th class="py-3">Keterangan</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody class="divide-y divide-slate-100">
                             <tr>
-                                <td style="padding:8px; font-weight:600;">N-2 ({{ $leaveBalance['n2']['year'] }})</td>
-                                <td style="padding:8px;">
-                                    <input type="text" class="form-input" value="{{ $leaveBalance['n2']['remaining'] }}" readonly>
-                                </td>
-                                <td style="padding:8px;">
-                                    <input type="text" class="form-input" value="Bonus: {{ $leaveBalance['n2']['bonus'] }} hari (setengah dari sisa)" readonly>
-                                </td>
+                                <td class="py-4 pr-4 font-extrabold text-slate-700">N-2 ({{ $leaveBalance['n2']['year'] ?? '-' }})</td>
+                                <td class="py-4 pr-4"><input type="text" readonly value="{{ $leaveBalance['n2']['remaining'] ?? 0 }}" class="w-28 px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-700 font-semibold"></td>
+                                <td class="py-4"><input type="text" readonly value="Bonus: {{ $leaveBalance['n2']['bonus'] ?? 0 }} hari (setengah dari sisa)" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-600 font-medium"></td>
                             </tr>
                             <tr>
-                                <td style="padding:8px; font-weight:600;">N-1 ({{ $leaveBalance['n1']['year'] }})</td>
-                                <td style="padding:8px;">
-                                    <input type="text" class="form-input" value="{{ $leaveBalance['n1']['remaining'] }}" readonly>
-                                </td>
-                                <td style="padding:8px;">
-                                    <input type="text" class="form-input" value="Bonus: {{ $leaveBalance['n1']['bonus'] }} hari (setengah dari sisa)" readonly>
-                                </td>
+                                <td class="py-4 pr-4 font-extrabold text-slate-700">N-1 ({{ $leaveBalance['n1']['year'] ?? '-' }})</td>
+                                <td class="py-4 pr-4"><input type="text" readonly value="{{ $leaveBalance['n1']['remaining'] ?? 0 }}" class="w-28 px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-700 font-semibold"></td>
+                                <td class="py-4"><input type="text" readonly value="Bonus: {{ $leaveBalance['n1']['bonus'] ?? 0 }} hari (setengah dari sisa)" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-600 font-medium"></td>
                             </tr>
                             <tr>
-                                <td style="padding:8px; font-weight:600;">N ({{ $leaveBalance['n']['year'] }}) - Tahun Berjalan</td>
-                                <td style="padding:8px;">
-                                    <input type="text" class="form-input" value="{{ $leaveBalance['n']['remaining'] }}" readonly style="font-weight:bold; color:var(--primary);">
-                                </td>
-                                <td style="padding:8px;">
-                                    <input type="text" class="form-input" value="Sisa cuti tahun ini (dari {{ $leaveBalance['n']['quota'] }} hari)" readonly>
-                                </td>
+                                <td class="py-4 pr-4 font-extrabold text-slate-700">N ({{ $leaveBalance['n']['year'] ?? '-' }}) - Tahun Berjalan</td>
+                                <td class="py-4 pr-4"><input type="text" readonly value="{{ $leaveBalance['n']['remaining'] ?? 0 }}" class="w-28 px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-[var(--maroon)] font-extrabold"></td>
+                                <td class="py-4"><input type="text" readonly value="Sisa cuti tahun ini (dari {{ $leaveBalance['n']['quota'] ?? 0 }} hari)" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-600 font-medium"></td>
                             </tr>
-                            <tr style="background-color: #f0f9ff;">
-                                <td style="padding:8px; font-weight:800; color:var(--primary);">TOTAL TERSEDIA</td>
-                                <td style="padding:8px;">
-                                    <input type="text" class="form-input" value="{{ $leaveBalance['total_available'] }}" readonly style="font-weight:bold; color:#059669; background:#ecfdf5;">
-                                </td>
-                                <td style="padding:8px;">
-                                    <input type="text" class="form-input" value="Total cuti yang dapat diambil saat ini" readonly>
-                                </td>
+                            <tr class="bg-emerald-50/30">
+                                <td class="py-4 pr-4 font-black text-[var(--maroon)]">TOTAL TERSEDIA</td>
+                                <td class="py-4 pr-4"><input type="text" readonly value="{{ $leaveBalance['total_available'] ?? 0 }}" class="w-28 px-3 py-2 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-700 font-black"></td>
+                                <td class="py-4"><input type="text" readonly value="Total cuti yang dapat diambil saat ini" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white text-slate-600 font-medium"></td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
-            </div>
+            </section>
 
-            {{-- SECTION VI: ALAMAT CUTI --}}
-            <div class="section-box">
-                <div class="section-title">VI. ALAMAT SELAMA MENJALANKAN CUTI</div>
-                <div class="form-group">
-                    <label class="form-label">Alamat Lengkap <span class="required">*</span></label>
-                    <textarea name="alamat_cuti" class="form-textarea" style="min-height:80px;" placeholder="Jalan, RT/RW, Kelurahan, Kecamatan, Kota/Kabupaten..." required></textarea>
+            {{-- VI. ALAMAT CUTI --}}
+            <section class="bg-white rounded-3xl shadow-soft border border-slate-100 overflow-hidden">
+                <div class="px-6 md:px-8 py-5 border-b border-slate-50 flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center text-[var(--maroon)]">
+                        <i class="bi bi-geo-alt-fill"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-sm md:text-base font-extrabold text-slate-800">VI. Alamat Selama Menjalankan Cuti</h3>
+                        <p class="text-xs md:text-sm text-slate-500 font-medium">Isi alamat dan kontak yang bisa dihubungi.</p>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Nomor Telepon / HP <span class="required">*</span></label>
-                    <input type="text" name="no_telepon" class="form-input" placeholder="08xxxxxxxxxx" required>
-                </div>
-            </div>
 
-            {{-- SECTION VII: DOKUMEN PENDUKUNG --}}
-            <div class="section-box">
-                <div class="section-title">VII. DOKUMEN PENDUKUNG (OPSIONAL)</div>
-                <div class="form-group">
-                    <label class="form-label">Catatan Tambahan</label>
-                    <textarea name="catatan_tambahan" class="form-textarea" style="background:#f9fafb;" placeholder="Tambahkan catatan jika ada hal spesifik..."></textarea>
+                <div class="p-6 md:p-8 grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-extrabold text-slate-600 mb-2">Alamat Lengkap <span class="text-red-600">*</span></label>
+                        <textarea name="alamat_cuti" required class="w-full min-h-[110px] px-4 py-3 rounded-2xl border border-slate-200 bg-white text-slate-800 font-medium focus:outline-none focus:ring-4 focus:ring-red-100 focus:border-[var(--maroon)]" placeholder="Jalan, RT/RW, Kelurahan, Kecamatan, Kota/Kabupaten...">{{ old('alamat_cuti') }}</textarea>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-extrabold text-slate-600 mb-2">Nomor Telepon / HP <span class="text-red-600">*</span></label>
+                        <input type="text" name="no_telepon" required value="{{ old('no_telepon') }}" class="w-full px-4 py-3 rounded-2xl border border-slate-200 bg-white text-slate-800 font-semibold focus:outline-none focus:ring-4 focus:ring-red-100 focus:border-[var(--maroon)]" placeholder="08xxxxxxxxxx">
+                    </div>
+                    <div class="hidden md:block"></div>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Dokumen Lampiran (Surat Dokter, dll)</label>
-                    <div class="upload-area" id="dropZone">
-                        <input type="file" name="dokumen_pendukung" id="fileUpload" accept=".pdf,.doc,.docx,.jpg,.png,.xls,.xlsx">
-                        <div class="upload-icon" id="uploadIcon">
-                            <i class="fa-solid fa-arrow-up-from-bracket"></i>
+            </section>
+
+            {{-- VII. DOKUMEN PENDUKUNG --}}
+            <section class="bg-white rounded-3xl shadow-soft border border-slate-100 overflow-hidden">
+                <div class="px-6 md:px-8 py-5 border-b border-slate-50 flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center text-[var(--maroon)]">
+                        <i class="bi bi-paperclip"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-sm md:text-base font-extrabold text-slate-800">VII. Dokumen Pendukung (Opsional)</h3>
+                        <p class="text-xs md:text-sm text-slate-500 font-medium">Unggah lampiran jika diperlukan (surat dokter, dsb).</p>
+                    </div>
+                </div>
+
+                <div class="p-6 md:p-8 space-y-5">
+                    <div>
+                        <label class="block text-xs font-extrabold text-slate-600 mb-2">Catatan Tambahan</label>
+                        <textarea name="catatan_tambahan" class="w-full min-h-[110px] px-4 py-3 rounded-2xl border border-slate-200 bg-slate-50/30 text-slate-800 font-medium focus:outline-none focus:ring-4 focus:ring-red-100 focus:border-[var(--maroon)]" placeholder="Tambahkan catatan jika ada hal spesifik...">{{ old('catatan_tambahan') }}</textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-extrabold text-slate-600 mb-2">Dokumen Lampiran</label>
+                        <div id="dropZone" class="relative rounded-2xl border border-dashed border-slate-200 bg-slate-50/40 p-6 flex flex-col items-center justify-center text-center">
+                            <input type="file" name="dokumen_pendukung" id="fileUpload" accept=".pdf,.doc,.docx,.jpg,.png,.xls,.xlsx" class="absolute inset-0 opacity-0 cursor-pointer" />
+                            <div id="uploadIcon" class="w-14 h-14 rounded-2xl bg-white border border-slate-200 flex items-center justify-center text-slate-500">
+                                <i class="bi bi-upload text-2xl"></i>
+                            </div>
+                            <div id="uploadText" class="mt-4 text-sm font-extrabold text-slate-700">Klik atau seret file ke sini</div>
+                            <div id="uploadHint" class="mt-2 text-xs text-slate-500 font-medium">Supported: PDF, DOC, JPG, PNG, XLS (Maks 5MB)</div>
                         </div>
-                        <div class="upload-text" id="uploadText">Klik atau seret file ke sini</div>
-                        <div class="upload-hint" id="uploadHint">Supported: PDF, DOC, JPG, PNG (Maks 5MB)</div>
+                    </div>
+
+                    <div class="rounded-2xl border border-blue-100 bg-blue-50/50 p-5 flex gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-white border border-blue-100 flex items-center justify-center text-blue-600 flex-shrink-0">
+                            <i class="bi bi-lightbulb-fill"></i>
+                        </div>
+                        <div>
+                            <div class="text-sm font-extrabold text-blue-800">Tips</div>
+                            <p class="text-sm text-blue-700/80 font-medium mt-1">Pastikan melengkapi dokumen pendukung agar proses verifikasi berjalan lancar.</p>
+                        </div>
                     </div>
                 </div>
-                <div class="tips-box">
-                    <div class="tips-icon"><i class="fa-regular fa-lightbulb"></i></div>
-                    <div class="tips-content">
-                        <h4>Tips:</h4>
-                        <p>Pastikan melengkapi semua dokumen pendukung agar proses verifikasi berjalan lancar.</p>
-                    </div>
-                </div>
+            </section>
+
+            <div class="pt-2">
+                <button type="submit" class="w-full btn-primary text-white px-6 py-4 rounded-2xl font-extrabold shadow-lg shadow-red-900/15 inline-flex items-center justify-center gap-2">
+                    <i class="bi bi-send-fill"></i>
+                    Ajukan Permohonan Cuti
+                </button>
+                <p class="text-center text-[11px] text-slate-400 font-semibold mt-3">Dengan menekan tombol ini, Anda menyatakan bahwa data yang diisi adalah benar.</p>
             </div>
-
-            <button type="submit" class="btn-submit">
-                <i class="fa-solid fa-paper-plane"></i> &nbsp; Ajukan Permohonan Cuti
-            </button>
-
-            <p class="footer-note">Dengan menekan tombol ini, Anda menyatakan bahwa data yang diisi adalah benar.</p>
         </form>
     </div>
+@endsection
 
-<script>
-    const fileInput = document.getElementById('fileUpload');
-    const uploadText = document.getElementById('uploadText');
-    const uploadHint = document.getElementById('uploadHint');
-    const uploadIcon = document.getElementById('uploadIcon');
-    const dropZone = document.getElementById('dropZone');
+@push('scripts')
+    <script>
+        const fileInput = document.getElementById('fileUpload');
+        const uploadText = document.getElementById('uploadText');
+        const uploadHint = document.getElementById('uploadHint');
+        const uploadIcon = document.getElementById('uploadIcon');
+        const dropZone = document.getElementById('dropZone');
 
-    fileInput.addEventListener('change', function() {
-        if (this.files && this.files[0]) {
-            const file = this.files[0];
-            
-            // Ubah tampilan menjadi mode "File Terpilih"
-            uploadText.innerText = "File Siap Diupload!";
-            uploadText.style.color = "#059669"; // Hijau
-            
-            uploadHint.innerHTML = `<strong>Berhasil memilih:</strong> ${file.name} (${(file.size/1024).toFixed(1)} KB)`;
-            uploadHint.style.color = "#059669";
-            
-            uploadIcon.innerHTML = '<i class="fa-solid fa-circle-check" style="color: #059669; font-size: 32px;"></i>';
-            
-            dropZone.style.borderColor = "#059669";
-            dropZone.style.background = "#ecfdf5";
+        if (fileInput) {
+            fileInput.addEventListener('change', function() {
+                if (this.files && this.files[0]) {
+                    const file = this.files[0];
+
+                    // Ubah tampilan menjadi mode "File Terpilih" (logika tetap)
+                    uploadText.innerText = "File Siap Diupload!";
+                    uploadText.classList.add('text-emerald-700');
+
+                    uploadHint.innerHTML = `<strong>Berhasil memilih:</strong> ${file.name} (${(file.size/1024).toFixed(1)} KB)`;
+                    uploadHint.classList.add('text-emerald-700');
+
+                    uploadIcon.innerHTML = '<i class="bi bi-check-circle-fill text-2xl text-emerald-600"></i>';
+                    dropZone.classList.remove('border-slate-200');
+                    dropZone.classList.add('border-emerald-300');
+                    dropZone.classList.add('bg-emerald-50/40');
+                }
+            });
         }
-    });
-</script>
-
-</body>
-</html>
+    </script>
+@endpush

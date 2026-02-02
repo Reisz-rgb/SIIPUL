@@ -1,443 +1,326 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Riwayat Pengajuan Cuti</title>
+@extends('layouts.user')
 
-  <style>
-    /* --- 1. CSS VARIABLES & RESET (SAMA PERSIS DENGAN DASHBOARD) --- */
-    :root{
-      --primary:#8b1515; /* Merah Marun */
-      --bg:#f3f5fb;
-      --card:#ffffff;
-      --border:#e6e8ef;
-      --text:#111827;
-      --muted:#6b7280;
-      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+@section('title', 'Riwayat Cuti')
+@section('page_title', 'Riwayat Pengajuan')
+@section('page_subtitle', 'Lihat status pengajuan cuti dan detailnya dalam satu tempat.')
 
-      --ok:#1f7a46;   --ok-bg: #dcfce7; 
-      --pen:#b45309;  --pen-bg: #fef3c7; 
-      --rej:#b91c1c;  --rej-bg: #fee2e2; 
+@push('head')
+    <style>
+        /* Modal helper: JS lama pakai class "open" */
+        #modal{ display:none; }
+        #modal.open{ display:flex; }
+    </style>
+@endpush
 
-      --blueSoft:#eef3ff; --blueBorder:#cfdcff;
-      --greenSoft:#e9f8ef; --greenBorder:#c7edd6;
-    }
+@section('content')
+    @php($status = $status ?? 'all')
 
-    *{ box-sizing:border-box; }
-    body{
-      margin:0;
-      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      background:var(--bg);
-      color:var(--text);
-      font-size: 15px; 
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
-
-    /* --- TOPBAR --- */
-    .topbar{
-      height:70px;
-      background:var(--primary);
-      color:#fff;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      padding:0 32px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      position: sticky; top: 0; z-index: 50;
-    }
-    .header-left { display: flex; align-items: center; gap: 20px; }
-    .back-btn { font-size: 18px; color: white; opacity: 0.9; transition: 0.2s; }
-    .back-btn:hover { opacity: 1; transform: translateX(-3px); }
-    .page-title { font-size: 18px; font-weight: 700; letter-spacing: 0.5px; display: flex; align-items: center; gap: 12px; }
-
-    /* --- CONTAINER --- */
-    .container{ max-width:1000px; width: 95%; margin:30px auto; padding:0 20px 30px; flex: 1; }
-    
-    /* Filter Section */
-    .filter-section { margin-bottom: 30px; }
-    .filter-label { font-size: 13px; font-weight: 700; color: var(--muted); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
-    .filter-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
-    .filter-btn {
-        border: 1px solid var(--border); background: white;
-        padding: 8px 20px; border-radius: 99px;
-        font-size: 14px; font-weight: 500; color: var(--muted);
-        cursor: pointer; transition: all 0.2s;
-        text-decoration: none; 
-        display: inline-block; 
-    }
-    .filter-btn:hover { background: #f9fafb; }
-    .filter-btn.active { 
-        background: var(--primary); color: white; border-color: var(--primary); 
-        box-shadow: 0 4px 6px rgba(139, 21, 21, 0.2);
-    }
-
-    /* --- HISTORY CARD STYLES (SAMA DENGAN DASHBOARD) --- */
-    .history-list-container { display: flex; flex-direction: column; gap: 16px; }
-
-    .h-card {
-        background: #fff;
-        border-radius: 16px;
-        padding: 20px 24px;
-        display: flex; align-items: center; justify-content: space-between;
-        border: 1px solid var(--border);
-        box-shadow: 0 2px 4px rgba(0,0,0,0.03);
-        transition: transform 0.2s, box-shadow 0.2s;
-        position: relative;
-    }
-    .h-card:hover { transform: translateY(-3px); box-shadow: 0 12px 20px -5px rgba(0,0,0,0.08); }
-
-    /* Status Border Colors */
-    .h-card[data-status="approved"] { border-left: 6px solid var(--ok); }
-    .h-card[data-status="pending"]  { border-left: 6px solid var(--pen); }
-    .h-card[data-status="rejected"] { border-left: 6px solid var(--rej); }
-
-    .hc-left { display: flex; align-items: center; gap: 20px; }
-    
-    .st-icon-circle {
-        width: 48px; height: 48px;
-        border-radius: 50%;
-        display: flex; align-items: center; justify-content: center;
-        font-size: 20px; flex-shrink: 0;
-    }
-    .st-ok { background: var(--ok-bg); color: var(--ok); }
-    .st-pen { background: var(--pen-bg); color: var(--pen); }
-    .st-rej { background: var(--rej-bg); color: var(--rej); }
-
-    .hc-info h4 { font-size: 16px; font-weight: 700; color: #111; margin: 0 0 6px 0; }
-    .hc-date { font-size: 13px; color: #555; display: flex; align-items: center; gap: 8px; }
-
-    .hc-right { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
-    
-    .duration-badge { 
-        font-size: 12px; font-weight: 600; background: #f3f4f6; 
-        padding: 6px 14px; border-radius: 8px; color: #374151; 
-    }
-
-    .btn-detail-sm {
-        font-size: 12px; font-weight: 600; color: var(--primary);
-        background: transparent; border: 1.5px solid var(--primary);
-        padding: 6px 16px; border-radius: 8px; cursor: pointer; transition: 0.2s;
-    }
-    .btn-detail-sm:hover { background: var(--primary); color: white; }
-
-    /* ========================================================== */
-    /* MODAL FIX: AGAR BISA SCROLL (SAMA DENGAN DASHBOARD)        */
-    /* ========================================================== */
-    .modalOverlay{
-      position:fixed; inset:0; background:rgba(0,0,0,.6); display:none; align-items:center; justify-content:center; z-index:9999; padding:20px; backdrop-filter: blur(2px); 
-    }
-    .modalOverlay.open{ display:flex; }
-    
-    .modal{
-      width:100%; 
-      max-width:850px; 
-      background:#fff; 
-      border-radius:16px; 
-      overflow:hidden; 
-      box-shadow:0 20px 50px rgba(0,0,0,.25); 
-      border:1px solid rgba(0,0,0,.08); 
-      animation: slideUp 0.3s ease-out;
-      display: flex;
-      flex-direction: column;
-      max-height: 90vh; 
-    }
-    @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-    
-    .modalHead{ 
-      padding:18px 24px; 
-      border-bottom:1px solid var(--border); 
-      display:flex; align-items:center; justify-content:space-between; 
-      background: #f9fafb;
-      flex-shrink: 0; 
-    }
-    .modalHead h4{ margin:0; font-size:18px; font-weight:700; color: var(--text); }
-    .xbtn{ width:36px; height:36px; border-radius:10px; border:1px solid var(--border); background:#fff; cursor:pointer; font-size:20px; display: flex; align-items: center; justify-content: center; color: #666; }
-    
-    .modalBody{ 
-      padding:24px; 
-      overflow-y: auto; 
-      flex: 1; 
-    }
-    
-    .formGrid{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
-    .field{ display:flex; flex-direction:column; gap:8px; }
-    .field label{ font-size:13px; font-weight:700; color:#374151; }
-    .field input, .field select, .field textarea{ border:1px solid var(--border); border-radius:8px; padding:12px 14px; font-size:14px; outline:none; background:#fff; transition: border-color 0.2s; }
-    .field textarea{ min-height:100px; resize:vertical; }
-    .full{ grid-column:1/-1; }
-    
-    .modalActions{ 
-      border-top:1px solid var(--border); 
-      padding:16px 24px; 
-      display:flex; justify-content:flex-end; gap:12px; 
-      background: #f9fafb; 
-      flex-shrink: 0; 
-    }
-    .btn2{ border-radius:8px; padding:12px 20px; cursor:pointer; font-weight:700; border:1px solid var(--border); background:#fff; font-size: 14px; }
-    
-    /* Tombol Perbaiki Pengajuan (Link) */
-    .btn-edit-link {
-        background: var(--primary); color: white;
-        border: none; text-decoration: none; display: none; /* Hidden by default */
-        align-items: center; gap: 8px;
-    }
-    .btn-edit-link:hover { background: #711010; }
-
-    /* Drag Drop */
-    .drop-area { border: 2px dashed var(--border); border-radius: 12px; padding: 24px; text-align: center; background: #fafafa; cursor: pointer; transition: all 0.2s; }
-    .drop-icon { font-size: 32px; margin-bottom: 8px; display: block; opacity: 0.5; }
-
-    @media (max-width: 980px){ 
-        .container, .topbar{ padding: 0 16px; width: 100%; } 
-        .h-card{ flex-direction: column; gap: 20px; align-items: flex-start; }
-        .hc-right { width: 100%; flex-direction: row; justify-content: space-between; align-items: center; }
-        .formGrid{ grid-template-columns:1fr; } 
-    }
-
-  </style>
-
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
-
-<body>
-  
-  <div class="topbar">
-    <div class="header-left">
-        <a href="{{ route('user.dashboard') }}" class="back-btn">
-            <i class="fa-solid fa-arrow-left"></i>
-        </a>
-        <div class="page-title">
-            <i class="fa-solid fa-folder-open"></i> &nbsp;Riwayat Cuti
-        </div>
-    </div>
-  </div>
-
-  <div class="container">
-    
-<div class="filter-section">
-    <div class="filter-label"><i class="fa-solid fa-filter"></i> Filter Status</div>
-    <div class="filter-buttons">
-        <a href="{{ route('user.riwayat') }}" class="filter-btn {{ $status == 'all' ? 'active' : '' }}">Semua</a>
-        <a href="{{ route('user.riwayat', ['status' => 'approved']) }}" class="filter-btn {{ $status == 'approved' ? 'active' : '' }}">Disetujui</a>
-        <a href="{{ route('user.riwayat', ['status' => 'pending']) }}" class="filter-btn {{ $status == 'pending' ? 'active' : '' }}">Tertunda</a>
-        <a href="{{ route('user.riwayat', ['status' => 'rejected']) }}" class="filter-btn {{ $status == 'rejected' ? 'active' : '' }}">Ditolak</a>
-    </div>
-</div>
-
-    <div class="history-list-container">
-        @forelse($leaves as $leave)
-        @php
-            $leaveData = [
-                'id' => 'CUTI-' . now()->year . '-' . str_pad($leave->id, 4, '0', STR_PAD_LEFT),
-                'status' => $leave->status == 'approved' ? 'Diterima' : ($leave->status == 'pending' ? 'Diproses' : 'Ditolak'),
-                'jenis' => $leave->jenis_cuti,
-                'mulai' => $leave->start_date->format('Y-m-d'),
-                'selesai' => $leave->end_date->format('Y-m-d'),
-                'alamat' => $leave->address ?? '-',
-                'kontak' => $leave->phone ?? '-',
-                'alasan' => $leave->reason,
-                'lampiran' => $leave->file_path ? basename($leave->file_path) : '-',
-                'catatan' => $leave->rejection_reason ?? '-'
-            ];
-        @endphp
-        
-        <div class="h-card" data-status="{{ $leave->status }}">
-            <div class="hc-left">
-                <div class="st-icon-circle 
-                    @if($leave->status == 'approved') st-ok 
-                    @elseif($leave->status == 'pending') st-pen 
-                    @else st-rej @endif">
-                    <i class="fa-solid 
-                        @if($leave->status == 'approved') fa-check 
-                        @elseif($leave->status == 'pending') fa-clock 
-                        @else fa-xmark @endif"></i>
+    <section class="bg-white rounded-3xl shadow-soft border border-slate-100 overflow-hidden">
+        <div class="p-6 md:p-7 border-b border-slate-50 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center text-[var(--maroon)]">
+                    <i class="bi bi-folder2-open text-lg"></i>
                 </div>
-                <div class="hc-info">
-                    <h4>{{ $leave->jenis_cuti }}</h4>
-                    <div class="hc-date">
-                        <i class="fa-regular fa-calendar"></i> 
-                        {{ $leave->start_date->format('d M Y') }} s/d {{ $leave->end_date->format('d M Y') }}
-                    </div>
+                <div>
+                    <h3 class="text-lg font-extrabold text-slate-800 leading-tight">Riwayat Cuti</h3>
+                    <p class="text-sm text-slate-500 font-medium">Filter berdasarkan status, lalu klik detail untuk melihat data lengkap.</p>
                 </div>
             </div>
-            <div class="hc-right">
-                <span class="duration-badge">{{ $leave->duration }} Hari</span>
-                <button class="btn-detail-sm" onclick="openModal(this)" data-leave='{{ json_encode($leaveData) }}'>
-                    Lihat Detail
+
+            <div class="flex flex-wrap gap-2">
+                <a href="{{ route('user.riwayat') }}" class="px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider border transition-all {{ $status == 'all' ? 'active-menu' : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50' }}">Semua</a>
+                <a href="{{ route('user.riwayat', ['status' => 'approved']) }}" class="px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider border transition-all {{ $status == 'approved' ? 'active-menu' : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50' }}">Disetujui</a>
+                <a href="{{ route('user.riwayat', ['status' => 'pending']) }}" class="px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider border transition-all {{ $status == 'pending' ? 'active-menu' : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50' }}">Tertunda</a>
+                <a href="{{ route('user.riwayat', ['status' => 'rejected']) }}" class="px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider border transition-all {{ $status == 'rejected' ? 'active-menu' : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50' }}">Ditolak</a>
+            </div>
+        </div>
+
+<div class="p-5 md:p-7 space-y-4">
+    @forelse ($leaves as $leave)
+        @php($statusKey = $leave->status ?? 'pending')
+
+        @php($statusUi = [
+            'approved' => ['c' => 'emerald', 'i' => 'bi-check-circle-fill', 'l' => 'Disetujui'],
+            'pending'  => ['c' => 'orange',  'i' => 'bi-hourglass-split',  'l' => 'Diproses'],
+            'rejected' => ['c' => 'red',     'i' => 'bi-x-circle-fill',    'l' => 'Ditolak'],
+        ][$statusKey] ?? ['c' => 'slate', 'i' => 'bi-info-circle', 'l' => ucfirst($statusKey)])
+
+        @php($leaveData = [
+            'id' => 'CUTI-' . now()->year . '-' . str_pad($leave->id, 4, '0', STR_PAD_LEFT),
+            'status' => $statusKey === 'approved' ? 'Diterima' : ($statusKey === 'pending' ? 'Diproses' : 'Ditolak'),
+            'jenis' => $leave->jenis_cuti,
+            'mulai' => optional($leave->start_date)->format('Y-m-d'),
+            'selesai' => optional($leave->end_date)->format('Y-m-d'),
+            'alamat' => $leave->address ?? '-',
+            'kontak' => $leave->phone ?? '-',
+            'alasan' => $leave->reason,
+            'lampiran' => $leave->file_path ? basename($leave->file_path) : '-',
+            'catatan' => $leave->rejection_reason ?? '-',
+        ])
+
+        <div class="h-card bg-white rounded-2xl border border-slate-100 shadow-sm hover:-translate-y-1 transition-transform p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+             data-status="{{ $statusKey }}">
+            <div class="flex items-center gap-4 min-w-0">
+                <div class="w-12 h-12 rounded-xl bg-{{ $statusUi['c'] }}-50 border border-{{ $statusUi['c'] }}-100 flex items-center justify-center flex-shrink-0">
+                    <i class="bi {{ $statusUi['i'] }} text-{{ $statusUi['c'] }}-600 text-lg"></i>
+                </div>
+
+                <div class="min-w-0">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <h4 class="text-sm md:text-base font-extrabold text-slate-800 truncate">{{ $leave->jenis_cuti }}</h4>
+                        <span class="text-[10px] font-bold bg-{{ $statusUi['c'] }}-50 text-{{ $statusUi['c'] }}-700 px-2.5 py-1 rounded-lg border border-{{ $statusUi['c'] }}-100 uppercase tracking-wider">
+                            {{ $statusUi['l'] }}
+                        </span>
+                    </div>
+
+                    <p class="text-xs text-slate-500 font-medium mt-1">
+                        <i class="bi bi-calendar3 mr-1"></i>
+                        {{ optional($leave->start_date)->format('d M Y') }} s/d {{ optional($leave->end_date)->format('d M Y') }}
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between sm:justify-end gap-3">
+                <span class="text-xs font-extrabold bg-slate-50 border border-slate-100 px-3 py-2 rounded-xl text-slate-700">
+                    {{ $leave->duration }} Hari
+                </span>
+
+                <button class="btn-detail-sm inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-extrabold border border-[var(--maroon)] text-[var(--maroon)] hover:bg-[var(--maroon)] hover:text-white transition-all"
+                        onclick="openModal(this)"
+                        data-leave='@json($leaveData)'>
+                    <i class="bi bi-eye"></i>
+                    Detail
                 </button>
             </div>
         </div>
-        @empty
-        <div style="text-align:center; padding: 60px 20px; color: var(--muted);">
-            <i class="fa-regular fa-folder-open" style="font-size: 60px; margin-bottom: 20px; opacity: 0.2;"></i>
-            <h3 style="font-weight: 600; color: #374151; margin-bottom: 8px;">Tidak Ada Riwayat</h3>
-            <p style="font-size: 14px;">
-                @if($status == 'all')
-                    Belum ada pengajuan cuti yang dibuat
-                @elseif($status == 'approved')
-                    Belum ada pengajuan yang disetujui
-                @elseif($status == 'pending')
-                    Belum ada pengajuan yang tertunda
-                @else
-                    Belum ada pengajuan yang ditolak
-                @endif
-            </p>
-            <a href="{{ route('user.cuti.create') }}" style="display:inline-block; margin-top:20px; background:var(--primary); color:white; padding:12px 24px; border-radius:8px; text-decoration:none; font-weight:600;">
-                <i class="fa-solid fa-plus"></i> Buat Pengajuan Baru
+    @empty
+        <div class="text-center py-14">
+            <div class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="bi bi-folder2-open text-slate-200 text-3xl"></i>
+            </div>
+            <p class="text-slate-400 text-sm font-medium">Belum ada riwayat pengajuan cuti.</p>
+            <a href="{{ route('user.cuti.create') }}"
+               class="btn-primary text-white px-6 py-3 rounded-2xl font-bold shadow-lg shadow-red-900/15 text-sm inline-flex items-center justify-center mt-6">
+                <i class="bi bi-plus-circle-fill mr-2"></i>
+                Ajukan Cuti
             </a>
         </div>
-        @endforelse
-    </div>
+    @endforelse
 
-    {{-- Pagination --}}
-    @if($leaves->hasPages())
-    <div style="margin-top: 40px; display: flex; justify-content: center;">
-        {{ $leaves->appends(['status' => $status])->links() }}
-    </div>
-    @endif
-
-    <div style="text-align: center; margin-top: 60px; color: #999; font-size: 13px;">
-        SIIPUL © 2026 | Disdikbudpora Kab Semarang
-    </div>
-  </div>
-
-  <div class="modalOverlay" id="modal">
-    <div class="modal">
-      <div class="modalHead"><h4 id="modalTitle">Detail Pengajuan Cuti</h4><button class="xbtn" id="closeBtn">×</button></div>
-      <div class="modalBody">
-        <div id="statusAlert" style="margin-bottom:15px; padding:10px; border-radius:8px; font-size:13px; font-weight:700; display:none;"></div>
-        <div class="formGrid">
-          <div class="field"><label>ID Pengajuan</label><input id="f_id" type="text" readonly style="background:#f3f4f6; color:#6b7280;"/></div>
-          <div class="field"><label>Status Saat Ini</label><input id="f_status" type="text" readonly style="font-weight:bold;"/></div>
-          <div class="field"><label>Jenis Cuti</label><select id="f_jenis" disabled><option>Cuti Tahunan</option><option>Cuti Sakit</option><option>Cuti Besar</option><option>Cuti Melahirkan</option><option>Cuti Karena Alasan Penting</option></select></div>
-          <div class="field"><label>Lampiran</label><div id="drop-area" class="drop-area disabled"><span class="drop-icon">📂</span><span class="drop-text" id="drop-text-label">Drag & drop file surat di sini</span><input type="file" id="f_lampiran_input" hidden accept=".pdf,.jpg,.jpeg,.png"><div id="file-name-display" class="file-name-display" style="margin-top:5px; font-weight:600; color:var(--primary);"></div></div><input type="hidden" id="f_lampiran_text"></div>
-          <div class="field"><label>Tanggal Mulai</label><input id="f_mulai" type="date" readonly /></div>
-          <div class="field"><label>Tanggal Selesai</label><input id="f_selesai" type="date" readonly /></div>
-          <div class="field"><label>Alamat Selama Cuti</label><input id="f_alamat" type="text" readonly /></div>
-          <div class="field"><label>No. Kontak</label><input id="f_kontak" type="text" readonly /></div>
-          <div class="field full"><label>Alasan / Keterangan</label><textarea id="f_alasan" readonly></textarea></div>
-          <div class="field full"><label>Catatan Admin</label><textarea id="f_catatan" readonly style="background:#fffbe6; border-color:#ffe58f;"></textarea></div>
+    @if(isset($leaves) && method_exists($leaves, 'hasPages') && $leaves->hasPages())
+        <div class="pt-2">
+            {{ $leaves->appends(['status' => $status])->links() }}
         </div>
-      </div>
-      <div class="modalActions">
-          <button class="btn2" id="cancelBtn">Tutup</button>
-          
-          <a href="{{ route('user.cuti.create') }}" id="btnEditLink" class="btn2 btn-edit-link">
-              <i class="fa-solid fa-pen-to-square"></i> Perbaiki Pengajuan
-          </a>
-      </div>
+    @endif
+</div>
+
+
+            @if(isset($leaves) && method_exists($leaves, 'hasPages') && $leaves->hasPages())
+                <div class="pt-2">
+                    {{ $leaves->appends(['status' => $status])->links() }}
+                </div>
+            @endif
+        </div>
+    </section>
+
+    <div class="text-center pt-8 pb-4">
+        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">SIIPUL © {{ now()->year }} • Disdikbudpora Kab Semarang</p>
     </div>
-  </div>
 
-  <script>
-    // --- 1. FILTER FUNCTION ---
-    function filterList(status, btn) {
-        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        const cards = document.querySelectorAll('.h-card');
-        cards.forEach(card => {
-            if (status === 'all' || card.getAttribute('data-status') === status) {
-                card.style.display = 'flex';
+    {{-- Modal detail (tetap pakai id & JS lama agar logic tidak berubah) --}}
+    <div class="fixed inset-0 bg-black/60 backdrop-blur-[2px] z-[9999] items-center justify-center p-4" id="modal">
+        <div class="w-full max-w-3xl bg-white rounded-2xl overflow-hidden shadow-2xl border border-black/10 flex flex-col max-h-[90vh]">
+            <div class="px-6 py-4 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
+                <h4 id="modalTitle" class="text-base md:text-lg font-extrabold text-slate-800">Detail Pengajuan Cuti</h4>
+                <button class="w-10 h-10 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 text-xl flex items-center justify-center" id="closeBtn" type="button">×</button>
+            </div>
+
+            <div class="p-6 overflow-y-auto">
+                <div id="statusAlert" class="mb-4 hidden rounded-xl px-4 py-3 text-sm font-bold"></div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="space-y-2">
+                        <label class="text-xs font-extrabold text-slate-600">ID Pengajuan</label>
+                        <input id="f_id" type="text" readonly class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-600" />
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-xs font-extrabold text-slate-600">Status Saat Ini</label>
+                        <input id="f_status" type="text" readonly class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-extrabold" />
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-xs font-extrabold text-slate-600">Jenis Cuti</label>
+                        <select id="f_jenis" disabled class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700">
+                            <option>Cuti Tahunan</option>
+                            <option>Cuti Sakit</option>
+                            <option>Cuti Besar</option>
+                            <option>Cuti Melahirkan</option>
+                            <option>Cuti Karena Alasan Penting</option>
+                        </select>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-xs font-extrabold text-slate-600">Lampiran</label>
+                        <div id="drop-area" class="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-4 text-sm">
+                            <div class="flex items-center gap-3 text-slate-600">
+                                <div class="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center">📂</div>
+                                <div>
+                                    <div class="font-bold" id="drop-text-label">Drag & drop file surat di sini</div>
+                                    <div id="file-name-display" class="mt-1 text-[var(--maroon)] font-extrabold"></div>
+                                </div>
+                            </div>
+                            <input type="file" id="f_lampiran_input" hidden accept=".pdf,.jpg,.jpeg,.png">
+                        </div>
+                        <input type="hidden" id="f_lampiran_text">
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-xs font-extrabold text-slate-600">Tanggal Mulai</label>
+                        <input id="f_mulai" type="date" readonly class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm" />
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-xs font-extrabold text-slate-600">Tanggal Selesai</label>
+                        <input id="f_selesai" type="date" readonly class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm" />
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-xs font-extrabold text-slate-600">Alamat Selama Cuti</label>
+                        <input id="f_alamat" type="text" readonly class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm" />
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-xs font-extrabold text-slate-600">No. Kontak</label>
+                        <input id="f_kontak" type="text" readonly class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm" />
+                    </div>
+
+                    <div class="space-y-2 md:col-span-2">
+                        <label class="text-xs font-extrabold text-slate-600">Alasan / Keterangan</label>
+                        <textarea id="f_alasan" readonly class="w-full min-h-[110px] rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm"></textarea>
+                    </div>
+
+                    <div class="space-y-2 md:col-span-2">
+                        <label class="text-xs font-extrabold text-slate-600">Catatan Admin</label>
+                        <textarea id="f_catatan" readonly class="w-full min-h-[110px] rounded-xl border border-amber-200 bg-amber-50/60 px-4 py-3 text-sm"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="px-6 py-4 border-t border-slate-100 bg-white flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <button class="px-5 py-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-sm font-extrabold text-slate-700" id="cancelBtn" type="button">Tutup</button>
+
+                <a href="{{ route('user.cuti.create') }}" id="btnEditLink" class="hidden sm:inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-sm font-extrabold text-white btn-primary">
+                    <i class="bi bi-pencil-square"></i>
+                    Perbaiki Pengajuan
+                </a>
+            </div>
+        </div>
+    </div>
+@endsection
+
+@push('scripts')
+    <script>
+        // --- MODAL LOGIC (dipertahankan; hanya markup yang dirapikan) ---
+        const modal = document.getElementById("modal");
+        const closeBtn = document.getElementById("closeBtn");
+        const cancelBtn = document.getElementById("cancelBtn");
+        const modalTitle = document.getElementById("modalTitle");
+        const statusAlert = document.getElementById("statusAlert");
+        const dropArea = document.getElementById("drop-area");
+        const fileInput = document.getElementById("f_lampiran_input");
+        const fileNameDisplay = document.getElementById("file-name-display");
+        const dropTextLabel = document.getElementById("drop-text-label");
+        const btnEditLink = document.getElementById("btnEditLink");
+
+        const f = {
+            id: document.getElementById("f_id"),
+            status: document.getElementById("f_status"),
+            jenis: document.getElementById("f_jenis"),
+            lampiranText: document.getElementById("f_lampiran_text"),
+            mulai: document.getElementById("f_mulai"),
+            selesai: document.getElementById("f_selesai"),
+            alamat: document.getElementById("f_alamat"),
+            kontak: document.getElementById("f_kontak"),
+            alasan: document.getElementById("f_alasan"),
+            catatan: document.getElementById("f_catatan")
+        };
+
+        let activeBtn = null;
+        let activeData = null;
+
+        function openModal(btn){
+            activeBtn = btn;
+            activeData = JSON.parse(btn.getAttribute("data-leave") || "{}");
+
+            f.id.value = activeData.id || "";
+            f.status.value = activeData.status || "";
+            f.jenis.value = activeData.jenis || "Cuti Tahunan";
+            f.lampiranText.value = activeData.lampiran || "";
+            f.mulai.value = activeData.mulai || "";
+            f.selesai.value = activeData.selesai || "";
+            f.alamat.value = activeData.alamat || "";
+            f.kontak.value = activeData.kontak || "";
+            f.alasan.value = activeData.alasan || "";
+            f.catatan.value = activeData.catatan || "";
+            fileInput.value = "";
+
+            if(activeData.lampiran && activeData.lampiran !== "-"){
+                fileNameDisplay.innerHTML = `📎 ${activeData.lampiran}`;
+                dropTextLabel.textContent = "File saat ini:";
             } else {
-                card.style.display = 'none';
+                fileNameDisplay.innerHTML = "";
+                dropTextLabel.textContent = "Tidak ada lampiran.";
             }
-        });
-    }
 
-    // --- 2. MODAL LOGIC (COPIED EXACTLY FROM DASHBOARD) ---
-    const modal = document.getElementById("modal");
-    const closeBtn = document.getElementById("closeBtn");
-    const cancelBtn = document.getElementById("cancelBtn");
-    const modalTitle = document.getElementById("modalTitle");
-    const statusAlert = document.getElementById("statusAlert");
-    const dropArea = document.getElementById("drop-area");
-    const fileInput = document.getElementById("f_lampiran_input");
-    const fileNameDisplay = document.getElementById("file-name-display");
-    const dropTextLabel = document.getElementById("drop-text-label");
-    
-    // Tombol di Footer Modal
-    const btnEditLink = document.getElementById("btnEditLink");
+            configureViewMode(activeData.status);
+            modal.classList.add("open");
+            document.body.style.overflow = "hidden";
+        }
 
-    const f = { id: document.getElementById("f_id"), status: document.getElementById("f_status"), jenis: document.getElementById("f_jenis"), lampiranText: document.getElementById("f_lampiran_text"), mulai: document.getElementById("f_mulai"), selesai: document.getElementById("f_selesai"), alamat: document.getElementById("f_alamat"), kontak: document.getElementById("f_kontak"), alasan: document.getElementById("f_alasan"), catatan: document.getElementById("f_catatan") };
-    let activeBtn = null; let activeData = null;
+        function configureViewMode(status) {
+            const inputs = [f.jenis, f.mulai, f.selesai, f.alamat, f.kontak, f.alasan];
+            inputs.forEach(inp => inp.disabled = true);
+            dropArea.classList.add('disabled');
+            fileInput.disabled = true;
 
-    function openModal(btn){ 
-        activeBtn = btn; 
-        activeData = JSON.parse(btn.getAttribute("data-leave") || "{}"); 
-        
-        // Populate Data
-        f.id.value = activeData.id || ""; 
-        f.status.value = activeData.status || ""; 
-        f.jenis.value = activeData.jenis || "Cuti Tahunan"; 
-        f.lampiranText.value = activeData.lampiran || ""; 
-        f.mulai.value = activeData.mulai || ""; 
-        f.selesai.value = activeData.selesai || ""; 
-        f.alamat.value = activeData.alamat || ""; 
-        f.kontak.value = activeData.kontak || ""; 
-        f.alasan.value = activeData.alasan || ""; 
-        f.catatan.value = activeData.catatan || ""; 
-        fileInput.value = ""; 
-        
-        if(activeData.lampiran && activeData.lampiran !== "-"){ 
-            fileNameDisplay.innerHTML = `📎 ${activeData.lampiran}`; 
-            dropTextLabel.textContent = "File saat ini:"; 
-        } else { 
-            fileNameDisplay.innerHTML = ""; 
-            dropTextLabel.textContent = "Tidak ada lampiran."; 
-        } 
-        
-        configureViewMode(activeData.status); 
-        modal.classList.add("open"); 
-        document.body.style.overflow = "hidden"; 
-    }
+            btnEditLink.style.display = 'none';
+            statusAlert.classList.add('hidden');
 
-    function configureViewMode(status) { 
-        // Semua input read-only karena ini detail view
-        const inputs = [f.jenis, f.mulai, f.selesai, f.alamat, f.kontak, f.alasan];
-        inputs.forEach(inp => inp.disabled = true); 
-        dropArea.classList.add('disabled'); 
-        fileInput.disabled = true; 
-        
-        // Default: Sembunyikan tombol edit
-        btnEditLink.style.display = 'none';
+            if (status === "Ditolak") {
+                modalTitle.textContent = "Detail Pengajuan (Ditolak)";
+                f.status.style.color = "#b42318";
+                statusAlert.classList.remove('hidden');
+                statusAlert.style.background = "#fde9ea";
+                statusAlert.style.color = "#b42318";
+                statusAlert.textContent = "Pengajuan ini ditolak. Silakan perbaiki data.";
+                btnEditLink.style.display = 'inline-flex';
+            } else if(status === "Diterima") {
+                modalTitle.textContent = "Detail Pengajuan";
+                f.status.style.color = "#1f7a46";
+                statusAlert.classList.remove('hidden');
+                statusAlert.style.background = "#e8f6ee";
+                statusAlert.style.color = "#1f7a46";
+                statusAlert.textContent = "Pengajuan ini telah disetujui.";
+            } else {
+                modalTitle.textContent = "Detail Pengajuan";
+                f.status.style.color = "#a56a00";
+                statusAlert.classList.remove('hidden');
+                statusAlert.style.background = "#fff2df";
+                statusAlert.style.color = "#a56a00";
+                statusAlert.textContent = "Pengajuan sedang dalam proses verifikasi.";
+            }
+        }
 
-        if (status === "Ditolak") { 
-            modalTitle.textContent = "Detail Pengajuan (Ditolak)"; 
-            f.status.style.color = "#b42318"; 
-            statusAlert.style.display = "block"; 
-            statusAlert.style.background = "#fde9ea"; 
-            statusAlert.style.color = "#b42318"; 
-            statusAlert.textContent = "Pengajuan ini ditolak. Silakan perbaiki data.";
-            
-            // TAMPILKAN TOMBOL PERBAIKI (Link)
-            btnEditLink.style.display = 'inline-flex';
+        function closeModal(){
+            modal.classList.remove("open");
+            document.body.style.overflow = "";
+        }
 
-        } else if(status === "Diterima") { 
-            modalTitle.textContent = "Detail Pengajuan"; 
-            f.status.style.color = "#1f7a46"; 
-            statusAlert.style.display = "block"; 
-            statusAlert.style.background = "#e8f6ee"; 
-            statusAlert.style.color = "#1f7a46"; 
-            statusAlert.textContent = "Pengajuan ini telah disetujui."; 
-        } else { 
-            modalTitle.textContent = "Detail Pengajuan"; 
-            f.status.style.color = "#a56a00"; 
-            statusAlert.style.display = "block"; 
-            statusAlert.style.background = "#fff2df"; 
-            statusAlert.style.color = "#a56a00"; 
-            statusAlert.textContent = "Pengajuan sedang dalam proses verifikasi."; 
-        } 
-    }
+        closeBtn.addEventListener("click", closeModal);
+        cancelBtn.addEventListener("click", closeModal);
 
-    function closeModal(){ modal.classList.remove("open"); document.body.style.overflow = ""; }
-    
-    document.querySelectorAll(".btn-detail-sm").forEach(btn => btn.addEventListener("click", ()=> openModal(btn))); 
-    closeBtn.addEventListener("click", closeModal); 
-    cancelBtn.addEventListener("click", closeModal); 
-    window.onclick = function(event) { if (event.target === modal) { closeModal(); } }
-  </script>
-</body>
-</html>
+        window.onclick = function(event) {
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+    </script>
+@endpush
