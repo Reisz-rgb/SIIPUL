@@ -1,16 +1,21 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detail Pengajuan - SIIPUL</title>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-    
-    <style>
-        /* --- 1. CORE VARIABLES & LAYOUT --- */
+@extends('layouts.admin')
+
+@section('title', "Detail Pengajuan - SIIPUL")
+
+@section('hero_left')
+
+<div>
+                        <div class="text-white text-opacity-75 small mb-1 fw-medium">
+                            Pengajuan Cuti <i class="bi bi-chevron-right mx-1" style="font-size: 0.7rem"></i> Detail
+                        </div>
+                        <h2 class="fw-bold m-0 text-white">Verifikasi Pengajuan</h2>
+
+@endsection
+
+
+@push('head')
+<style>
+/* --- 1. CORE VARIABLES & LAYOUT --- */
         :root {
             --primary: #9E2A2B;         
             --primary-dark: #781F1F;    
@@ -213,86 +218,12 @@
             .detail-header { flex-direction: column; gap: 15px; }
             .decision-card-container { border-left: none; border-top: 1px solid #E2E8F0; padding: 24px; }
         }
-    </style>
-</head>
-<body>
+</style>
+@endpush
 
-    <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-    <nav class="sidebar" id="sidebar">
-        <a href="#" class="sidebar-brand">
-            <img src="{{ asset('logokabupatensemarang.png') }}" alt="Logo" width="36">
-            <div style="line-height: 1.1;">
-                <div style="font-weight: 800; font-size: 1.1rem; letter-spacing: -0.5px;">SIIPUL</div>
-                <div style="font-size: 0.7rem; color: #94A3B8; font-weight: 500;">Kab. Semarang</div>
-            </div>
-        </a>
-
-        <div style="overflow-y: auto; flex: 1;">
-            <div class="nav-label">Main Menu</div>
-            
-            <a href="{{ route('admin.dashboard') }}" class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
-                <i class="bi bi-grid"></i> Dashboard
-            </a>
-            
-            <a href="{{ route('admin.kelola_pengajuan') }}" class="nav-link {{ request()->routeIs('admin.kelola_pengajuan') || request()->routeIs('admin.pengajuan.*') ? 'active' : '' }}">
-                <i class="bi bi-file-earmark-text-fill"></i> Pengajuan Cuti
-            </a>
-            
-            <a href="{{ route('admin.kelola_pegawai') }}" class="nav-link {{ request()->routeIs('admin.kelola_pegawai') ? 'active' : '' }}">
-                <i class="bi bi-people"></i> Data Pegawai
-            </a>
-            
-            <div class="nav-label">Laporan</div>
-            <a href="{{ route('admin.laporan') }}" class="nav-link {{ request()->routeIs('admin.laporan') ? 'active' : '' }}">
-                <i class="bi bi-printer"></i> Rekapitulasi
-            </a>
-        </div>
-        
-        <div class="mt-auto pt-4 border-top border-dashed">
-             <form action="{{ route('logout') }}" method="POST">
-                @csrf
-                <button type="submit" class="btn btn-outline-danger w-100 border-0 d-flex align-items-center gap-2 px-3 py-2 bg-light" style="font-size: 0.9rem;">
-                    <i class="bi bi-box-arrow-left"></i> Keluar Aplikasi
-                </button>
-            </form>
-        </div>
-    </nav>
-
-    <div class="main-content">
-        
-        <div class="hero-banner">
-            <div class="d-flex justify-content-between align-items-start">
-                <div class="d-flex align-items-center">
-                    <button class="mobile-toggler" id="btnToggleSidebar">
-                        <i class="bi bi-list"></i>
-                    </button>
-                    <div>
-                        <div class="text-white text-opacity-75 small mb-1 fw-medium">
-                            Pengajuan Cuti <i class="bi bi-chevron-right mx-1" style="font-size: 0.7rem"></i> Detail
-                        </div>
-                        <h2 class="fw-bold m-0 text-white">Verifikasi Pengajuan</h2>
-                    </div>
-                </div>
-                
-                <div class="dropdown">
-                    <div class="glass-profile" data-bs-toggle="dropdown">
-                        <div class="rounded-circle bg-white text-danger fw-bold d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
-                            {{ substr(Auth::user()->name, 0, 1) }}
-                        </div>
-                        <span class="d-none d-md-block small fw-medium">{{ Auth::user()->name }}</span>
-                        <i class="bi bi-chevron-down small d-none d-md-block"></i>
-                    </div>
-                     <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 mt-2 p-2 rounded-3">
-                        <li><a class="dropdown-item rounded small" href="#">Profile Saya</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item rounded small text-danger" href="#">Logout</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-
-        <div class="dashboard-container">
+@section('content')
+<div class="dashboard-container">
             
             <div class="mb-3">
                 <a href="{{ route('admin.kelola_pengajuan') }}" class="text-white text-decoration-none small opacity-75 hover-opacity-100 fw-medium">
@@ -448,23 +379,5 @@
             </div>
         </div>
     </div>
+@endsection
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <script>
-        const sidebar = document.getElementById('sidebar');
-        const overlay = document.getElementById('sidebarOverlay');
-        const btnToggle = document.getElementById('btnToggleSidebar');
-
-        // Fungsi buka/tutup
-        function toggleSidebar() {
-            sidebar.classList.toggle('show');
-            overlay.classList.toggle('show');
-        }
-
-        // Event Listeners
-        btnToggle.addEventListener('click', toggleSidebar);
-        overlay.addEventListener('click', toggleSidebar);
-    </script>
-</body>
-</html>

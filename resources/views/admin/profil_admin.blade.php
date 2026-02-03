@@ -1,15 +1,10 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profil Saya - SIIPUL</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <style>
-        :root {
+@extends('layouts.admin')
+
+@section('title', "Profil Saya - SIIPUL")
+
+@push('head')
+<style>
+:root {
             --primary-red: #9E2A2B; /* Merah yang konsisten dengan halaman sebelumnya */
             --primary-hover: #7F1D1D;
             --bg-body: #F3F4F6;
@@ -156,82 +151,17 @@
             .btn-logout { order: 2; } /* Logout di paling bawah */
             .btn-save { order: 1; }
         }
-    </style>
-</head>
-<body>
+</style>
+@endpush
 
-    <div class="top-header">
-        <a href="{{ route('admin.dashboard') }}" class="btn-back"><i class="bi bi-arrow-left"></i></a>
-        <span>Profil Saya</span>
-    </div>
 
-    <div id="successAlert" class="success-alert">
-        <i class="bi bi-check-circle-fill fs-5"></i>
-        <span>Profil berhasil diperbarui!</span>
-    </div>
+@section('content')
 
-    <div class="profile-container">
-        
-        <div class="profile-banner-card">
-            <div class="profile-avatar-large">{{ substr(Auth::user()->name ?? 'A', 0, 2) }}</div>
-            <div>
-                <h4 class="mb-1 fw-bold">{{ Auth::user()->name ?? 'Nama Pengguna' }}</h4>
-                <div style="opacity: 0.9;">{{ ucfirst(Auth::user()->role) }} - Kabupaten Semarang</div>
-            </div>
-        </div>
+@endsection
 
-        <div class="card-clean">
-            <form id="profileForm">
-                <div class="mb-4">
-                    <label class="form-label-custom">
-                        <i class="bi bi-person text-danger"></i> Nama Lengkap
-                    </label>
-                    <input type="text" class="form-control form-control-custom" value="{{ Auth::user()->name }}">
-                </div>
 
-                <div class="mb-4">
-                    <label class="form-label-custom">
-                        <i class="bi bi-envelope text-danger"></i> Alamat Email
-                    </label>
-                    <input type="email" class="form-control form-control-custom" value="{{ Auth::user()->email }}">
-                </div>
-
-                <div class="mb-2">
-                    <label class="form-label-custom">
-                        <i class="bi bi-image text-danger"></i> Foto Profil
-                    </label>
-                    <input type="file" class="form-control form-control-custom w-100">
-                    <div class="form-text text-muted small mt-2">Format: JPG, PNG. Maksimal 2MB.</div>
-                </div>
-            </form>
-        </div>
-
-        <div class="info-note mb-4">
-            <i class="bi bi-info-circle-fill fs-5 mt-1"></i>
-            <div>
-                <strong>Catatan Penting</strong><br>
-                Perubahan pada NIP atau Unit Kerja hanya dapat dilakukan oleh Administrator Utama. Hubungi admin jika terdapat kesalahan data kepegawaian.
-            </div>
-        </div>
-
-        <div class="action-buttons">
-            <form action="{{ route('logout') }}" method="POST" class="d-grid d-sm-block w-100 w-sm-auto">
-                @csrf
-                <button type="submit" class="btn-custom btn-logout w-100">
-                    <i class="bi bi-box-arrow-right"></i> Log Out
-                </button>
-            </form>
-            
-            <button type="button" class="btn-custom btn-save w-100 w-sm-auto" onclick="simpanProfil()">
-                <i class="bi bi-check-lg"></i> Simpan Perubahan
-            </button>
-        </div>
-
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <script>
+@push('scripts')
+<script>
         function simpanProfil() {
             const alertBox = document.getElementById('successAlert');
             
@@ -257,5 +187,4 @@
             }, 800);
         }
     </script>
-</body>
-</html>
+@endpush
