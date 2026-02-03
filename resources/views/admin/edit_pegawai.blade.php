@@ -1,17 +1,8 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Pegawai - SIIPUL</title>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-    
-    <style>
+@extends('layouts.admin')
+@section('title', 'Edit Pegawai - SIIPUL')
+
+@push('styles')
+<style>
         /* --- 1. CORE VARIABLES (SAMA PERSIS DENGAN INDEX) --- */
         :root {
             --primary: #9E2A2B;        
@@ -133,47 +124,10 @@
             .mobile-toggler { display: block; }
         }
     </style>
-</head>
-<body>
+@endpush
 
-    <nav class="sidebar" id="sidebar">
-        <a href="#" class="sidebar-brand">
-            <img src="{{ asset('logokabupatensemarang.png') }}" alt="Logo" width="36">
-            <div style="line-height: 1.1;">
-                <div style="font-weight: 800; font-size: 1.1rem; letter-spacing: -0.5px;">SIIPUL</div>
-                <div style="font-size: 0.7rem; color: #94A3B8; font-weight: 500;">Kab. Semarang</div>
-            </div>
-        </a>
-
-        <div style="overflow-y: auto; flex: 1;">
-            <div class="nav-label">Main Menu</div>
-            <a href="{{ route('admin.dashboard') }}" class="nav-link">
-                <i class="bi bi-grid"></i> Dashboard
-            </a>
-            <a href="{{ route('admin.kelola_pengajuan') }}" class="nav-link">
-                <i class="bi bi-file-earmark-text-fill"></i> Pengajuan Cuti
-            </a>
-            <a href="{{ route('admin.kelola_pegawai') }}" class="nav-link active">
-                <i class="bi bi-people"></i> Data Pegawai
-            </a>
-            <div class="nav-label">Laporan</div>
-            <a href="{{ route('admin.laporan') }}" class="nav-link">
-                <i class="bi bi-printer"></i> Rekapitulasi
-            </a>
-        </div>
-        <div class="mt-auto pt-4 border-top border-dashed">
-             <form action="{{ route('logout') }}" method="POST">
-                @csrf
-                <button type="submit" class="btn btn-outline-danger w-100 border-0 d-flex align-items-center gap-2 px-3 py-2 bg-light" style="font-size: 0.9rem;">
-                    <i class="bi bi-box-arrow-left"></i> Keluar Aplikasi
-                </button>
-            </form>
-        </div>
-    </nav>
-
-    <div class="main-content">
-        
-        <div class="hero-banner">
+@section('content')
+<div class="hero-banner">
             <div class="d-flex justify-content-between align-items-start">
                 <div class="d-flex align-items-center">
                     <button class="mobile-toggler" onclick="document.getElementById('sidebar').classList.toggle('show')">
@@ -312,13 +266,13 @@
             </div>
 
         </div>
-    </div>
+@endsection
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
-    <script>
-        function simpanPerubahan() {
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+function simpanPerubahan() {
             const form = document.getElementById('formEditPegawai');
             
             // Validasi HTML5 dasar
@@ -350,6 +304,5 @@
                 }
             })
         }
-    </script>
-</body>
-</html>
+</script>
+@endpush

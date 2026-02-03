@@ -1,14 +1,9 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profil Saya - SIIPUL</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <style>
+@extends('layouts.admin')
+@section('title', 'Profil Saya - SIIPUL')
+
+@push('styles')
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
         :root {
             --primary-red: #9E2A2B; /* Merah yang konsisten dengan halaman sebelumnya */
             --primary-hover: #7F1D1D;
@@ -157,10 +152,10 @@
             .btn-save { order: 1; }
         }
     </style>
-</head>
-<body>
+@endpush
 
-    <div class="top-header">
+@section('content')
+<div class="top-header">
         <a href="{{ route('admin.dashboard') }}" class="btn-back"><i class="bi bi-arrow-left"></i></a>
         <span>Profil Saya</span>
     </div>
@@ -228,11 +223,11 @@
         </div>
 
     </div>
+@endsection
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <script>
-        function simpanProfil() {
+@push('scripts')
+<script>
+function simpanProfil() {
             const alertBox = document.getElementById('successAlert');
             
             // Animasi Loading Simpel pada button (opsional)
@@ -256,6 +251,5 @@
                 }, 3000);
             }, 800);
         }
-    </script>
-</body>
-</html>
+</script>
+@endpush

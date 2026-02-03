@@ -1,8 +1,8 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Laporan Rekapitulasi Cuti</title>
-    <style>
+@extends('layouts.admin')
+@section('title', 'Laporan Rekapitulasi Cuti')
+
+@push('styles')
+<style>
         body {
             font-family: Arial, sans-serif;
             font-size: 12px;
@@ -48,10 +48,10 @@
             font-size: 11px;
         }
     </style>
-</head>
-<body>
+@endpush
 
-    <div class="header">
+@section('content')
+<div class="header">
         <h2>PEMERINTAH KABUPATEN SEMARANG</h2>
         <h3>REKAPITULASI PENGAJUAN CUTI PEGAWAI</h3>
         <p>Dicetak pada: {{ \Carbon\Carbon::now()->translatedFormat('d F Y, H:i') }}</p>
@@ -106,6 +106,4 @@
         <br><br><br>
         <p>__________________________</p>
     </div>
-
-</body>
-</html>
+@endsection
