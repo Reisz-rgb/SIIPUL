@@ -93,13 +93,24 @@
                     </div>
                 </div>
 
-                <div class="flex items-center gap-3">
-                    <div class="glass-profile px-4 py-2 rounded-full flex items-center gap-3 text-white">
+                <div class="relative">
+                    <button type="button" id="userMenuBtn" class="glass-profile px-4 py-2 rounded-full flex items-center gap-3 text-white focus:outline-none" aria-haspopup="true" aria-expanded="false">
                         <div class="w-9 h-9 rounded-full bg-white text-[var(--maroon)] flex items-center justify-center font-extrabold text-sm shadow-inner">
                             {{ strtoupper(substr(($authUser->name ?? 'U'), 0, 2)) }}
                         </div>
                         <div class="hidden md:block text-sm font-semibold">{{ $authUser->name ?? 'User' }}</div>
+                        <i class="bi bi-chevron-down text-xs hidden md:block"></i>
+                    </button>
+
+                    <div id="userMenu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-soft border border-slate-100 p-2">
+                        <a href="{{ route('user.profil') }}" class="block rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-slate-50">Profile Saya</a>
+                        <div class="my-2 border-t border-slate-200"></div>
+                        <form action="{{ route('logout') }}" method="POST">
+                            @csrf
+                            <button type="submit" class="w-full text-left rounded-lg px-3 py-2 text-sm text-red-600 hover:bg-red-50">Logout</button>
+                        </form>
                     </div>
+                </div>
                 </div>
             </div>
         </div>
@@ -123,6 +134,34 @@
             if(!el || !ov) return;
             el.classList.add('-translate-x-full');
             ov.classList.add('hidden');
+        }
+
+        // User dropdown (Profile / Logout)
+        const userMenuBtn = document.getElementById('userMenuBtn');
+        const userMenu = document.getElementById('userMenu');
+
+        function closeUserMenu(){
+            if(!userMenuBtn || !userMenu) return;
+            userMenu.classList.add('hidden');
+            userMenuBtn.setAttribute('aria-expanded', 'false');
+        }
+
+        function toggleUserMenu(){
+            if(!userMenuBtn || !userMenu) return;
+            userMenu.classList.toggle('hidden');
+            userMenuBtn.setAttribute('aria-expanded', userMenu.classList.contains('hidden') ? 'false' : 'true');
+        }
+
+        if(userMenuBtn){
+            userMenuBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleUserMenu();
+            });
+
+            document.addEventListener('click', () => closeUserMenu());
+            document.addEventListener('keydown', (e) => {
+                if(e.key === 'Escape') closeUserMenu();
+            });
         }
     </script>
 

@@ -32,11 +32,6 @@
             <span class="w-6 text-center text-lg"><i class="bi bi-file-earmark-text"></i></span>
             <span>Riwayat Cuti</span>
         </a>
-
-        <a href="{{ route('user.profil') }}" class="menu-btn {{ request()->routeIs('user.profil') || request()->routeIs('user.profil.*') || request()->routeIs('user.password.*') ? 'active-menu' : 'text-slate-500 hover:text-[var(--maroon)]' }} w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium">
-            <span class="w-6 text-center text-lg"><i class="bi bi-person-gear"></i></span>
-            <span>Profil</span>
-        </a>
     </nav>
 
     <div class="p-4 border-t border-dashed border-[var(--border)]">
