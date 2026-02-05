@@ -208,7 +208,7 @@
     <div class="hero-banner">
         <div class="d-flex justify-content-between align-items-start">
             <div class="d-flex align-items-center">
-                <button class="mobile-toggler" onclick="toggleSidebar()">
+                <button type="button" class="mobile-toggler" data-toggle-sidebar>
                     <i class="bi bi-list"></i>
                 </button>
                 <div>
