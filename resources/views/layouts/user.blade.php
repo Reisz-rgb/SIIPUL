@@ -102,7 +102,7 @@
                         <i class="bi bi-chevron-down text-xs hidden md:block"></i>
                     </button>
 
-                    <div id="userMenu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-soft border border-slate-100 p-2">
+                    <div id="userMenu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-soft border border-slate-100 p-2 z-50">
                         <a href="{{ route('user.profil') }}" class="block rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-slate-50">Profile Saya</a>
                         <div class="my-2 border-t border-slate-200"></div>
                         <form action="{{ route('logout') }}" method="POST">
@@ -115,7 +115,7 @@
             </div>
         </div>
 
-        <div class="px-5 md:px-8 -mt-24 md:-mt-32 pb-10 relative z-10 max-w-7xl mx-auto">
+        <div class="px-5 md:px-10 -mt-20 md:-mt-20 pb-10 relative z-10 w-full">
             @yield('content')
         </div>
     </main>

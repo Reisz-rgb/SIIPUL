@@ -2,7 +2,7 @@
     $authUser = $user ?? auth()->user();
 @endphp
 
-<aside id="sidebar" class="w-[280px] bg-white border-r border-[var(--border)] flex-shrink-0 fixed md:static inset-y-0 left-0 z-50 -translate-x-full md:translate-x-0 transition-transform duration-300 flex flex-col">
+<aside id="sidebar" class="w-[270px] bg-white border-r border-[var(--border)] flex-shrink-0 fixed md:static inset-y-0 left-0 z-50 -translate-x-full md:translate-x-0 transition-transform duration-300 flex flex-col">
     <div class="p-6 border-b border-dashed border-[var(--border)] mb-2">
         <a href="{{ route('user.dashboard') }}" class="flex items-center gap-3">
             <div class="w-12 h-12 flex items-center justify-center bg-slate-50 rounded-xl p-1">
