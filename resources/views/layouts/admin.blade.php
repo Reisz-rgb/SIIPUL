@@ -41,7 +41,8 @@
             top: 0; left: 0;
             background: #FFFFFF;
             border-right: 1px dashed #E2E8F0;
-            z-index: 1050; /* Di atas konten utama */
+            /* IMPORTANT: keep sidebar clickable above any overlays/content */
+            z-index: 1060 !important;
             padding: 24px;
             display: flex; flex-direction: column;
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -145,12 +146,18 @@
             display: none; color: white; font-size: 1.5rem; 
             border: none; background: none; margin-right: 15px; 
         }
-        
+
         #sidebarOverlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.5); z-index: 1040;
-            display: none; backdrop-filter: blur(2px);
+            background: rgba(0, 0, 0, 0.5);
+            /* must be BELOW sidebar, ABOVE main content */
+            z-index: 1055 !important;
+            display: none;
+            backdrop-filter: blur(2px);
+            pointer-events: auto;
         }
+
+        #sidebarOverlay.show { display: block; }
 
         @media (max-width: 992px) {
             .sidebar { transform: translateX(-100%); }
@@ -185,14 +192,14 @@
                 <i class="bi bi-grid-fill"></i> Dashboard
             </a>
 
-            <a href="{{ route('admin.kelola_pengajuan') }}" class="nav-link {{ request()->routeIs('admin.kelola_pengajuan*') ? 'active' : '' }}">
+            <a href="{{ route('admin.kelola_pengajuan') }}" class="nav-link {{ (request()->routeIs('admin.kelola_pengajuan*') || request()->routeIs('admin.pengajuan.*')) ? 'active' : '' }}">
                 <i class="bi bi-file-earmark-text"></i> Pengajuan Cuti
                 @if(isset($menunggu) && $menunggu > 0)
                     <span class="badge bg-danger rounded-pill ms-auto" style="font-size: 0.7rem">{{ $menunggu }}</span>
                 @endif
             </a>
 
-            <a href="{{ route('admin.kelola_pegawai') }}" class="nav-link {{ request()->routeIs('admin.kelola_pegawai*') ? 'active' : '' }}">
+            <a href="{{ route('admin.kelola_pegawai') }}" class="nav-link {{ (request()->routeIs('admin.kelola_pegawai*') || request()->routeIs('admin.tambah_pegawai*') || request()->routeIs('admin.pegawai.*')) ? 'active' : '' }}">
                 <i class="bi bi-people"></i> Data Pegawai
             </a>
             
@@ -219,31 +226,40 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        // Toggle Sidebar Mobile
-        const toggleBtn = document.querySelector('.mobile-toggler');
+        // Mobile Sidebar (works consistently across all admin pages)
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('sidebarOverlay');
 
-        function toggleSidebar() {
-            sidebar.classList.toggle('show');
-            if(sidebar.classList.contains('show')) {
-                overlay.style.display = 'block';
-            } else {
-                overlay.style.display = 'none';
-            }
-        }
+        // expose globally so inline onclick="toggleSidebar()" keeps working
+        window.toggleSidebar = function toggleSidebar() {
+            if (!sidebar || !overlay) return;
+            const willOpen = !sidebar.classList.contains('show');
+            sidebar.classList.toggle('show', willOpen);
+            overlay.classList.toggle('show', willOpen);
+            document.body.style.overflow = willOpen ? 'hidden' : '';
+        };
 
-        if(toggleBtn) {
-            toggleBtn.addEventListener('click', toggleSidebar);
-        }
+        window.closeSidebar = function closeSidebar() {
+            if (!sidebar || !overlay) return;
+            sidebar.classList.remove('show');
+            overlay.classList.remove('show');
+            document.body.style.overflow = '';
+        };
+
+        // Bind ALL possible hamburger buttons used in your pages
+        document.querySelectorAll('.mobile-toggler, #btnToggleSidebar, [data-toggle-sidebar]')
+            .forEach((btn) => btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                window.toggleSidebar();
+            }));
 
         // Close when clicking overlay
-        if(overlay) {
-            overlay.addEventListener('click', function() {
-                sidebar.classList.remove('show');
-                overlay.style.display = 'none';
-            });
-        }
+        if (overlay) overlay.addEventListener('click', window.closeSidebar);
+
+        // Close when pressing ESC
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') window.closeSidebar();
+        });
     </script>
 
     @stack('scripts')

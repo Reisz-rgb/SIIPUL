@@ -22,7 +22,8 @@
         /* --- SIDEBAR --- */
         .sidebar {
             width: var(--sidebar-width); height: 100vh; position: fixed;
-            background: #FFFFFF; border-right: 1px dashed #E2E8F0; z-index: 1000;
+            /* IMPORTANT: jangan override z-index jadi lebih kecil dari overlay di layouts.admin */
+            background: #FFFFFF; border-right: 1px dashed #E2E8F0; z-index: 1060 !important;
             padding: 24px; display: flex; flex-direction: column; transition: 0.3s;
         }
         .sidebar-brand {
@@ -130,7 +131,7 @@
 <div class="hero-banner">
             <div class="d-flex justify-content-between align-items-start">
                 <div class="d-flex align-items-center">
-                    <button class="mobile-toggler" onclick="document.getElementById('sidebar').classList.toggle('show')">
+                    <button type="button" class="mobile-toggler" data-toggle-sidebar>
                         <i class="bi bi-list"></i>
                     </button>
                     <div>
