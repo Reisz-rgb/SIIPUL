@@ -11,9 +11,9 @@
 
     <style>
         :root {
-            --primary: #9E2A2B;
-            --primary-dark: #781F1F;
-            --bg-body: #F1F5F9;
+            --primary:        #9E2A2B;
+            --primary-dark:   #781F1F;
+            --bg-body:        #F1F5F9;
             --text-secondary: #64748B;
         }
 
@@ -26,9 +26,9 @@
         }
 
         /* Custom Scrollbar (konsisten) */
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 10px; }
+        ::-webkit-scrollbar             { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track       { background: transparent; }
+        ::-webkit-scrollbar-thumb       { background: #CBD5E1; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
 
         .auth-hero {
@@ -51,7 +51,7 @@
             pointer-events: none;
         }
 
-        /* Brand (samakan posisi seperti Landing Page: kiri-atas, tidak ikut max-width container) */
+        /* Brand: posisikan kiri-atas seperti Landing Page */
         .landing-brand {
             position: absolute;
             top: 18px;
@@ -104,9 +104,7 @@
             border-bottom: 1px dashed #E2E8F0;
         }
 
-        .auth-card-body {
-            padding: 22px;
-        }
+        .auth-card-body { padding: 22px; }
 
         .form-label {
             font-weight: 600;
@@ -120,7 +118,6 @@
             background-color: #F8FAFC;
             padding: 12px 14px;
         }
-
         .form-control:focus {
             border-color: rgba(158, 42, 43, 0.55);
             box-shadow: 0 0 0 4px rgba(158, 42, 43, 0.10);
@@ -157,14 +154,15 @@
         }
 
         @media (max-width: 480px) {
-            .auth-hero { border-radius: 0; min-height: 220px; }
-            .auth-shell { margin-top: -70px; }
+            .auth-hero    { border-radius: 0; min-height: 220px; }
+            .auth-shell   { margin-top: -70px; }
             .landing-brand { top: 14px; left: 18px; }
         }
     </style>
 </head>
 
 <body>
+    {{-- Hero header --}}
     <header class="auth-hero">
         {{-- Brand: posisikan kiri-atas seperti Landing Page --}}
         <div class="landing-brand">
@@ -178,6 +176,8 @@
 
     <main class="auth-shell">
         <div class="auth-card">
+
+            {{-- Card header --}}
             <div class="auth-card-header">
                 <div class="text-center">
                     <h1 class="m-0" style="font-size: 1.35rem; font-weight: 800;">Masuk ke SIPERCUT</h1>
@@ -186,39 +186,42 @@
                 </div>
             </div>
 
+            {{-- Card body --}}
             <div class="auth-card-body">
-             {{-- Throttle warning (khusus) --}}
-            @if ($errors->has('throttle'))
-                <div class="alert-mini mb-4" style="background-color:#FFF7ED; border-color:#FED7AA; color:#92400E;">
-                    <div class="d-flex gap-2 align-items-start">
-                        <i class="bi bi-clock-history" style="margin-top:2px; flex-shrink:0;"></i>
-                        <div>{{ $errors->first('throttle') }}</div>
-                    </div>
-                </div>
-            @endif
 
-            {{-- Error umum — KECUALIKAN throttle --}}
-            @if ($errors->hasAny(['nip', 'password', 'login']))
-                <div class="alert-mini mb-4">
-                    <div class="d-flex gap-2 align-items-start">
-                        <i class="bi bi-exclamation-triangle-fill" style="margin-top: 2px;"></i>
-                        <div>
-                            <ul class="mb-0 ps-3">
-                                @foreach ($errors->get('nip') as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                                @foreach ($errors->get('password') as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                                @foreach ($errors->get('login') as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
+                {{-- Throttle warning --}}
+                @if ($errors->has('throttle'))
+                    <div class="alert-mini mb-4" style="background-color:#FFF7ED; border-color:#FED7AA; color:#92400E;">
+                        <div class="d-flex gap-2 align-items-start">
+                            <i class="bi bi-clock-history" style="margin-top:2px; flex-shrink:0;"></i>
+                            <div>{{ $errors->first('throttle') }}</div>
                         </div>
                     </div>
-                </div>
-            @endif
+                @endif
 
+                {{-- Field validation errors (excludes throttle) --}}
+                @if ($errors->hasAny(['nip', 'password', 'login']))
+                    <div class="alert-mini mb-4">
+                        <div class="d-flex gap-2 align-items-start">
+                            <i class="bi bi-exclamation-triangle-fill" style="margin-top: 2px;"></i>
+                            <div>
+                                <ul class="mb-0 ps-3">
+                                    @foreach ($errors->get('nip') as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                    @foreach ($errors->get('password') as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                    @foreach ($errors->get('login') as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
+                {{-- Success flash --}}
                 @if (session('success'))
                     <div class="alert border-0 bg-success bg-opacity-10 text-success rounded-4 p-3 mb-4" style="font-size: 0.9rem;">
                         {{ session('success') }}
@@ -228,16 +231,25 @@
                 <form action="{{ route('login.process') }}" method="POST">
                     @csrf
 
+                    {{-- NIP --}}
                     <div class="mb-3">
                         <label class="form-label">Nomor Induk Pegawai</label>
                         <div class="input-group">
                             <span class="input-group-text bg-white" style="border-radius: 12px 0 0 12px; border: 1px solid #E2E8F0; border-right: none;">
                                 <i class="bi bi-person-badge"></i>
                             </span>
-                            <input type="text" name="nip" class="form-control" placeholder="Masukkan NIP Anda" value="{{ old('nip') }}" required autofocus style="border-left: none; border-radius: 0 12px 12px 0;">
+                            <input type="text"
+                                   name="nip"
+                                   class="form-control"
+                                   placeholder="Masukkan NIP Anda"
+                                   value="{{ old('nip') }}"
+                                   required
+                                   autofocus
+                                   style="border-left: none; border-radius: 0 12px 12px 0;">
                         </div>
                     </div>
 
+                    {{-- Password --}}
                     <div class="mb-3">
                         <div class="d-flex justify-content-between align-items-center">
                             <label class="form-label mb-0">Password</label>
@@ -247,7 +259,12 @@
                             <span class="input-group-text bg-white" style="border-radius: 12px 0 0 12px; border: 1px solid #E2E8F0; border-right: none;">
                                 <i class="bi bi-shield-lock"></i>
                             </span>
-                            <input type="password" name="password" class="form-control" placeholder="••••••••" required style="border-left: none; border-radius: 0 12px 12px 0;">
+                            <input type="password"
+                                   name="password"
+                                   class="form-control"
+                                   placeholder="••••••••"
+                                   required
+                                   style="border-left: none; border-radius: 0 12px 12px 0;">
                         </div>
                     </div>
 
@@ -256,18 +273,22 @@
                     </button>
                 </form>
 
+                {{-- Register link --}}
                 <div class="text-center mt-4">
                     <p class="m-0" style="font-size: 0.9rem; color: var(--text-secondary);">
-                        Belum punya akun? <a href="{{ route('register') }}" class="text-decoration-none" style="color: var(--primary); font-weight: 800;">Daftar</a>
+                        Belum punya akun?
+                        <a href="{{ route('register') }}" class="text-decoration-none" style="color: var(--primary); font-weight: 800;">Daftar</a>
                     </p>
                 </div>
 
+                {{-- Footer --}}
                 <div class="text-center mt-4" style="font-size: 0.78rem; color: #94A3B8;">
                     &copy; 2026 Disdikbudpora Kabupaten Semarang
                     <div class="mt-2">
                         <a href="{{ route('landing') }}" class="text-decoration-none" style="color: #94A3B8; font-weight: 600;">Kembali ke Beranda</a>
                     </div>
                 </div>
+
             </div>
         </div>
     </main>

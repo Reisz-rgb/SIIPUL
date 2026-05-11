@@ -11,9 +11,9 @@
 
     <style>
         :root {
-            --primary: #9E2A2B;
-            --primary-dark: #781F1F;
-            --bg-body: #F1F5F9;
+            --primary:        #9E2A2B;
+            --primary-dark:   #781F1F;
+            --bg-body:        #F1F5F9;
             --text-secondary: #64748B;
         }
 
@@ -26,9 +26,9 @@
         }
 
         /* Custom Scrollbar (konsisten) */
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 10px; }
+        ::-webkit-scrollbar             { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track       { background: transparent; }
+        ::-webkit-scrollbar-thumb       { background: #CBD5E1; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
 
         .auth-hero {
@@ -51,7 +51,7 @@
             pointer-events: none;
         }
 
-        /* Brand*/
+        /* Brand */
         .landing-brand {
             position: absolute;
             top: 18px;
@@ -118,7 +118,6 @@
             background-color: #F8FAFC;
             padding: 12px 14px;
         }
-
         .form-control:focus {
             border-color: rgba(158, 42, 43, 0.55);
             box-shadow: 0 0 0 4px rgba(158, 42, 43, 0.10);
@@ -155,14 +154,15 @@
         }
 
         @media (max-width: 480px) {
-            .auth-hero { border-radius: 0; min-height: 220px; }
-            .auth-shell { margin-top: -70px; }
+            .auth-hero    { border-radius: 0; min-height: 220px; }
+            .auth-shell   { margin-top: -70px; }
             .landing-brand { top: 14px; left: 18px; }
         }
     </style>
 </head>
 
 <body>
+    {{-- Hero header --}}
     <header class="auth-hero">
         <div class="landing-brand">
             <img src="{{ asset('logokabupatensemarang.png') }}" alt="Logo Kab Semarang">
@@ -175,6 +175,8 @@
 
     <main class="auth-shell">
         <div class="auth-card">
+
+            {{-- Card header --}}
             <div class="auth-card-header">
                 <div class="text-center">
                     <h1 class="m-0" style="font-size: 1.35rem; font-weight: 800;">Daftar Akun Baru</h1>
@@ -182,31 +184,36 @@
                 </div>
             </div>
 
+            {{-- Card body --}}
             <div class="auth-card-body">
-            @if ($errors->has('throttle'))
-                <div class="alert-mini mb-4" style="background-color:#FFF7ED; border-color:#FED7AA; color:#92400E;">
-                    <div class="d-flex gap-2 align-items-start">
-                        <i class="bi bi-clock-history" style="margin-top:2px; flex-shrink:0;"></i>
-                        <div>{{ $errors->first('throttle') }}</div>
-                    </div>
-                </div>
-            @endif
 
-            @if ($errors->hasAny(['name','nip','phone','email','bidang_unit','jabatan','password']))
-                <div class="alert-mini mb-4">
-                    <div class="d-flex gap-2 align-items-start">
-                        <i class="bi bi-exclamation-triangle-fill" style="margin-top: 2px;"></i>
-                        <div>
-                            @foreach (['name','nip','phone','email','bidang_unit','jabatan','password'] as $field)
-                                @foreach ($errors->get($field) as $error)
-                                    <div>{{ $error }}</div>
-                                @endforeach
-                            @endforeach
+                {{-- Throttle warning --}}
+                @if ($errors->has('throttle'))
+                    <div class="alert-mini mb-4" style="background-color:#FFF7ED; border-color:#FED7AA; color:#92400E;">
+                        <div class="d-flex gap-2 align-items-start">
+                            <i class="bi bi-clock-history" style="margin-top:2px; flex-shrink:0;"></i>
+                            <div>{{ $errors->first('throttle') }}</div>
                         </div>
                     </div>
-                </div>
-            @endif
+                @endif
 
+                {{-- Field validation errors --}}
+                @if ($errors->hasAny(['name','nip','phone','email','bidang_unit','jabatan','password']))
+                    <div class="alert-mini mb-4">
+                        <div class="d-flex gap-2 align-items-start">
+                            <i class="bi bi-exclamation-triangle-fill" style="margin-top: 2px;"></i>
+                            <div>
+                                @foreach (['name','nip','phone','email','bidang_unit','jabatan','password'] as $field)
+                                    @foreach ($errors->get($field) as $error)
+                                        <div>{{ $error }}</div>
+                                    @endforeach
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
+                {{-- Info notice --}}
                 <div class="alert border-0 rounded-4 p-3 mb-4" style="background: #E7F1FF; color: #0C5460; border: 1px solid #B3D7FF;">
                     <div class="d-flex gap-2">
                         <i class="bi bi-info-circle-fill" style="margin-top: 2px;"></i>
@@ -224,53 +231,91 @@
                     @csrf
 
                     <div class="row g-3">
+
+                        {{-- Nama Lengkap --}}
                         <div class="col-12">
                             <label class="form-label">Nama Lengkap</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-white" style="border-radius: 12px 0 0 12px; border: 1px solid #E2E8F0; border-right: none;">
                                     <i class="bi bi-person"></i>
                                 </span>
-                                <input type="text" name="name" class="form-control" placeholder="Nama lengkap sesuai SK" value="{{ old('name') }}" required style="border-left: none; border-radius: 0 12px 12px 0;">
+                                <input type="text"
+                                       name="name"
+                                       class="form-control"
+                                       placeholder="Nama lengkap sesuai SK"
+                                       value="{{ old('name') }}"
+                                       required
+                                       style="border-left: none; border-radius: 0 12px 12px 0;">
                             </div>
                         </div>
 
+                        {{-- NIP --}}
                         <div class="col-12 col-md-6">
                             <label class="form-label">NIP</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-white" style="border-radius: 12px 0 0 12px; border: 1px solid #E2E8F0; border-right: none;">
                                     <i class="bi bi-person-badge"></i>
                                 </span>
-                                <input type="text" name="nip" class="form-control" placeholder="19xxxxxxxxxxx" value="{{ old('nip') }}" required style="border-left: none; border-radius: 0 12px 12px 0;">
+                                <input type="text"
+                                       name="nip"
+                                       class="form-control"
+                                       placeholder="19xxxxxxxxxxx"
+                                       value="{{ old('nip') }}"
+                                       required
+                                       style="border-left: none; border-radius: 0 12px 12px 0;">
                             </div>
                         </div>
 
+                        {{-- Nomor HP --}}
                         <div class="col-12 col-md-6">
                             <label class="form-label">Nomor HP / WhatsApp</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-white" style="border-radius: 12px 0 0 12px; border: 1px solid #E2E8F0; border-right: none;">
                                     <i class="bi bi-telephone"></i>
                                 </span>
-                                <input type="text" name="phone" class="form-control" placeholder="0812xxxx" value="{{ old('phone') }}" required style="border-left: none; border-radius: 0 12px 12px 0;">
+                                <input type="text"
+                                       name="phone"
+                                       class="form-control"
+                                       placeholder="0812xxxx"
+                                       value="{{ old('phone') }}"
+                                       required
+                                       style="border-left: none; border-radius: 0 12px 12px 0;">
                             </div>
                         </div>
 
+                        {{-- Email --}}
                         <div class="col-12 col-md-6">
                             <label class="form-label">Email</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-white" style="border-radius: 12px 0 0 12px; border: 1px solid #E2E8F0; border-right: none;">
                                     <i class="bi bi-envelope"></i>
                                 </span>
-                                <input type="email" name="email" class="form-control" placeholder="nama@email.com" value="{{ old('email') }}" required style="border-left: none; border-radius: 0 12px 12px 0;">
+                                <input type="email"
+                                       name="email"
+                                       class="form-control"
+                                       placeholder="nama@email.com"
+                                       value="{{ old('email') }}"
+                                       required
+                                       style="border-left: none; border-radius: 0 12px 12px 0;">
                             </div>
                         </div>
 
+                        {{-- Unit Kerja --}}
                         <div class="col-12 col-md-6">
                             <label class="form-label">Unit Kerja</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-white" style="border-radius: 12px 0 0 12px; border: 1px solid #E2E8F0; border-right: none;">
                                     <i class="bi bi-building"></i>
                                 </span>
-                                <input type="text" name="bidang_unit" list="unitKerjaOptions" class="form-control" placeholder="Ketik atau pilih unit kerja" value="{{ old('bidang_unit') }}" autocomplete="off" required style="border-left: none; border-radius: 0 12px 12px 0;">
+                                <input type="text"
+                                       name="bidang_unit"
+                                       list="unitKerjaOptions"
+                                       class="form-control"
+                                       placeholder="Ketik atau pilih unit kerja"
+                                       value="{{ old('bidang_unit') }}"
+                                       autocomplete="off"
+                                       required
+                                       style="border-left: none; border-radius: 0 12px 12px 0;">
                                 <datalist id="unitKerjaOptions">
                                     @foreach (($unitKerjaOptions ?? []) as $unitKerja)
                                         <option value="{{ $unitKerja }}"></option>
@@ -279,13 +324,22 @@
                             </div>
                         </div>
 
+                        {{-- Jabatan --}}
                         <div class="col-12 col-md-6">
                             <label class="form-label">Jabatan</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-white" style="border-radius: 12px 0 0 12px; border: 1px solid #E2E8F0; border-right: none;">
                                     <i class="bi bi-briefcase"></i>
                                 </span>
-                                <input type="text" name="jabatan" list="jabatanOptions" class="form-control" placeholder="Ketik atau pilih jabatan" value="{{ old('jabatan') }}" autocomplete="off" required style="border-left: none; border-radius: 0 12px 12px 0;">
+                                <input type="text"
+                                       name="jabatan"
+                                       list="jabatanOptions"
+                                       class="form-control"
+                                       placeholder="Ketik atau pilih jabatan"
+                                       value="{{ old('jabatan') }}"
+                                       autocomplete="off"
+                                       required
+                                       style="border-left: none; border-radius: 0 12px 12px 0;">
                                 <datalist id="jabatanOptions">
                                     @foreach (($jabatanOptions ?? []) as $jabatanOption)
                                         <option value="{{ $jabatanOption }}"></option>
@@ -294,25 +348,38 @@
                             </div>
                         </div>
 
+                        {{-- Password --}}
                         <div class="col-12 col-md-6">
                             <label class="form-label">Password</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-white" style="border-radius: 12px 0 0 12px; border: 1px solid #E2E8F0; border-right: none;">
                                     <i class="bi bi-shield-lock"></i>
                                 </span>
-                                <input type="password" name="password" class="form-control" placeholder="••••••••" required style="border-left: none; border-radius: 0 12px 12px 0;">
+                                <input type="password"
+                                       name="password"
+                                       class="form-control"
+                                       placeholder="••••••••"
+                                       required
+                                       style="border-left: none; border-radius: 0 12px 12px 0;">
                             </div>
                         </div>
 
+                        {{-- Konfirmasi Password --}}
                         <div class="col-12 col-md-6">
                             <label class="form-label">Konfirmasi Password</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-white" style="border-radius: 12px 0 0 12px; border: 1px solid #E2E8F0; border-right: none;">
                                     <i class="bi bi-shield-check"></i>
                                 </span>
-                                <input type="password" name="password_confirmation" class="form-control" placeholder="••••••••" required style="border-left: none; border-radius: 0 12px 12px 0;">
+                                <input type="password"
+                                       name="password_confirmation"
+                                       class="form-control"
+                                       placeholder="••••••••"
+                                       required
+                                       style="border-left: none; border-radius: 0 12px 12px 0;">
                             </div>
                         </div>
+
                     </div>
 
                     <button type="submit" class="btn btn-primary-gradient text-white w-100 mt-4">
@@ -330,6 +397,7 @@
                             <a href="{{ url('/') }}" class="text-decoration-none" style="color: #94A3B8; font-weight: 600;">Kembali ke Halaman Utama</a>
                         </div>
                     </div>
+
                 </form>
             </div>
         </div>
