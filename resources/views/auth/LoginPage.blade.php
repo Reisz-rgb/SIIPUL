@@ -19,7 +19,12 @@
 
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: var(--bg-body);
+            background:
+                linear-gradient(135deg, rgba(126, 23, 23, 0.92), rgba(88, 16, 16, 0.94)),
+                url('{{ asset('images/batik-gedong-songo.png') }}');
+            background-size: cover;
+            background-position: center;
+            background-repeat: repeat;
             color: #334155;
             min-height: 100vh;
             overflow-x: hidden;
@@ -32,7 +37,7 @@
         ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
 
         .auth-hero {
-            background: linear-gradient(135deg, var(--primary) 0%, #561616 100%);
+            background: transparent;
             min-height: 260px;
             padding: 44px 20px;
             color: #fff;
@@ -92,7 +97,8 @@
         }
 
         .auth-card {
-            background: #fff;
+            background: rgba(255,255,255,0.92);
+            backdrop-filter: blur(12px);
             border-radius: 16px;
             border: 1px solid #F1F5F9;
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
