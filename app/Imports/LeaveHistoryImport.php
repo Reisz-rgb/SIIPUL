@@ -40,6 +40,7 @@ class LeaveHistoryImport implements ToCollection
 
                 $startDate = $this->parseIndonesianDate($row[8]);
                 $endDate   = $this->parseIndonesianDate($row[9]);
+                $tanggalUsul = $this->parseIndonesianDate($row[1]);
 
                 $duration = (int) $row[10];
 
@@ -73,6 +74,9 @@ class LeaveHistoryImport implements ToCollection
                     'notes'         => 'Import histori cuti lama',
 
                     'status'        => LeaveRequest::STATUS_APPROVED,
+
+                    'created_at'    => $tanggalUsul,
+                    'updated_at'    => $tanggalUsul,
                 ]);
 
                 // Recalculate hanya untuk cuti tahunan
