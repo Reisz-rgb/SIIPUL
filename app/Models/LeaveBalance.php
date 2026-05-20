@@ -66,49 +66,143 @@ class LeaveBalance extends Model
     public static function recalculateAnnualBalances(int $userId, int $year): array
     {
         return DB::transaction(function () use ($userId, $year) {
+
             $n2 = self::getOrCreateBalance($userId, $year - 2);
             $n1 = self::getOrCreateBalance($userId, $year - 1);
             $n  = self::getOrCreateBalance($userId, $year);
 
-            // 1. Reset data tahun berjalan
+            // =========================================================
+            // REFRESH DATA TAHUN N-2 DAN N-1
+            // =========================================================
+
+            $n2->used = self::sumApprovedDuration($userId, $year - 2);
+            $n2->remaining = max(0, $n2->quota - $n2->used);
+            $n2->save();
+
+            $n1->used = self::sumApprovedDuration($userId, $year - 1);
+            $n1->remaining = max(0, $n1->quota - $n1->used);
+            $n1->save();
+
+            // =========================================================
+            // RESET TAHUN BERJALAN
+            // =========================================================
+
             $n->used = 0;
             $n->remaining = $n->quota;
 
-            // 2. Refresh data pemakaian tahun N-1 dan N-2 dari database
-            $n2->used      = self::sumApprovedDuration($userId, $year - 2);
-            $n2->remaining = max(0, $n2->quota - $n2->used); 
-            $n2->save();
+            // =========================================================
+            // CEK CUTI BESAR (HAJI)
+            // =========================================================
 
-            $n1->used      = self::sumApprovedDuration($userId, $year - 1);
-            $n1->remaining = max(0, $n1->quota - $n1->used); 
-            $n1->save();
+            $cutiBesar = LeaveRequest::query()
+                ->where('user_id', $userId)
+                ->where('jenis_cuti', 'Cuti Besar')
+                ->where('status', LeaveRequest::STATUS_APPROVED)
+                ->whereYear('start_date', $year)
+                ->orderByDesc('start_date')
+                ->first();
 
-            // 3. Hitung ketersediaan bonus berdasarkan used
+            // =========================================================
+            // JIKA ADA CUTI BESAR
+            // =========================================================
+
+            if ($cutiBesar) {
+
+                // =====================================================
+                // VALIDASI 5 TAHUN
+                // =====================================================
+
+                $lastCutiBesar = LeaveRequest::query()
+                    ->where('user_id', $userId)
+                    ->where('jenis_cuti', 'Cuti Besar')
+                    ->where('status', LeaveRequest::STATUS_APPROVED)
+                    ->whereYear('start_date', '<', $year)
+                    ->orderByDesc('start_date')
+                    ->first();
+
+                $allowed = true;
+
+                if ($lastCutiBesar) {
+
+                    $lastYear = Carbon\Carbon::parse(
+                        $lastCutiBesar->start_date
+                    )->year;
+
+                    $diffYear = $year - $lastYear;
+
+                    // Harus menunggu minimal 5 tahun
+                    if ($diffYear < 5) {
+                        $allowed = false;
+                    }
+                }
+
+                // =====================================================
+                // JIKA VALID CUTI BESAR
+                // =====================================================
+
+                if ($allowed) {
+
+                    // Hanguskan cuti tahunan tahun berjalan
+                    $n->used = $n->quota;
+                    $n->remaining = 0;
+
+                    $n->save();
+
+                    return self::calculateTotalAvailable($userId, $year);
+                }
+            }
+
+            // =========================================================
+            // BONUS N-1 DAN N-2
+            // =========================================================
+
             $bonusN1Available = ($n1->used == 0) ? 6 : 0;
             $bonusN2Available = ($n2->used == 0) ? 6 : 0;
 
-            // 4. Proses semua request tahun ini
+            // =========================================================
+            // AMBIL SEMUA CUTI TAHUNAN APPROVED
+            // =========================================================
+
             $requests = self::getApprovedRequests($userId, $year);
+
             foreach ($requests as $req) {
+
                 $due = (int) $req->duration;
 
-                // A. Potong dari jatah utama N (12 hari)
+                // =====================================================
+                // POTONG DARI KUOTA TAHUN BERJALAN
+                // =====================================================
+
                 $takeFromN = min($n->remaining, $due);
+
                 $n->used += $takeFromN;
                 $n->remaining -= $takeFromN;
+
                 $due -= $takeFromN;
 
-                // B. Jika masih ada sisa, potong dari Bonus N-1
+                // =====================================================
+                // BONUS N-1
+                // =====================================================
+
                 if ($due > 0 && $bonusN1Available > 0) {
+
                     $takeFromB1 = min($bonusN1Available, $due);
+
                     $bonusN1Available -= $takeFromB1;
+
                     $due -= $takeFromB1;
                 }
 
-                // C. Jika masih ada sisa, potong dari Bonus N-2
+                // =====================================================
+                // BONUS N-2
+                // =====================================================
+
                 if ($due > 0 && $bonusN2Available > 0) {
+
                     $takeFromB2 = min($bonusN2Available, $due);
+
                     $bonusN2Available -= $takeFromB2;
+
                     $due -= $takeFromB2;
                 }
             }
@@ -124,7 +218,7 @@ class LeaveBalance extends Model
         return (int) DB::table('leave_requests')
             ->where('user_id', $userId)
             ->where('jenis_cuti', 'Cuti Tahunan') 
-            ->where('status', 'APPROVED') // Sesuaikan dengan string status Anda
+            ->where('status', LeaveRequest::STATUS_APPROVED) 
             ->whereYear('start_date', $year)
             ->sum('duration');
     }

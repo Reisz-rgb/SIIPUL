@@ -36,6 +36,8 @@ class LeaveRequest extends Model
         'file_path',
         'status',
         'rejection_reason',
+        'created_at',
+        'updated_at',
     ];
 
     protected $casts = [
