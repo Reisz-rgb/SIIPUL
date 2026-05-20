@@ -476,7 +476,7 @@
                         <i class="bi bi-paperclip"></i>
                     </div>
                     <div>
-                        <h3 class="text-sm md:text-base font-extrabold text-slate-800">VIII. Dokumen Pendukung (Opsional)</h3>
+                        <h3 class="text-sm md:text-base font-extrabold text-slate-800">VIII. Dokumen Pendukung</h3>
                         <p class="text-xs md:text-sm text-slate-500 font-medium">Unggah lampiran jika diperlukan (surat dokter, dsb).</p>
                     </div>
                 </div>
@@ -493,11 +493,12 @@
 
                     {{-- Dokumen Lampiran --}}
                     <div>
-                        <label class="block text-xs font-extrabold text-slate-600 mb-2">Dokumen Lampiran</label>
+                        <label class="block text-xs font-extrabold text-slate-600 mb-2">Dokumen Lampiran <span class="text-red-600">*</span> </label>
                         <div id="dropZone"
                              class="relative rounded-2xl border border-dashed border-slate-200 bg-slate-50/40 p-6 flex flex-col items-center justify-center text-center">
                             <input type="file"
                                    name="dokumen_pendukung"
+                                   required
                                    id="fileUpload"
                                    accept=".pdf,.doc,.docx,.jpg,.png"
                                    class="absolute inset-0 opacity-0 cursor-pointer" />
@@ -520,7 +521,7 @@
                         </div>
                         <div>
                             <div class="text-sm font-extrabold text-blue-800">Tips</div>
-                            <p class="text-sm text-blue-700/80 font-medium mt-1">Pastikan melengkapi dokumen pendukung agar proses verifikasi berjalan lancar.</p>
+                            <p class="text-sm text-blue-700/80 font-medium mt-1">Pastikan melengkapi dokumen pendukung agar proses verifikasi berjalan lancar dengan menggabungkan surat permohonan cuti, SK PNS/PPPK, serta lampiran yang sesuai dengan alasan cuti (seperti surat dokter, jadwal haji/umrah dari biro perjalanan, undangan, surat keterangan, dan dokumen pendukung lainnya) ke dalam 1 file PDF sesuai ketentuan ukuran yang berlaku.</p>
                         </div>
                     </div>
 

@@ -10,23 +10,103 @@
         $recent   = $recentLeaves ?? $latestLeaves ?? [];
     @endphp
 
-    {{-- Email warning banner --}}
+    {{-- Email warning modal overlay --}}
     @if(empty($authUser->email))
-        <div class="flex items-start gap-4 bg-amber-50 border border-amber-200 rounded-2xl px-5 py-4 mb-2">
-            <div class="flex-shrink-0 w-9 h-9 rounded-xl bg-amber-100 border border-amber-200 flex items-center justify-center text-amber-600">
-                <i class="bi bi-envelope-exclamation-fill text-base"></i>
-            </div>
-            <div class="flex-1 min-w-0">
-                <p class="text-sm font-extrabold text-amber-800">Email belum ditambahkan</p>
-                <p class="text-xs text-amber-700 font-medium mt-0.5 leading-relaxed">
-                    Tanpa email, Anda tidak dapat menggunakan fitur <span class="font-bold">lupa password</span>. Lengkapi profil Anda sekarang.
+        {{-- Backdrop --}}
+        <div id="email-modal-backdrop"
+             style="position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem;
+                    background:rgba(15,23,42,0.45);
+                    backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+                    opacity:0;transition:opacity 400ms ease-out;">
+
+            {{-- Modal card --}}
+            <div id="email-modal"
+                 style="position:relative;background:white;border-radius:1.5rem;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);
+                        max-width:26rem;width:100%;padding:2.5rem;display:flex;flex-direction:column;align-items:center;text-align:center;
+                        transform:scale(0.92) translateY(16px);opacity:0;
+                        transition:transform 400ms cubic-bezier(.34,1.56,.64,1),opacity 400ms ease-out;">
+
+                {{-- Icon --}}
+                <div style="width:4rem;height:4rem;border-radius:1rem;background:#FEF3C7;border:2px solid #FDE68A;
+                            display:flex;align-items:center;justify-content:center;margin-bottom:1.25rem;">
+                    <i class="bi bi-envelope-exclamation-fill" style="font-size:1.75rem;color:#D97706;"></i>
+                </div>
+
+                {{-- Text --}}
+                <h3 style="font-size:1.125rem;font-weight:800;color:#1E293B;margin-bottom:.5rem;">Email belum ditambahkan</h3>
+                <p style="font-size:.875rem;color:#64748B;font-weight:500;line-height:1.6;margin-bottom:1.5rem;">
+                    Tanpa email, Anda tidak dapat menggunakan fitur <span style="font-weight:700;color:#334155;">lupa password</span>.<br>
+                    Lengkapi profil Anda sekarang agar akun tetap aman.
                 </p>
+
+                {{-- Actions --}}
+                <div style="display:flex;gap:.75rem;width:100%;">
+                    <button onclick="closeEmailModal()"
+                            style="flex:1;font-size:.875rem;font-weight:700;color:#64748B;background:#F1F5F9;
+                                   padding:.75rem 1rem;border-radius:.875rem;border:none;cursor:pointer;transition:background .2s;"
+                            onmouseover="this.style.background='#E2E8F0'" onmouseout="this.style.background='#F1F5F9'">
+                        Nanti Saja
+                    </button>
+                    <a href="{{ route('user.profil.edit') }}"
+                       style="flex:1;font-size:.875rem;font-weight:800;color:white;background:#F59E0B;
+                              padding:.75rem 1rem;border-radius:.875rem;text-decoration:none;
+                              display:inline-flex;align-items:center;justify-content:center;gap:.5rem;
+                              box-shadow:0 4px 14px rgba(245,158,11,.35);transition:background .2s;"
+                       onmouseover="this.style.background='#D97706'" onmouseout="this.style.background='#F59E0B'">
+                        <i class="bi bi-pencil-fill" style="font-size:.7rem;"></i>
+                        Isi Email Sekarang
+                    </a>
+                </div>
+
+                {{-- Close X --}}
+                <button onclick="closeEmailModal()"
+                        style="position:absolute;top:1rem;right:1rem;width:2rem;height:2rem;border-radius:50%;
+                               border:none;background:transparent;cursor:pointer;color:#94A3B8;
+                               display:flex;align-items:center;justify-content:center;transition:background .2s;"
+                        onmouseover="this.style.background='#F1F5F9';this.style.color='#475569'"
+                        onmouseout="this.style.background='transparent';this.style.color='#94A3B8'"
+                        aria-label="Tutup">
+                    <i class="bi bi-x-lg" style="font-size:.875rem;"></i>
+                </button>
             </div>
-            <a href="{{ route('user.profil.edit') }}"
-               class="flex-shrink-0 text-xs font-extrabold text-amber-700 bg-amber-100 hover:bg-amber-200 border border-amber-300 px-3 py-2 rounded-xl transition whitespace-nowrap">
-                Isi Email
-            </a>
         </div>
+
+        <script>
+            function closeEmailModal() {
+                var backdrop = document.getElementById('email-modal-backdrop');
+                var modal    = document.getElementById('email-modal');
+                backdrop.style.opacity = '0';
+                modal.style.opacity    = '0';
+                modal.style.transform  = 'scale(0.92) translateY(16px)';
+                setTimeout(function () { backdrop.remove(); }, 400);
+            }
+
+            // Pindahkan modal ke <body> supaya inset:0 cover full viewport termasuk sidebar
+            document.addEventListener('DOMContentLoaded', function () {
+                var backdrop = document.getElementById('email-modal-backdrop');
+                if (backdrop) document.body.appendChild(backdrop);
+            });
+
+            // Tutup kalau klik backdrop
+            document.getElementById('email-modal-backdrop').addEventListener('click', function (e) {
+                if (e.target === this) closeEmailModal();
+            });
+
+            // Tutup dengan Escape
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') closeEmailModal();
+            });
+
+            // Tampilkan setelah 500ms
+            setTimeout(function () {
+                var backdrop = document.getElementById('email-modal-backdrop');
+                var modal    = document.getElementById('email-modal');
+                if (!backdrop) return;
+                backdrop.style.opacity = '1';
+                modal.style.opacity    = '1';
+                modal.style.transform  = 'scale(1) translateY(0)';
+            }, 500);
+        </script>
     @endif
 
     {{-- Welcome card --}}
@@ -199,4 +279,4 @@
             © {{ now()->year }} Pemerintah Kabupaten Semarang • Disdikbudpora
         </p>
     </div>
-@endsection
+@endsection  

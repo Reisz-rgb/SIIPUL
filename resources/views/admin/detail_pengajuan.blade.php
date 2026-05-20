@@ -253,13 +253,87 @@
     </div>
 
     @if(session('success'))
-        <div class="alert alert-success d-flex align-items-center border-0 shadow-sm rounded-3 mb-4"
-             role="alert"
-             style="background-color: #F0FDF4; color: #15803D;">
-            <i class="bi bi-check-circle-fill me-2 fs-5"></i>
-            <div>{{ session('success') }}</div>
-            <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+        {{-- Success modal overlay --}}
+        <div id="success-modal-backdrop"
+             style="position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem;
+                    background:rgba(15,23,42,0.45);backdrop-filter:blur(4px);
+                    opacity:0;transition:opacity 400ms ease-out;">
+
+            <div id="success-modal"
+                 style="background:white;border-radius:1.5rem;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);
+                        max-width:26rem;width:100%;padding:2.5rem;text-align:center;position:relative;
+                        transform:scale(0.92) translateY(16px);opacity:0;
+                        transition:transform 400ms cubic-bezier(.34,1.56,.64,1),opacity 400ms ease-out;">
+
+                {{-- Icon --}}
+                <div style="width:4.5rem;height:4.5rem;border-radius:1.25rem;background:#ECFDF5;border:2px solid #A7F3D0;
+                            display:flex;align-items:center;justify-content:center;margin:0 auto 1.25rem;">
+                    <i class="bi bi-check-lg" style="font-size:2rem;color:#10B981;"></i>
+                </div>
+
+                {{-- Text --}}
+                <h3 style="font-size:1.125rem;font-weight:800;color:#1E293B;margin-bottom:.5rem;">
+                    Keputusan Berhasil Disimpan!
+                </h3>
+                <p style="font-size:.875rem;color:#64748B;font-weight:500;line-height:1.6;margin-bottom:1.75rem;">
+                    {{ session('success') }}<br>
+                    <span style="font-size:.8rem;color:#94A3B8;">Anda akan diarahkan ke daftar pengajuan dalam <span id="countdown" style="font-weight:700;color:#10B981;">4</span> detik…</span>
+                </p>
+
+                {{-- Progress bar --}}
+                <div style="height:.35rem;background:#F1F5F9;border-radius:99px;overflow:hidden;margin-bottom:1.5rem;">
+                    <div id="success-bar"
+                         style="height:100%;background:linear-gradient(90deg,#10B981,#34D399);border-radius:99px;
+                                width:100%;transform-origin:left;transition:none;"></div>
+                </div>
+
+                {{-- Button --}}
+                <a href="{{ route('admin.kelola_pengajuan') }}"
+                   style="display:inline-flex;align-items:center;gap:.5rem;font-size:.875rem;font-weight:800;
+                          color:white;background:var(--primary);padding:.75rem 2rem;border-radius:.875rem;
+                          text-decoration:none;transition:opacity .2s;">
+                    <i class="bi bi-arrow-left" style="font-size:.8rem;"></i>
+                    Kembali ke Daftar
+                </a>
+            </div>
         </div>
+
+        <script>
+            (function () {
+                var backdrop  = document.getElementById('success-modal-backdrop');
+                var modal     = document.getElementById('success-modal');
+                var bar       = document.getElementById('success-bar');
+                var countdown = document.getElementById('countdown');
+                var duration  = 4000;
+                var redirectUrl = "{{ route('admin.kelola_pengajuan') }}";
+
+                // Tampilkan modal setelah 300ms
+                setTimeout(function () {
+                    backdrop.style.opacity = '1';
+                    modal.style.opacity    = '1';
+                    modal.style.transform  = 'scale(1) translateY(0)';
+
+                    // Progress bar shrink
+                    setTimeout(function () {
+                        bar.style.transition  = 'transform ' + duration + 'ms linear';
+                        bar.style.transform   = 'scaleX(0)';
+                    }, 50);
+
+                    // Countdown text
+                    var secs = Math.round(duration / 1000);
+                    var tick = setInterval(function () {
+                        secs--;
+                        if (countdown) countdown.textContent = secs;
+                        if (secs <= 0) clearInterval(tick);
+                    }, 1000);
+
+                    // Auto-redirect
+                    setTimeout(function () {
+                        window.location.href = redirectUrl;
+                    }, duration);
+                }, 300);
+            })();
+        </script>
     @endif
 
     <div class="card-content">
