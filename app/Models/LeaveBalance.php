@@ -38,15 +38,29 @@ class LeaveBalance extends Model
         $n1 = self::getOrCreateBalance($userId, $currentYear - 1);
         $n  = self::getOrCreateBalance($userId, $currentYear);
 
-        $bonusN2 = ($n2->used == 0) ? 6 : 0;
-        $bonusN1 = ($n1->used == 0) ? 6 : 0;
-
         return [
-                'n2' => ['year' => $currentYear - 2, 'used' => $n2->used, 'bonus' => ($n2->used == 0) ? 6 : 0],
-                'n1' => ['year' => $currentYear - 1, 'used' => $n1->used, 'bonus' => ($n1->used == 0) ? 6 : 0],
-                'n'  => ['year' => $currentYear, 'quota' => $n->quota, 'used' => $n->used, 'remaining' => $n->remaining],
-                'total_available' => $n->remaining + (($n1->used == 0) ? 6 : 0) + (($n2->used == 0) ? 6 : 0),
-            ];
+            'n2' => [
+                'year'      => $currentYear - 2,
+                'used'      => $n2->used,
+                'remaining' => $n2->remaining,   
+                'bonus'     => ($n2->used == 0) ? 6 : 0,
+            ],
+            'n1' => [
+                'year'      => $currentYear - 1,
+                'used'      => $n1->used,
+                'remaining' => $n1->remaining,   
+                'bonus'     => ($n1->used == 0) ? 6 : 0,
+            ],
+            'n'  => [
+                'year'      => $currentYear,
+                'quota'     => $n->quota,
+                'used'      => $n->used,
+                'remaining' => $n->remaining,
+            ],
+            'total_available' => $n->remaining
+                            + (($n1->used == 0) ? 6 : 0)
+                            + (($n2->used == 0) ? 6 : 0),
+        ];
     }
 
     public static function recalculateAnnualBalances(int $userId, int $year): array

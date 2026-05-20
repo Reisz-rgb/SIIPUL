@@ -154,7 +154,7 @@ class UserController extends Controller
             $templatePath = $this->findTemplatePath();
             abort_unless($templatePath, 404, 'Template tidak ditemukan');
 
-            $processor = $this->fillTemplate($templatePath, $leave, $user);
+            $processor = $this->fillTemplate($templatePath, $leave, $user, $supervisor);
 
             $fileName = 'Surat_Cuti_'
                 . preg_replace('/[^A-Za-z0-9_\-]/', '_', (string) $user->name)
@@ -342,7 +342,7 @@ class UserController extends Controller
         return null;
     }
 
-    private function fillTemplate(string $templatePath, $leave, $user): TemplateProcessor
+    private function fillTemplate(string $templatePath, $leave, $user, $supervisor = null): TemplateProcessor
     {
         $s  = fn ($v) => $this->sanitizeDocxValue($v);
         $tp = new TemplateProcessor($templatePath);
@@ -438,15 +438,17 @@ class UserController extends Controller
             Log::warning('Balance fillTemplate fallback: ' . $e->getMessage());
         }
 
-        $tp->setValue('SISA_N-2', $s((string) $sisaN2));
-        $tp->setValue('SISA_N-1', $s((string) $sisaN1));
+        $tp->setValue('SISA_N2', $s((string) $sisaN2));   
+        $tp->setValue('SISA_N1', $s((string) $sisaN1));   
         $tp->setValue('N', $s((string) $sisaN));
-        $tp->setValue('KETERANGAN', $s($keterangan));
         $tp->setValue('KET_N2', $s($ketN2));
         $tp->setValue('KET_N1', $s($ketN1));
         $tp->setValue('KET_N', $s($ketN));
         $tp->setValue('ALAMAT', $s($leave->address ?? '-'));
         $tp->setValue('TELP', $s($leave->phone ?? '-'));
+        $tp->setValue('NAMA_ATASAN',    $s($supervisor?->nama ?? '-'));
+        $tp->setValue('NIP_ATASAN',     $this->formatNip((string)($supervisor?->nip ?? '')));
+        $tp->setValue('JABATAN_ATASAN', $s($supervisor?->jabatan ?? $supervisor?->unit_kerja ?? '-'));
 
         $tp->setValue('DISETUJUI', $leave->status === LeaveRequest::STATUS_APPROVED ? 'X' : ' ');
         $tp->setValue('MENUNGGU', $leave->status === LeaveRequest::STATUS_PENDING ? 'X' : ' ');

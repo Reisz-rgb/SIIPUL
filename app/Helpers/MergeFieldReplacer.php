@@ -118,6 +118,7 @@ class MergeFieldReplacer
         $xpath = new \DOMXPath($dom);
         $xpath->registerNamespace('w', 'http://schemas.openxmlformats.org/wordprocessingml/2006/main');
 
+        // Cari semua instrText yang mengandung MERGEFIELD
         $instrNodes = $xpath->query('//w:instrText[contains(., "MERGEFIELD")]');
 
         foreach ($instrNodes as $instrNode) {
@@ -133,23 +134,22 @@ class MergeFieldReplacer
                 'UTF-8'
             );
 
-            $runNode   = $instrNode->parentNode;
-            $container = $runNode->parentNode;
+            // Naik ke parent <w:r>, lalu ke container (<w:p> atau <w:tc>)
+            $instrRun  = $instrNode->parentNode;  // <w:r>
+            $container = $instrRun->parentNode;   // <w:p>
 
-            $runs = [];
+            // Kumpulkan semua child nodes dari container sebagai array
+            $children = [];
             foreach ($container->childNodes as $child) {
-                if ($child->localName === 'r') {
-                    $runs[] = $child;
-                }
+                $children[] = $child;
             }
 
+            // Cari index dari run yang mengandung instrText ini
             $instrRunIndex = null;
-            foreach ($runs as $idx => $run) {
-                foreach ($run->childNodes as $child) {
-                    if ($child === $instrNode) {
-                        $instrRunIndex = $idx;
-                        break 2;
-                    }
+            foreach ($children as $idx => $child) {
+                if ($child->isSameNode($instrRun)) {
+                    $instrRunIndex = $idx;
+                    break;
                 }
             }
 
@@ -157,29 +157,46 @@ class MergeFieldReplacer
                 continue;
             }
 
-            $separateFound = false;
-            for ($i = $instrRunIndex + 1; $i < count($runs); $i++) {
-                $run = $runs[$i];
+            // Iterasi maju dari instrRun, cari fase: separate → end
+            $phase = 'before_separate'; // before_separate | after_separate
+            $replaced = false;
 
-                foreach ($run->childNodes as $child) {
-                    if ($child->localName === 'fldChar') {
-                        $type = $child->getAttributeNS(
-                            'http://schemas.openxmlformats.org/wordprocessingml/2006/main',
-                            'fldCharType'
-                        );
-                        if ($type === 'separate') $separateFound = true;
-                        if ($type === 'end')      break 3;
+            for ($i = $instrRunIndex + 1; $i < count($children); $i++) {
+                $child = $children[$i];
+
+                // Lewati node yang bukan <w:r>
+                if (!($child instanceof \DOMElement) || $child->localName !== 'r') {
+                    continue;
+                }
+
+                // Cek apakah run ini mengandung fldChar
+                $fldChars = $xpath->query('w:fldChar', $child);
+                foreach ($fldChars as $fldChar) {
+                    $type = $fldChar->getAttributeNS(
+                        'http://schemas.openxmlformats.org/wordprocessingml/2006/main',
+                        'fldCharType'
+                    );
+
+                    if ($type === 'separate') {
+                        $phase = 'after_separate';
+                        continue 2; // lanjut ke run berikutnya
+                    }
+
+                    if ($type === 'end') {
+                        // Selesai untuk field ini, lanjut ke instrNode berikutnya
+                        continue 3; // ← hanya keluar dari for($i), bukan dari foreach($instrNodes)
                     }
                 }
 
-                if (!$separateFound) continue;
-
-                foreach ($run->childNodes as $child) {
-                    if ($child->localName === 't') {
-                        $child->textContent = html_entity_decode(
+                // Jika sudah melewati separate, cari <w:t> di run ini untuk diganti
+                if ($phase === 'after_separate' && !$replaced) {
+                    $tNodes = $xpath->query('w:t', $child);
+                    if ($tNodes->length > 0) {
+                        $tNodes->item(0)->textContent = html_entity_decode(
                             $newValue, ENT_XML1 | ENT_QUOTES, 'UTF-8'
                         );
-                        break 2;
+                        $replaced = true;
+                        // Lanjut terus sampai ketemu 'end' untuk bersihkan sisa run display
                     }
                 }
             }
