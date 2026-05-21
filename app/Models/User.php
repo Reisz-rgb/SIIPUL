@@ -15,6 +15,7 @@ class User extends Authenticatable
         'nip',
         'phone',
         'email',
+        'photo',
         'password',
         'role',
         'gender',
