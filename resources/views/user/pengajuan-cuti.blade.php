@@ -476,7 +476,7 @@
                         <i class="bi bi-paperclip"></i>
                     </div>
                     <div>
-                        <h3 class="text-sm md:text-base font-extrabold text-slate-800">VIII. Dokumen Pendukung</h3>
+                        <h3 class="text-sm md:text-base font-extrabold text-slate-800">VIII. Dokumen Pendukung (Opsional)</h3>
                         <p class="text-xs md:text-sm text-slate-500 font-medium">Unggah lampiran jika diperlukan (surat dokter, dsb).</p>
                     </div>
                 </div>
@@ -493,12 +493,11 @@
 
                     {{-- Dokumen Lampiran --}}
                     <div>
-                        <label class="block text-xs font-extrabold text-slate-600 mb-2">Dokumen Lampiran <span class="text-red-600">*</span> </label>
+                        <label class="block text-xs font-extrabold text-slate-600 mb-2">Dokumen Lampiran</label>
                         <div id="dropZone"
                              class="relative rounded-2xl border border-dashed border-slate-200 bg-slate-50/40 p-6 flex flex-col items-center justify-center text-center">
                             <input type="file"
                                    name="dokumen_pendukung"
-                                   required
                                    id="fileUpload"
                                    accept=".pdf,.doc,.docx,.jpg,.png"
                                    class="absolute inset-0 opacity-0 cursor-pointer" />
@@ -512,6 +511,27 @@
                             <div id="uploadText" class="mt-4 text-sm font-extrabold text-slate-700">Klik atau seret file ke sini</div>
                             <div id="uploadHint" class="mt-2 text-xs text-slate-500 font-medium">Supported: PDF, DOC, JPG, PNG (Maks 5MB)</div>
                         </div>
+                    </div>
+
+                {{-- Download template surat permohonan cuti --}}
+                    <div class="mb-4 rounded-2xl border border-blue-100 bg-blue-50/60 p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                        <div class="flex items-start gap-3">
+                            <div class="w-11 h-11 rounded-xl bg-white border border-blue-100 flex items-center justify-center text-blue-600 flex-shrink-0">
+                                <i class="bi bi-file-earmark-word-fill text-xl"></i>
+                            </div>
+                            <div>
+                                <div class="text-sm font-extrabold text-slate-800">Surat Permohonan Cuti</div>
+                                <p class="text-xs md:text-sm text-slate-500 font-medium mt-1">
+                                        Unduh format surat, isi sesuai kebutuhan, lalu lampirkan bersama dokumen pendukung pengajuan cuti.
+                                </p>
+                            </div>
+                        </div>
+                         <a href="{{ asset('templates/surat-permohonan-cuti.docx') }}"
+                             download="SURAT PERMOHONAN CUTI.docx"
+                            class="inline-flex items-center justify-center gap-2 rounded-2xl bg-blue-600 px-4 py-3 text-xs md:text-sm font-extrabold text-white shadow-lg shadow-blue-900/10 hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-100 transition whitespace-nowrap">
+                               <i class="bi bi-download"></i>
+                             Download Surat Permohonan Cuti
+                         </a>
                     </div>
 
                     {{-- Tips --}}
