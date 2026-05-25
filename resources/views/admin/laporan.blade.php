@@ -77,25 +77,37 @@
         outline: none;
     }
 
-    /* Buttons */
-    .laporan-page .btn-export {
+    /* Buttons & Dropdown */
+    .laporan-page .btn-export-toggle {
         padding: 10px 16px;
         border-radius: 10px;
         font-weight: 600;
         font-size: 0.85rem;
-        text-decoration: none;
+        height: 42px;
         display: inline-flex;
         align-items: center;
         gap: 8px;
+        background-color: #F1F5F9;
+        color: #334155;
+        border: 1px solid #CBD5E1;
         transition: 0.2s;
+    }
+    .laporan-page .btn-export-toggle:hover, 
+    .laporan-page .btn-export-toggle:focus {
+        background-color: #E2E8F0;
+        color: #1E293B;
+    }
+
+    .laporan-page .btn-search { 
+        background-color: var(--primary); 
+        color: white; 
+        border: none; 
+        border-radius: 10px; 
+        padding: 0 20px; 
+        font-weight: 600; 
+        transition: 0.2s; 
         height: 42px;
     }
-    .laporan-page .btn-pdf         { background-color: #FEF2F2; color: #991B1B; border: 1px solid #FCA5A5; }
-    .laporan-page .btn-pdf:hover   { background-color: #FEE2E2; transform: translateY(-2px); }
-    .laporan-page .btn-excel       { background-color: #ECFDF5; color: #065F46; border: 1px solid #6EE7B7; }
-    .laporan-page .btn-excel:hover { background-color: #D1FAE5; transform: translateY(-2px); }
-
-    .laporan-page .btn-search       { background-color: var(--primary); color: white; border: none; border-radius: 10px; padding: 0 20px; font-weight: 600; transition: 0.2s; }
     .laporan-page .btn-search:hover { background-color: var(--primary-dark); }
 
     /* --- STAT CARDS --- */
@@ -183,7 +195,36 @@
         text-align: center;
     }
 
-    /* Mobile: HANYA atur bagian laporan, jangan sentuh sidebar/main-content global */
+    /* Perbaikan dropdown export agar tidak terpotong */
+    .laporan-page .dropdown {
+        position: relative !important;
+    }
+
+    .laporan-page .dropdown-menu {
+        position: absolute !important;
+        z-index: 9999 !important;
+        inset: 0px 0px auto auto !important;
+        transform: translate(0px, 42px) !important;
+        will-change: transform;
+    }
+
+    /* Pastikan container card tidak overflow hidden */
+    .laporan-page .card-content {
+        overflow: visible !important;
+    }
+
+    /* Perbaikan untuk container dashboard */
+    .laporan-page .dashboard-container {
+        overflow-x: visible !important;
+        overflow-y: visible !important;
+    }
+
+    /* Dropdown parent fix */
+    .laporan-page .btn-export-toggle {
+        white-space: nowrap;
+    }
+
+    /* Mobile: HANYA atur bagian laporan */
     .laporan-page .mobile-toggler {
         display: none;
         color: white;
@@ -222,14 +263,14 @@
             </div>
 
             <div class="dropdown">
-                <div class="glass-profile" data-bs-toggle="dropdown">
+                <div class="glass-profile" data-bs-toggle="dropdown" aria-expanded="false">
                     <div class="rounded-circle bg-white text-danger fw-bold d-flex align-items-center justify-content-center"
                          style="width: 32px; height: 32px;">
                         @if(Auth::user()->photo)
-                        <img src="{{ asset('storage/' . Auth::user()->photo) }}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.5);" alt="Foto">
-                    @else
-                        {{ strtoupper(substr(Auth::user()->name ?? 'A', 0, 1)) }}
-                    @endif
+                            <img src="{{ asset('storage/' . Auth::user()->photo) }}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.5);" alt="Foto">
+                        @else
+                            {{ strtoupper(substr(Auth::user()->name ?? 'A', 0, 1)) }}
+                        @endif
                     </div>
                     <span class="d-none d-md-block small fw-medium">{{ Auth::user()->name ?? 'Admin' }}</span>
                     <i class="bi bi-chevron-down small d-none d-md-block"></i>
@@ -260,15 +301,20 @@
             <form action="{{ route('admin.laporan') }}" method="GET">
                 <div class="row g-3 align-items-end">
 
+                    {{-- Filter Periode Lengkap --}}
                     <div class="col-12 col-md-3">
                         <label class="form-label-custom">Periode Waktu</label>
                         <select name="filter" class="form-select-custom w-100" onchange="this.form.submit()">
-                            <option value="1_bulan"   {{ $filter == '1_bulan'   ? 'selected' : '' }}>1 Bulan Terakhir</option>
-                            <option value="3_bulan"   {{ $filter == '3_bulan'   ? 'selected' : '' }}>3 Bulan Terakhir</option>
-                            <option value="tahun_ini" {{ $filter == 'tahun_ini' ? 'selected' : '' }}>Tahun Ini (Jan-Des)</option>
+                            <option value="1_bulan"   {{ request('filter') == '1_bulan'   ? 'selected' : '' }}>1 Bulan Terakhir</option>
+                            <option value="3_bulan"   {{ request('filter') == '3_bulan'   ? 'selected' : '' }}>3 Bulan Terakhir</option>
+                            <option value="6_bulan"   {{ request('filter') == '6_bulan'   ? 'selected' : '' }}>6 Bulan Terakhir</option>
+                            <option value="tahun_ini" {{ request('filter', 'tahun_ini') == 'tahun_ini' ? 'selected' : '' }}>Tahun Ini (Jan-Des)</option>
+                            <option value="tahun_lalu" {{ request('filter') == 'tahun_lalu' ? 'selected' : '' }}>Tahun Lalu</option>
+                            <option value="semua"     {{ request('filter') == 'semua'     ? 'selected' : '' }}>Semua Periode</option>
                         </select>
                     </div>
 
+                    {{-- Filter Bidang / Unit Kerja --}}
                     <div class="col-12 col-md-3">
                         <label class="form-label-custom">Filter Bidang / Unit</label>
                         <select name="bidang_unit" id="selectBidang" class="form-select-custom w-100">
@@ -285,6 +331,7 @@
                         </select>
                     </div>
 
+                    {{-- Cari Nama Pegawai --}}
                     <div class="col-12 col-md-3">
                         <label class="form-label-custom">Cari Nama Pegawai</label>
                         <div class="input-group">
@@ -299,41 +346,39 @@
                                    style="border-radius: 0 10px 10px 0;">
                         </div>
                     </div>
-
-                    <div class="col-12 col-md-3">
-                        <div class="d-flex gap-2">
-                            <button type="submit" class="btn-search flex-grow-1" style="height: 42px;">
-                                Terapkan
-                            </button>
-
-                            <div class="dropdown">
-                                <button class="btn btn-light border dropdown-toggle" type="button"
-                                        data-bs-toggle="dropdown"
-                                        style="height: 42px; border-radius: 10px;">
-                                    <i class="bi bi-download"></i>
+                        <div class="col-12 col-md-3">
+                            <div class="d-flex gap-2 w-100">
+                                <button type="submit" class="btn-search flex-grow-1">
+                                    Terapkan
                                 </button>
-                                <ul class="dropdown-menu shadow-sm border-0">
-                                    <li>
-                                        <a class="dropdown-item small"
-                                           href="{{ route('admin.download.pdf', request()->all()) }}">
-                                            <i class="bi bi-file-pdf text-danger me-2"></i>Export PDF
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item small"
-                                           href="{{ route('admin.download.excel', request()->all()) }}">
-                                            <i class="bi bi-file-excel text-success me-2"></i>Export Excel
-                                        </a>
-                                    </li>
-                                </ul>
+
+                                {{-- Dropdown Export dengan perbaikan posisi --}}
+                                <div class="dropdown" style="position: relative;">
+                                    <button class="btn btn-export-toggle dropdown-toggle w-100" type="button" id="dropdownMenuExport" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                                        <i class="bi bi-download"></i> Export
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end shadow border-0 p-2 rounded-3" 
+                                        style="min-width: 240px; z-index: 9999; position: absolute; inset: 0px 0px auto auto; margin: 0; transform: translate(0px, 42px);" 
+                                        aria-labelledby="dropdownMenuExport">
+                                        <li><h6 class="dropdown-header small text-muted text-uppercase fw-bold pb-1">Sesuai Filter</h6></li>
+                                        <li><a class="dropdown-item rounded-2 small py-2" href="{{ route('admin.download.excel', request()->query()) }}"><i class="bi bi-file-earmark-excel text-success me-2"></i>Cetak Excel</a></li>
+                                        <li><a class="dropdown-item rounded-2 small py-2" href="{{ route('admin.download.pdf', request()->query()) }}" target="_blank"><i class="bi bi-file-earmark-pdf text-danger me-2"></i>Cetak PDF</a></li>
+                                        
+                                        <li><hr class="dropdown-divider my-2"></li>
+                                        
+                                        <li><h6 class="dropdown-header small text-muted text-uppercase fw-bold pb-1">🗄️ Semua Data</h6></li>
+                                        <li><a class="dropdown-item rounded-2 small py-2" href="{{ route('admin.download.all-excel') }}"><i class="bi bi-database-fill-down text-success me-2"></i>Cetak Semua Excel</a></li>
+                                        <li><a class="dropdown-item rounded-2 small py-2" href="{{ route('admin.download.all-pdf') }}" target="_blank"><i class="bi bi-database-fill-down text-danger me-2"></i>Cetak Semua PDF</a></li>
+                                    </ul>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
                 </div>
             </form>
         </div>
 
+        {{-- Stat Cards --}}
         <div class="row g-4 mb-4">
             <div class="col-12 col-sm-6 col-xl-3">
                 <div class="stat-card">
@@ -377,6 +422,7 @@
             </div>
         </div>
 
+        {{-- Chart Section --}}
         <div class="row g-4 mb-4">
             <div class="col-12 col-lg-6">
                 <div class="card-content h-100">
@@ -416,6 +462,7 @@
             </div>
         </div>
 
+        {{-- Table Section --}}
         <div class="card-content p-0 overflow-hidden">
             <div class="p-4 border-bottom border-light bg-white">
                 <h6 class="chart-title mb-0">Statistik Detail per Unit Kerja / Pegawai</h6>

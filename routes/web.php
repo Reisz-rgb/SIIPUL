@@ -119,6 +119,8 @@ Route::middleware(['auth', 'active.user', 'admin'])
         Route::get('/laporan',        [AdminController::class, 'laporan'])->name('laporan');
         Route::get('/download-excel', [AdminController::class, 'downloadExcel'])->name('download.excel');
         Route::get('/download-pdf',   [AdminController::class, 'downloadPdf'])->name('download.pdf');
+        Route::get('/laporan/download-all-pdf', [AdminController::class, 'downloadAllPdf'])->name('download.all-pdf');
+        Route::get('/laporan/download-all-excel', [AdminController::class, 'downloadAllExcel'])->name('download.all-excel');
 
         // Kelola pegawai — CRUD lengkap
         Route::get('/kelola-pegawai',            [PegawaiController::class, 'index'])->name('kelola_pegawai');

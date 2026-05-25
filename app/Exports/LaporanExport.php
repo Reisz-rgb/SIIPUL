@@ -30,25 +30,38 @@ class LaporanExport implements FromQuery, WithHeadings, WithMapping, WithColumnW
     }
 
     // =========================================================================
-    // QUERY (tidak diubah dari versi lama)
+    // QUERY 
     // =========================================================================
 
     public function query()
     {
-        $query = LeaveRequest::query()->with('user');
+        $query = LeaveRequest::query()->with('user')->orderBy('created_at', 'desc');
 
-        $filter = $this->request->input('filter', '1_bulan');
-
-        if ($filter == '1_bulan') {
-            $startDate = Carbon::now()->subMonth();
-        } elseif ($filter == '3_bulan') {
-            $startDate = Carbon::now()->subMonths(3);
-        } else {
-            $startDate = Carbon::now()->startOfYear();
+        // Jika dipaksa mode download semua data lewat tombol export khusus
+        if ($this->request->input('mode') === 'all_data') {
+            return $query;
         }
 
-        $query->where('created_at', '>=', $startDate);
+        // Ambil input filter, default ke 'tahun_ini' sesuai dengan tampilan di gambar kamu
+        $filter = $this->request->input('filter', 'tahun_ini');
 
+        if ($filter == '1_bulan') {
+            $query->where('created_at', '>=', Carbon::now()->subMonth());
+        } elseif ($filter == '3_bulan') {
+            $query->where('created_at', '>=', Carbon::now()->subMonths(3));
+        } elseif ($filter == '6_bulan') {
+            $query->where('created_at', '>=', Carbon::now()->subMonths(6));
+        } elseif ($filter == 'tahun_ini') {
+            $query->where('created_at', '>=', Carbon::now()->startOfYear());
+        } elseif ($filter == 'tahun_lalu') {
+            $query->whereBetween('created_at', [
+                Carbon::now()->subYear()->startOfYear(),
+                Carbon::now()->subYear()->endOfYear()
+            ]);
+        }
+        // Jika $filter == 'semua', query tidak dibatasi tanggal (mengambil semua periode)
+
+        // --- Filter Pencarian Nama ---
         if ($this->request->filled('search')) {
             $search = $this->request->search;
             $query->whereHas('user', function ($q) use ($search) {
@@ -56,6 +69,7 @@ class LaporanExport implements FromQuery, WithHeadings, WithMapping, WithColumnW
             });
         }
 
+        // --- Filter Bidang Unit ---
         if ($this->request->filled('bidang_unit')) {
             $bidang = $this->request->bidang_unit;
             $query->whereHas('user', function ($q) use ($bidang) {
@@ -72,13 +86,17 @@ class LaporanExport implements FromQuery, WithHeadings, WithMapping, WithColumnW
 
     public function headings(): array
     {
-        // 3 baris pertama = header instansi, diisi manual di AfterSheet
-        // Baris ke-4 = heading kolom
+        // Deteksi teks sub-header berdasarkan mode cetak
+        $subHeader = 'REKAPITULASI PENGAJUAN CUTI PEGAWAI';
+        if ($this->request->input('mode') === 'all_data') {
+            $subHeader .= ' (SEMUA PERIODE)';
+        }
+
         return [
-            ['PEMERINTAH KABUPATEN SEMARANG'],                          // baris 1
-            ['REKAPITULASI PENGAJUAN CUTI PEGAWAI'],                    // baris 2
+            ['PEMERINTAH KABUPATEN SEMARANG'],                                  // baris 1
+            [$subHeader],                                                       // baris 2
             ['Dicetak pada: ' . Carbon::now()->translatedFormat('d F Y, H:i')], // baris 3
-            [                                                           // baris 4 = kolom header
+            [                                                                   // baris 4 = kolom header
                 'Nama Pegawai',
                 'NIP',
                 'Bidang / Unit',
@@ -185,7 +203,7 @@ class LaporanExport implements FromQuery, WithHeadings, WithMapping, WithColumnW
     }
 
     // =========================================================================
-    // EVENTS — styling data rows & footer (dijalankan setelah semua data ditulis)
+    // EVENTS
     // =========================================================================
 
     public function registerEvents(): array
@@ -201,11 +219,10 @@ class LaporanExport implements FromQuery, WithHeadings, WithMapping, WithColumnW
                     'Pending'  => ['font' => 'FFB45309', 'bg' => 'FFFEF3C7'],
                 ];
 
-                // Data mulai baris 5
+                // Data mulai baris 5 (jika data kosong, loop ini tidak berjalan salah)
                 for ($row = 5; $row <= $lastRow; $row++) {
                     $rowBg = ($row % 2 === 0) ? 'FFF9FAFB' : 'FFFFFFFF';
 
-                    // Style seluruh baris
                     $sheet->getStyle("A{$row}:J{$row}")->applyFromArray([
                         'font'      => ['size' => 10, 'name' => 'Arial'],
                         'fill'      => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => $rowBg]],
@@ -213,9 +230,8 @@ class LaporanExport implements FromQuery, WithHeadings, WithMapping, WithColumnW
                         'borders'   => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['argb' => 'FFCCCCCC']]],
                     ]);
 
-                    // Kolom Status (I) — warna sesuai nilai
-                    $statusVal = $sheet->getCell("I{$row}")->getValue();
-                    $st        = $statusColor[$statusVal] ?? ['font' => 'FF333333', 'bg' => $rowBg];
+                    $statusCell = $sheet->getCell("I{$row}")->getValue();
+                    $st         = $statusColor[$statusCell] ?? ['font' => 'FF333333', 'bg' => $rowBg];
 
                     $sheet->getStyle("I{$row}")->applyFromArray([
                         'font'      => ['bold' => true, 'size' => 10, 'name' => 'Arial', 'color' => ['argb' => $st['font']]],
@@ -223,7 +239,6 @@ class LaporanExport implements FromQuery, WithHeadings, WithMapping, WithColumnW
                         'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
                     ]);
 
-                    // Center kolom tanggal, jumlah hari & tanggal pengajuan
                     foreach (['E', 'F', 'G', 'J'] as $col) {
                         $sheet->getStyle("{$col}{$row}")->getAlignment()
                             ->setHorizontal(Alignment::HORIZONTAL_CENTER);
@@ -232,13 +247,12 @@ class LaporanExport implements FromQuery, WithHeadings, WithMapping, WithColumnW
                     $sheet->getRowDimension($row)->setRowHeight(22);
                 }
 
-                // ── FOOTER TTD ────────────────────────────────────────────
+                // TTD Footer
                 $footerRow = $lastRow + 4;
 
                 $sheet->mergeCells("H{$footerRow}:J{$footerRow}");
                 $sheet->setCellValue("H{$footerRow}", 'Mengetahui,');
-                $sheet->getStyle("H{$footerRow}")->getAlignment()
-                    ->setHorizontal(Alignment::HORIZONTAL_CENTER);
+                $sheet->getStyle("H{$footerRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
                 $sheet->mergeCells('H' . ($footerRow + 1) . ':J' . ($footerRow + 1));
                 $sheet->setCellValue('H' . ($footerRow + 1), 'Kepala Dinas');
@@ -249,8 +263,7 @@ class LaporanExport implements FromQuery, WithHeadings, WithMapping, WithColumnW
 
                 $sheet->mergeCells('H' . ($footerRow + 5) . ':J' . ($footerRow + 5));
                 $sheet->setCellValue('H' . ($footerRow + 5), '__________________________');
-                $sheet->getStyle('H' . ($footerRow + 5))->getAlignment()
-                    ->setHorizontal(Alignment::HORIZONTAL_CENTER);
+                $sheet->getStyle('H' . ($footerRow + 5))->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
                 $sheet->freezePane('A5');
                 $sheet->getPageSetup()->setOrientation(\PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::ORIENTATION_LANDSCAPE);

@@ -170,70 +170,159 @@ class AdminController extends Controller
 
     public function laporan(Request $request)
     {
-        $filter = $request->input('filter', '1_bulan');
-        [$startDate, $labelWaktu] = $this->resolvePeriodFilter($filter);
+        // 1. Inisialisasi Query Dasar (Menggunakan $baseQuery agar sinkron)
+        $baseQuery = LeaveRequest::query()->with('user');
 
+        // 2. Ambil Input Filter (Default ke 'tahun_ini' jika tidak ada)
+        $filter = $request->input('filter', 'tahun_ini');
+
+        // 3. Logic Filter Berdasarkan Periode Waktu
+        if ($filter == '1_bulan') {
+            $baseQuery->where('created_at', '>=', now()->subMonth());
+            $labelWaktu = '1 Bulan Terakhir';
+        } elseif ($filter == '3_bulan') {
+            $baseQuery->where('created_at', '>=', now()->subMonths(3));
+            $labelWaktu = '3 Bulan Terakhir';
+        } elseif ($filter == '6_bulan') {
+            $baseQuery->where('created_at', '>=', now()->subMonths(6));
+            $labelWaktu = '6 Bulan Terakhir';
+        } elseif ($filter == 'tahun_ini') {
+            $baseQuery->where('created_at', '>=', now()->startOfYear());
+            $labelWaktu = 'Tahun Ini (Jan - Des)';
+        } elseif ($filter == 'tahun_lalu') {
+            $baseQuery->whereBetween('created_at', [
+                now()->subYear()->startOfYear(),
+                now()->subYear()->endOfYear()
+            ]);
+            $labelWaktu = 'Tahun Lalu';
+        } else {
+            $labelWaktu = 'Semua Periode';
+        }
+
+        // 4. Filter Berdasarkan Pencarian Nama Pegawai
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $baseQuery->whereHas('user', function ($q) use ($search) {
+                $q->where('name', 'LIKE', "%{$search}%");
+            });
+        }
+
+        // 5. Filter Berdasarkan Bidang / Unit Kerja
+        if ($request->filled('bidang_unit')) {
+            $bidang = $request->bidang_unit;
+            $baseQuery->whereHas('user', function ($q) use ($bidang) {
+                $q->where('bidang_unit', $bidang);
+            });
+        }
+
+        // 6. Eksekusi Query untuk Mengambil Data yang Sudah Terfilter
+        $filteredData = $baseQuery->get();
+
+        // 7. Hitung Statistik Utama (Angka Card Dashboard akan ikut dinamis)
+        $total = $filteredData->count();
+        $approved = $filteredData->where('status', 'approved')->count();
+        $rejected = $filteredData->where('status', 'rejected')->count();
+        $pending = $filteredData->where('status', 'pending')->count();
+
+        // Hitung Persentase (Aman dari pembagian dengan angka nol)
+        $persenApproved = $total > 0 ? round(($approved / $total) * 100) : 0;
+        $persenRejected = $total > 0 ? round(($rejected / $total) * 100) : 0;
+        $persenPending  = $total > 0 ? round(($pending / $total) * 100) : 0;
+
+        // 8. Hitung Rata-Rata Durasi Proses Peninjauan (Selisih created_at sampai updated_at untuk status approved/rejected)
+        $processedLeaves = $filteredData->whereIn('status', ['approved', 'rejected']);
+        $totalDays = 0;
+        $processedCount = $processedLeaves->count();
+
+        foreach ($processedLeaves as $leave) {
+            // Menghitung selisih hari dari pengajuan dibuat hingga disetujui/ditolak admin
+            $totalDays += $leave->created_at->diffInDays($leave->updated_at);
+        }
+        $avgDays = $processedCount > 0 ? round($totalDays / $processedCount, 1) : 0;
+
+        // 9. Statistik untuk Distribusi Grafik Jenis Cuti (Doughnut Chart)
+        $jenisCutiGroup = $filteredData->groupBy('jenis_cuti');
+        $chartLabels = [];
+        $chartValues = [];
+
+        foreach ($jenisCutiGroup as $jenis => $items) {
+            $chartLabels[] = $jenis ?? 'Lainnya';
+            $chartValues[] = $items->count();
+        }
+
+        // 10. Statistik Detail per Unit Kerja / Bidang untuk Tabel Bawah
+        $unitStats = [];
+        // Kelompokkan data berdasarkan bidang_unit milik relasi user
+        $groupedByUnit = $filteredData->groupBy(function ($leave) {
+            return $leave->user->bidang_unit ?? 'Tanpa Bidang / Eksternal';
+        });
+
+        foreach ($groupedByUnit as $unitName => $leaves) {
+            $unitTotal = $leaves->count();
+            $unitApproved = $leaves->where('status', 'approved')->count();
+            $unitRejected = $leaves->where('status', 'rejected')->count();
+            $unitPending = $leaves->where('status', 'pending')->count();
+            
+            $unitStats[] = [
+                'name' => $unitName,
+                'approved' => $unitApproved,
+                'rejected' => $unitRejected,
+                'pending' => $unitPending,
+                'total' => $unitTotal,
+                'rate' => $unitTotal > 0 ? round(($unitApproved / $unitTotal) * 100) : 0
+            ];
+        }
+
+        // Urutkan tabel unit kerja berdasarkan jumlah pengajuan terbanyak
+        usort($unitStats, function ($a, $b) {
+            return $b['total'] <=> $a['total'];
+        });
+
+        // 11. Ambil Semua Daftar Bidang/Unit Unik untuk Isi Dropdown Filter
         $listBidang = User::whereNotNull('bidang_unit')
             ->where('bidang_unit', '!=', '')
             ->distinct()
-            ->pluck('bidang_unit');
+            ->pluck('bidang_unit')
+            ->toArray();
 
-        $baseQuery = LeaveRequest::query()
-            ->where('created_at', '>=', $startDate)
-            ->when($request->filled('search'), fn ($q) =>
-                $q->whereHas('user', fn ($u) => $u->where('name', 'LIKE', "%{$request->search}%"))
-            )
-            ->when($request->filled('bidang_unit'), fn ($q) =>
-                $q->whereHas('user', fn ($u) => $u->where('bidang_unit', $request->bidang_unit))
-            );
-
-        // Statistik kartu
-        $total    = $baseQuery->count();
-        $approved = (clone $baseQuery)->where('status', 'approved')->count();
-        $rejected = (clone $baseQuery)->where('status', 'rejected')->count();
-        $pending  = (clone $baseQuery)->where('status', 'pending')->count();
-
-        $persenApproved = $this->percentage($approved, $total);
-        $persenRejected = $this->percentage($rejected, $total);
-        $persenPending  = $this->percentage($pending,  $total);
-
-        // Rata-rata waktu proses (detik → hari)
-        $avgSeconds = (clone $baseQuery)
-            ->whereIn('status', ['approved', 'rejected'])
-            ->selectRaw('AVG(TIMESTAMPDIFF(SECOND, created_at, updated_at)) as avg_time')
-            ->value('avg_time');
-        $avgDays = $avgSeconds ? round($avgSeconds / 86400, 1) : 0;
-
-        // Chart pie: jenis cuti
-        $jenisCutiStats = (clone $baseQuery)
-            ->select('jenis_cuti', DB::raw('count(*) as total'))
-            ->groupBy('jenis_cuti')
-            ->pluck('total', 'jenis_cuti');
-
-        $chartLabels = $jenisCutiStats->keys();
-        $chartValues = $jenisCutiStats->values();
-
-        // Tabel: statistik per bidang unit
-        $unitStats = (clone $baseQuery)
-            ->with('user')
-            ->get()
-            ->groupBy(fn ($item) => $item->user->bidang_unit ?? 'Umum')
-            ->map(fn ($group, $unitName) => [
-                'name'     => $unitName,
-                'total'    => $group->count(),
-                'approved' => $group->where('status', 'approved')->count(),
-                'rejected' => $group->where('status', 'rejected')->count(),
-                'pending'  => $group->where('status', 'pending')->count(),
-                'rate'     => $this->percentage($group->where('status', 'approved')->count(), $group->count()),
-            ])
-            ->sortByDesc('total');
-
+        // 12. Kembalikan data ke View Laporan
         return view('admin.laporan', compact(
-            'filter', 'labelWaktu', 'listBidang',
-            'total', 'approved', 'rejected', 'pending',
-            'persenApproved', 'persenRejected', 'persenPending',
-            'avgDays', 'chartLabels', 'chartValues', 'unitStats'
+            'total', 
+            'approved', 
+            'rejected', 
+            'pending',
+            'persenApproved', 
+            'persenRejected', 
+            'persenPending',
+            'labelWaktu', 
+            'avgDays', 
+            'unitStats', 
+            'chartLabels', 
+            'chartValues', 
+            'listBidang'
         ));
+    }
+
+    public function downloadAllExcel()
+    {
+        // Membuat objek request baru khusus dengan parameter mode = all_data
+        $requestAll = new Request(['mode' => 'all_data']);
+        
+        return Excel::download(new LaporanExport($requestAll), 'rekap_semua_pengajuan_cuti.xlsx');
+    }
+
+    public function downloadAllPdf(Request $request)
+    {
+        // Tarik seluruh data pengajuan cuti tanpa batasan created_at atau user filter
+        $data = LeaveRequest::with('user')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $titlePeriode = "Semua Periode (Keseluruhan)";
+
+        return Pdf::loadView('admin.laporan_pdf', compact('data', 'titlePeriode'))
+            ->setPaper('a4', 'landscape')
+            ->download('rekap_semua_pengajuan_cuti.pdf');
     }
 
     // =========================================================================

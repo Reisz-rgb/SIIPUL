@@ -58,7 +58,10 @@
     <div class="header">
         <h2>PEMERINTAH KABUPATEN SEMARANG</h2>
         <h3>REKAPITULASI PENGAJUAN CUTI PEGAWAI</h3>
-        <p>Dicetak pada: {{ \Carbon\Carbon::now()->translatedFormat('d F Y, H:i') }}</p>
+        <p style="font-size: 11px; color: #555; margin-top: 2px;">
+            Periode: <strong>{{ $titlePeriode ?? 'Semua Periode' }}</strong>
+        </p>
+        <p style="font-size: 10px; color: #777;">Dicetak pada: {{ \Carbon\Carbon::now()->translatedFormat('d F Y, H:i') }} WIB</p>
     </div>
 
     <hr>
