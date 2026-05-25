@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 @section('title', 'Kelola Pegawai - SIPERCUT')
 
 @push('styles')
@@ -169,7 +169,11 @@
             <div class="glass-profile" data-bs-toggle="dropdown">
                 <div class="rounded-circle bg-white text-danger fw-bold d-flex align-items-center justify-content-center"
                      style="width: 32px; height: 32px;">
-                    {{ substr(Auth::user()->name, 0, 1) }}
+                    @if(Auth::user()->photo)
+                        <img src="{{ asset('storage/' . Auth::user()->photo) }}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.5);" alt="Foto">
+                    @else
+                        {{ strtoupper(substr(Auth::user()->name ?? 'A', 0, 1)) }}
+                    @endif
                 </div>
                 <span class="d-none d-md-block small fw-medium">{{ Auth::user()->name }}</span>
                 <i class="bi bi-chevron-down small d-none d-md-block"></i>

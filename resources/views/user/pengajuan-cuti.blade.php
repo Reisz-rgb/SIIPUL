@@ -513,6 +513,27 @@
                         </div>
                     </div>
 
+                {{-- Download template surat permohonan cuti --}}
+                    <div class="mb-4 rounded-2xl border border-blue-100 bg-blue-50/60 p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                        <div class="flex items-start gap-3">
+                            <div class="w-11 h-11 rounded-xl bg-white border border-blue-100 flex items-center justify-center text-blue-600 flex-shrink-0">
+                                <i class="bi bi-file-earmark-word-fill text-xl"></i>
+                            </div>
+                            <div>
+                                <div class="text-sm font-extrabold text-slate-800">Surat Permohonan Cuti</div>
+                                <p class="text-xs md:text-sm text-slate-500 font-medium mt-1">
+                                        Unduh format surat, isi sesuai kebutuhan, lalu lampirkan bersama dokumen pendukung pengajuan cuti.
+                                </p>
+                            </div>
+                        </div>
+                         <a href="{{ asset('templates/surat-permohonan-cuti.docx') }}"
+                             download="SURAT PERMOHONAN CUTI.docx"
+                            class="inline-flex items-center justify-center gap-2 rounded-2xl bg-blue-600 px-4 py-3 text-xs md:text-sm font-extrabold text-white shadow-lg shadow-blue-900/10 hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-100 transition whitespace-nowrap">
+                               <i class="bi bi-download"></i>
+                             Download Surat Permohonan Cuti
+                         </a>
+                    </div>
+
                     {{-- Tips --}}
                     <div class="rounded-2xl border border-blue-100 bg-blue-50/50 p-5 flex gap-3">
                         <div class="w-10 h-10 rounded-xl bg-white border border-blue-100 flex items-center justify-center text-blue-600 flex-shrink-0">
@@ -520,7 +541,7 @@
                         </div>
                         <div>
                             <div class="text-sm font-extrabold text-blue-800">Tips</div>
-                            <p class="text-sm text-blue-700/80 font-medium mt-1">Pastikan melengkapi dokumen pendukung agar proses verifikasi berjalan lancar.</p>
+                            <p class="text-sm text-blue-700/80 font-medium mt-1">Pastikan melengkapi dokumen pendukung agar proses verifikasi berjalan lancar dengan menggabungkan surat permohonan cuti, SK PNS/PPPK, serta lampiran yang sesuai dengan alasan cuti (seperti surat dokter, jadwal haji/umrah dari biro perjalanan, undangan, surat keterangan, dan dokumen pendukung lainnya) ke dalam 1 file PDF sesuai ketentuan ukuran yang berlaku.</p>
                         </div>
                     </div>
 

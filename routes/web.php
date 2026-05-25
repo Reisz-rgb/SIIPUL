@@ -7,6 +7,7 @@ use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\PegawaiController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\ProfilController;
 
 /*
 |--------------------------------------------------------------------------
@@ -105,6 +106,8 @@ Route::middleware(['auth', 'active.user', 'admin'])
         // Dashboard & profil
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
         Route::get('/profil', fn () => view('admin.profil_admin'))->name('profil');
+        Route::put('/profil',          [ProfilController::class, 'update'])         ->name('profil.update');
+        Route::put('/profil/password', [ProfilController::class, 'updatePassword']) ->name('profil.password');
 
         // Kelola pengajuan cuti
         Route::get('/kelola-pengajuan',    [AdminController::class, 'kelolaPengajuan'])->name('kelola_pengajuan');
