@@ -14,7 +14,7 @@
         .header h2 {
             margin: 0;
             padding: 0;
-            color: #A52A2A; /* Merah sesuai tema */
+            color: #A52A2A; 
         }
         .header p {
             margin: 5px 0;
