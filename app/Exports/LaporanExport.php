@@ -41,8 +41,7 @@ class LaporanExport implements FromQuery, WithHeadings, WithMapping, WithColumnW
         if ($this->request->input('mode') === 'all_data') {
             return $query;
         }
-
-        // Ambil input filter, default ke 'tahun_ini' sesuai dengan tampilan di gambar kamu
+        
         $filter = $this->request->input('filter', 'tahun_ini');
 
         if ($filter == '1_bulan') {
