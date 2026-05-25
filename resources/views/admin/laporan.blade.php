@@ -195,7 +195,6 @@
         text-align: center;
     }
 
-    /* Perbaikan dropdown export agar tidak terpotong */
     .laporan-page .dropdown {
         position: relative !important;
     }
