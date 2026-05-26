@@ -3,7 +3,6 @@
 
 @push('styles')
 <style>
-    /* --- VARIABLES (SAMA DENGAN DASHBOARD) --- */
     :root {
         --primary:       #9E2A2B;
         --primary-dark:  #781F1F;
@@ -274,9 +273,7 @@
                                 </div>
                             </td>
                             <td>
-                                <span class="fw-bold text-dark">
-                                    {{ \Carbon\Carbon::parse($item->start_date)->diffInDays(\Carbon\Carbon::parse($item->end_date)) + 1 }}
-                                </span> Hari
+                                <span class="fw-bold text-dark">{{ $item->duration }}</span> Hari
                             </td>
                             <td class="text-muted">
                                 {{ \Carbon\Carbon::parse($item->created_at)->format('d/m/Y') }}
