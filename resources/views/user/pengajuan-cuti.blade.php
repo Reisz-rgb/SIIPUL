@@ -288,48 +288,115 @@
                     </div>
                     <div>
                         <h3 class="text-sm md:text-base font-extrabold text-slate-800">V. Lamanya Cuti</h3>
-                        <p class="text-xs md:text-sm text-slate-500 font-medium">Isi lama hari dan rentang tanggal cuti.</p>
+                        <p class="text-xs md:text-sm text-slate-500 font-medium">Pilih satuan, isi jumlah, lalu tentukan tanggal mulai. Sabtu, Minggu, dan hari libur nasional otomatis dilewati.</p>
                     </div>
                 </div>
 
-                <div class="p-6 md:p-8 grid grid-cols-1 md:grid-cols-3 gap-5">
+                <div class="p-6 md:p-8 space-y-5">
 
-                    {{-- Selama (Hari) --}}
-                    <div>
-                        <label class="block text-xs font-extrabold text-slate-600 mb-2">
-                            Selama (Hari) <span class="text-red-600">*</span>
-                        </label>
-                        <input type="number"
-                               name="lama_hari"
-                               min="1"
-                               required
-                               value="{{ old('lama_hari') }}"
-                               placeholder="0"
-                               class="w-full px-4 py-3 rounded-2xl border border-slate-200 bg-white text-slate-800 font-semibold focus:outline-none focus:ring-4 focus:ring-red-100 focus:border-[var(--maroon)]">
+                    {{-- Baris 1: Jumlah + Satuan + Tanggal Mulai --}}
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+
+                        {{-- Jumlah & Satuan --}}
+                        <div class="md:col-span-1">
+                            <label class="block text-xs font-extrabold text-slate-600 mb-2">
+                                Durasi <span class="text-red-600">*</span>
+                            </label>
+                            <div class="flex gap-2">
+                                <input type="number"
+                                    id="durasi_input"
+                                    min="1"
+                                    value="{{ old('durasi_input', 1) }}"
+                                    placeholder="0"
+                                    class="w-full px-4 py-3 rounded-2xl border border-slate-200 bg-white text-slate-800 font-semibold focus:outline-none focus:ring-4 focus:ring-red-100 focus:border-[var(--maroon)]">
+                                <select id="satuan_input"
+                                        class="px-3 py-3 rounded-2xl border border-slate-200 bg-white text-slate-800 font-semibold focus:outline-none focus:ring-4 focus:ring-red-100 focus:border-[var(--maroon)] cursor-pointer">
+                                    <option value="hari" {{ old('satuan_input', 'hari') === 'hari' ? 'selected' : '' }}>Hari</option>
+                                    <option value="minggu" {{ old('satuan_input') === 'minggu' ? 'selected' : '' }}>Minggu</option>
+                                    <option value="bulan" {{ old('satuan_input') === 'bulan' ? 'selected' : '' }}>Bulan</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        {{-- Mulai Tanggal --}}
+                        <div>
+                            <label class="block text-xs font-extrabold text-slate-600 mb-2">
+                                Mulai Tanggal <span class="text-red-600">*</span>
+                            </label>
+                            <input type="date"
+                                id="tanggal_mulai_input"
+                                name="tanggal_mulai"
+                                required
+                                value="{{ old('tanggal_mulai') }}"
+                                class="w-full px-4 py-3 rounded-2xl border border-slate-200 bg-white text-slate-800 font-semibold focus:outline-none focus:ring-4 focus:ring-red-100 focus:border-[var(--maroon)]">
+                        </div>
+
+                        {{-- s/d Tanggal (readonly, dihitung otomatis) --}}
+                        <div>
+                            <label class="block text-xs font-extrabold text-slate-600 mb-2">
+                                s/d Tanggal <span class="text-slate-400 font-medium">(otomatis)</span>
+                            </label>
+                            <input type="date"
+                                id="tanggal_selesai_display"
+                                name="tanggal_selesai"
+                                required
+                                readonly
+                                value="{{ old('tanggal_selesai') }}"
+                                class="w-full px-4 py-3 rounded-2xl border border-slate-200 bg-slate-50 text-slate-700 font-semibold focus:outline-none cursor-not-allowed">
+                        </div>
                     </div>
 
-                    {{-- Mulai Tanggal --}}
-                    <div>
-                        <label class="block text-xs font-extrabold text-slate-600 mb-2">
-                            Mulai Tanggal <span class="text-red-600">*</span>
-                        </label>
-                        <input type="date"
-                               name="tanggal_mulai"
-                               required
-                               value="{{ old('tanggal_mulai') }}"
-                               class="w-full px-4 py-3 rounded-2xl border border-slate-200 bg-white text-slate-800 font-semibold focus:outline-none focus:ring-4 focus:ring-red-100 focus:border-[var(--maroon)]">
+                    {{-- Hidden inputs untuk dikirim ke server --}}
+                    <input type="hidden" name="lama_hari" id="lama_hari_hidden" value="{{ old('lama_hari', '') }}">
+
+                    {{-- Ringkasan hasil kalkulasi --}}
+                    <div id="durasi_summary" class="hidden rounded-2xl border border-slate-100 bg-slate-50/60 px-5 py-4 flex flex-wrap items-center gap-4">
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-[var(--maroon)]">
+                                <i class="bi bi-calendar-check text-sm"></i>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Hari Kerja</p>
+                                <p id="summary_hari_kerja" class="text-sm font-extrabold text-slate-800">—</p>
+                            </div>
+                        </div>
+                        <div class="h-8 w-px bg-slate-200 hidden sm:block"></div>
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-amber-500">
+                                <i class="bi bi-slash-circle text-sm"></i>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Dilewati</p>
+                                <p id="summary_dilewati" class="text-sm font-extrabold text-slate-800">—</p>
+                            </div>
+                        </div>
+                        <div class="h-8 w-px bg-slate-200 hidden sm:block"></div>
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-slate-500">
+                                <i class="bi bi-calendar-range text-sm"></i>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Total Kalender</p>
+                                <p id="summary_kalender" class="text-sm font-extrabold text-slate-800">—</p>
+                            </div>
+                        </div>
                     </div>
 
-                    {{-- s/d Tanggal --}}
-                    <div>
-                        <label class="block text-xs font-extrabold text-slate-600 mb-2">
-                            s/d Tanggal <span class="text-red-600">*</span>
-                        </label>
-                        <input type="date"
-                               name="tanggal_selesai"
-                               required
-                               value="{{ old('tanggal_selesai') }}"
-                               class="w-full px-4 py-3 rounded-2xl border border-slate-200 bg-white text-slate-800 font-semibold focus:outline-none focus:ring-4 focus:ring-red-100 focus:border-[var(--maroon)]">
+                    {{-- Loading state API --}}
+                    <div id="durasi_loading" class="hidden rounded-2xl border border-blue-100 bg-blue-50/50 px-5 py-3 flex items-center gap-3">
+                        <svg class="animate-spin h-4 w-4 text-blue-500" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                        </svg>
+                        <p class="text-xs font-semibold text-blue-700">Mengambil data hari libur nasional...</p>
+                    </div>
+
+                    {{-- Error state API --}}
+                    <div id="durasi_error" class="hidden rounded-2xl border border-amber-200 bg-amber-50/60 px-5 py-3 flex items-center gap-3">
+                        <i class="bi bi-exclamation-triangle-fill text-amber-500 text-sm"></i>
+                        <p class="text-xs font-semibold text-amber-800">
+                            Gagal mengambil data hari libur. Sabtu & Minggu tetap diabaikan, tapi hari libur nasional mungkin tidak terhitung.
+                        </p>
                     </div>
 
                 </div>
@@ -595,142 +662,276 @@
 
 @push('scripts')
 <script>
-    // -------------------------------------------------------------------------
-    // File upload preview & validasi
-    // -------------------------------------------------------------------------
-    const fileInput  = document.getElementById('fileUpload');
-    const uploadText = document.getElementById('uploadText');
-    const uploadHint = document.getElementById('uploadHint');
-    const uploadIcon = document.getElementById('uploadIcon');
-    const dropZone   = document.getElementById('dropZone');
+// =============================================================================
+// FILE UPLOAD
+// =============================================================================
+const fileInput  = document.getElementById('fileUpload');
+const uploadText = document.getElementById('uploadText');
+const uploadHint = document.getElementById('uploadHint');
+const uploadIcon = document.getElementById('uploadIcon');
+const dropZone   = document.getElementById('dropZone');
 
-    const ALLOWED_TYPES = [
-        'application/pdf',
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        'image/jpeg',
-        'image/png',
-    ];
-    const ALLOWED_EXT = ['pdf', 'docx', 'jpg', 'jpeg', 'png'];
-    const MAX_SIZE_MB  = 5;
+const ALLOWED_TYPES = [
+    'application/pdf',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'image/jpeg', 'image/png',
+];
+const ALLOWED_EXT = ['pdf', 'docx', 'jpg', 'jpeg', 'png'];
+const MAX_SIZE_MB  = 5;
 
-    if (fileInput) {
-        fileInput.addEventListener('change', function () {
-            if (!this.files || !this.files[0]) return;
+if (fileInput) {
+    fileInput.addEventListener('change', function () {
+        if (!this.files || !this.files[0]) return;
+        const file   = this.files[0];
+        const ext    = file.name.split('.').pop().toLowerCase();
+        const sizeMB = file.size / (1024 * 1024);
+        if (!ALLOWED_EXT.includes(ext))           { showFileError(`Format tidak diizinkan: .${ext}`); this.value = ''; return; }
+        if (!ALLOWED_TYPES.includes(file.type))   { showFileError('Tipe file tidak valid.');           this.value = ''; return; }
+        if (sizeMB > MAX_SIZE_MB)                 { showFileError(`Melebihi ${MAX_SIZE_MB}MB.`);       this.value = ''; return; }
+        showFileSuccess(file);
+    });
+}
 
-            const file   = this.files[0];
-            const ext    = file.name.split('.').pop().toLowerCase();
-            const sizeMB = file.size / (1024 * 1024);
+function showFileError(msg) {
+    uploadText.innerText = msg;         uploadText.className = 'mt-4 text-sm font-extrabold text-red-600';
+    uploadHint.innerText = 'Pilih file lain: PDF, DOCX, JPG, atau PNG (maks 5MB)';
+    uploadHint.className = 'mt-2 text-xs text-red-400 font-medium';
+    uploadIcon.innerHTML = '<i class="bi bi-x-circle-fill text-2xl text-red-500"></i>';
+    dropZone.classList.replace('border-slate-200', 'border-red-300');
+    dropZone.classList.add('bg-red-50/40');
+}
+function showFileSuccess(file) {
+    uploadText.innerText = 'File Siap Diupload!'; uploadText.className = 'mt-4 text-sm font-extrabold text-emerald-700';
+    uploadHint.innerHTML = `<strong>Berhasil:</strong> ${file.name} (${(file.size/1024).toFixed(1)} KB)`;
+    uploadHint.className = 'mt-2 text-xs text-emerald-700 font-medium';
+    uploadIcon.innerHTML = '<i class="bi bi-check-circle-fill text-2xl text-emerald-600"></i>';
+    dropZone.classList.replace('border-slate-200', 'border-emerald-300');
+    dropZone.classList.add('bg-emerald-50/40');
+}
 
-            if (!ALLOWED_EXT.includes(ext)) { showFileError(`Format file tidak diizinkan: .${ext}`); this.value = ''; return; }
-            if (!ALLOWED_TYPES.includes(file.type)) { showFileError('Tipe file tidak valid.'); this.value = ''; return; }
-            if (sizeMB > MAX_SIZE_MB) { showFileError(`Ukuran file melebihi ${MAX_SIZE_MB}MB.`); this.value = ''; return; }
+// =============================================================================
+// SUPERVISOR INFO CARD + PLT
+// =============================================================================
+const supervisorSelect   = document.getElementById('supervisor_select');
+const supervisorInfo     = document.getElementById('supervisor_info');
+const infoNip            = document.getElementById('info_nip');
+const infoJabatan        = document.getElementById('info_jabatan');
+const infoJabatanPlt     = document.getElementById('info_jabatan_plt');
+const infoUnit           = document.getElementById('info_unit');
+const pltCheckboxWrapper = document.getElementById('plt_checkbox_wrapper');
+const pltCheckbox        = document.getElementById('plt_checkbox');
+const pltNotice          = document.getElementById('plt_notice');
+const pltHiddenInput     = document.getElementById('plt_jabatan_value');
 
-            showFileSuccess(file);
-        });
-    }
-
-    function showFileError(message) {
-        uploadText.innerText = message;
-        uploadText.className = 'mt-4 text-sm font-extrabold text-red-600';
-        uploadHint.innerText = 'Pilih file lain: PDF, DOCX, JPG, atau PNG (maks 5MB)';
-        uploadHint.className = 'mt-2 text-xs text-red-400 font-medium';
-        uploadIcon.innerHTML = '<i class="bi bi-x-circle-fill text-2xl text-red-500"></i>';
-        dropZone.classList.replace('border-slate-200', 'border-red-300');
-        dropZone.classList.add('bg-red-50/40');
-    }
-
-    function showFileSuccess(file) {
-        uploadText.innerText = 'File Siap Diupload!';
-        uploadText.className = 'mt-4 text-sm font-extrabold text-emerald-700';
-        uploadHint.innerHTML = `<strong>Berhasil memilih:</strong> ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
-        uploadHint.className = 'mt-2 text-xs text-emerald-700 font-medium';
-        uploadIcon.innerHTML = '<i class="bi bi-check-circle-fill text-2xl text-emerald-600"></i>';
-        dropZone.classList.replace('border-slate-200', 'border-emerald-300');
-        dropZone.classList.add('bg-emerald-50/40');
-    }
-
-    // -------------------------------------------------------------------------
-    // Supervisor info card + PLT toggle
-    // -------------------------------------------------------------------------
-    const supervisorSelect   = document.getElementById('supervisor_select');
-    const supervisorInfo     = document.getElementById('supervisor_info');
-    const infoNip            = document.getElementById('info_nip');
-    const infoJabatan        = document.getElementById('info_jabatan');
-    const infoJabatanPlt     = document.getElementById('info_jabatan_plt');
-    const infoUnit           = document.getElementById('info_unit');
-    const pltCheckboxWrapper = document.getElementById('plt_checkbox_wrapper');
-    const pltCheckbox        = document.getElementById('plt_checkbox');
-    const pltNotice          = document.getElementById('plt_notice');
-    const pltHiddenInput     = document.getElementById('plt_jabatan_value');
-
-    function updateSupervisorInfo() {
-        const selected = supervisorSelect.options[supervisorSelect.selectedIndex];
-
-        if (!selected || !selected.value) {
-            supervisorInfo.classList.add('hidden');
-            pltCheckboxWrapper.classList.add('hidden');
-            pltCheckboxWrapper.classList.remove('flex');
-            pltNotice.classList.add('hidden');
-            pltCheckbox.checked  = false;
-            pltHiddenInput.value = '';
-            applyPltMode(false);
-            return;
-        }
-
-        const jabatan = selected.dataset.jabatan || '—';
-        infoNip.textContent     = selected.dataset.nip  || '—';
-        infoJabatan.textContent = jabatan;
-        infoUnit.textContent    = selected.dataset.unit || '—';
-
-        // Reset PLT saat ganti atasan
-        pltCheckbox.checked      = false;
-        pltHiddenInput.value     = '';
-        infoJabatanPlt.value     = '';
+function updateSupervisorInfo() {
+    const selected = supervisorSelect.options[supervisorSelect.selectedIndex];
+    if (!selected || !selected.value) {
+        supervisorInfo.classList.add('hidden');
+        pltCheckboxWrapper.classList.add('hidden');
+        pltCheckboxWrapper.classList.remove('flex');
+        pltNotice.classList.add('hidden');
+        pltCheckbox.checked = false;
+        pltHiddenInput.value = '';
         applyPltMode(false);
+        return;
+    }
+    infoNip.textContent     = selected.dataset.nip      || '—';
+    infoJabatan.textContent = selected.dataset.jabatan  || '—';
+    infoUnit.textContent    = selected.dataset.unit     || '—';
+    pltCheckbox.checked     = false;
+    pltHiddenInput.value    = '';
+    infoJabatanPlt.value    = '';
+    applyPltMode(false);
+    supervisorInfo.classList.remove('hidden');
+    pltCheckboxWrapper.classList.remove('hidden');
+    pltCheckboxWrapper.classList.add('flex');
+}
 
-        supervisorInfo.classList.remove('hidden');
-        pltCheckboxWrapper.classList.remove('hidden');
-        pltCheckboxWrapper.classList.add('flex');
+function applyPltMode(isPlt) {
+    if (isPlt) {
+        infoJabatan.classList.add('hidden');
+        infoJabatanPlt.classList.remove('hidden');
+        pltNotice.classList.remove('hidden');
+        if (!infoJabatanPlt.value) {
+            const db = infoJabatan.textContent;
+            infoJabatanPlt.value = db !== '—' ? db : '';
+            pltHiddenInput.value = infoJabatanPlt.value;
+        }
+        infoJabatanPlt.focus();
+    } else {
+        infoJabatan.classList.remove('hidden');
+        infoJabatanPlt.classList.add('hidden');
+        pltNotice.classList.add('hidden');
+        pltHiddenInput.value = '';
+    }
+}
+
+if (infoJabatanPlt) {
+    infoJabatanPlt.addEventListener('input', function () {
+        pltHiddenInput.value = this.value.trim();
+    });
+}
+if (supervisorSelect) {
+    supervisorSelect.addEventListener('change', updateSupervisorInfo);
+    if (supervisorSelect.value) updateSupervisorInfo();
+}
+if (pltCheckbox) {
+    pltCheckbox.addEventListener('change', function () { applyPltMode(this.checked); });
+}
+
+// =============================================================================
+// KALKULASI HARI KERJA (skip Sabtu, Minggu, libur nasional)
+// =============================================================================
+
+// Cache hari libur per tahun agar tidak fetch berulang
+const _holidayCache = {};
+
+async function fetchHolidays(year) {
+    if (_holidayCache[year] !== undefined) return _holidayCache[year];
+
+    showDurasiLoading(true);
+    try {
+        const res  = await fetch(`https://api-hari-libur.vercel.app/api?year=${year}`);
+        const json = await res.json();
+        // Response: { status, code, data: [ { date: "YYYY-MM-DD", description: "..." } ] }
+        const dates = (json.data || []).map(h => h.date);
+        _holidayCache[year] = dates;
+        showDurasiError(false);
+        return dates;
+    } catch (e) {
+        _holidayCache[year] = [];   // fallback: anggap tidak ada libur nasional
+        showDurasiError(true);
+        return [];
+    } finally {
+        showDurasiLoading(false);
+    }
+}
+
+/**
+ * Hitung hari kerja dari startDate sebanyak workDays hari.
+ * Lewati Sabtu (6), Minggu (0), dan hari libur nasional.
+ * Kembalikan { endDate: Date, skipped: number, calendarDays: number }
+ */
+async function calcWorkDays(startDate, workDays) {
+    // Kumpulkan tahun yang mungkin dilewati (maks ~1 tahun ke depan)
+    const startYear = startDate.getFullYear();
+    const endYearEst = startYear + 1;
+    const [h1, h2] = await Promise.all([
+        fetchHolidays(startYear),
+        fetchHolidays(endYearEst),
+    ]);
+    const holidaySet = new Set([...h1, ...h2]);
+
+    function isWorkDay(d) {
+        const dow = d.getDay();                          // 0=Sun, 6=Sat
+        if (dow === 0 || dow === 6) return false;
+        const key = d.toISOString().slice(0, 10);
+        if (holidaySet.has(key)) return false;
+        return true;
     }
 
-    function applyPltMode(isPlt) {
-        if (isPlt) {
-            infoJabatan.classList.add('hidden');
-            infoJabatanPlt.classList.remove('hidden');
-            pltNotice.classList.remove('hidden');
+    // Jika hari mulai itu sendiri bukan hari kerja, geser maju
+    let cursor = new Date(startDate);
+    while (!isWorkDay(cursor)) {
+        cursor.setDate(cursor.getDate() + 1);
+    }
+    const actualStart = new Date(cursor);
 
-            // Pre-fill dengan jabatan dari DB sebagai titik awal
-            if (!infoJabatanPlt.value) {
-                const dbJabatan = infoJabatan.textContent;
-                infoJabatanPlt.value = dbJabatan !== '—' ? dbJabatan : '';
-                pltHiddenInput.value = infoJabatanPlt.value;
-            }
+    let counted = 0;
+    let skipped  = 0;
 
-            infoJabatanPlt.focus();
+    while (counted < workDays) {
+        if (isWorkDay(cursor)) {
+            counted++;
+            if (counted < workDays) cursor.setDate(cursor.getDate() + 1);
         } else {
-            infoJabatan.classList.remove('hidden');
-            infoJabatanPlt.classList.add('hidden');
-            pltNotice.classList.add('hidden');
-            pltHiddenInput.value = ''; // kosongkan hidden input saat PLT tidak aktif
+            skipped++;
+            cursor.setDate(cursor.getDate() + 1);
         }
     }
 
-    // Sync input PLT ke hidden field secara realtime
-    if (infoJabatanPlt) {
-        infoJabatanPlt.addEventListener('input', function () {
-            pltHiddenInput.value = this.value.trim();
-        });
+    const calendarDays = Math.round((cursor - actualStart) / 86400000) + 1;
+    return { endDate: cursor, skipped, calendarDays, actualStart };
+}
+
+/**
+ * Konversi durasi + satuan → jumlah hari kerja yang diminta
+ */
+function toWorkDaysRequested(durasi, satuan) {
+    if (satuan === 'hari')   return durasi;
+    if (satuan === 'minggu') return durasi * 5;   // 1 minggu = 5 hari kerja
+    if (satuan === 'bulan')  return durasi * 22;  // 1 bulan ≈ 22 hari kerja
+    return durasi;
+}
+
+function fmt(date) {
+    // Format ke YYYY-MM-DD untuk input[type=date]
+    return date.toISOString().slice(0, 10);
+}
+
+function showDurasiLoading(show) {
+    document.getElementById('durasi_loading').classList.toggle('hidden', !show);
+}
+function showDurasiError(show) {
+    document.getElementById('durasi_error').classList.toggle('hidden', !show);
+}
+
+// Elemen
+const durasiInput       = document.getElementById('durasi_input');
+const satuanInput       = document.getElementById('satuan_input');
+const tanggalMulaiInput = document.getElementById('tanggal_mulai_input');
+const tanggalSelesaiDisp= document.getElementById('tanggal_selesai_display');
+const lamaHariHidden    = document.getElementById('lama_hari_hidden');
+const durasiSummary     = document.getElementById('durasi_summary');
+const summaryHariKerja  = document.getElementById('summary_hari_kerja');
+const summaryDilewati   = document.getElementById('summary_dilewati');
+const summaryKalender   = document.getElementById('summary_kalender');
+
+let _calcTimer = null;
+
+async function recalculate() {
+    const durasi  = parseInt(durasiInput.value, 10);
+    const satuan  = satuanInput.value;
+    const mulaiVal= tanggalMulaiInput.value;
+
+    // Reset jika input belum lengkap
+    if (!mulaiVal || isNaN(durasi) || durasi < 1) {
+        tanggalSelesaiDisp.value = '';
+        lamaHariHidden.value     = '';
+        durasiSummary.classList.add('hidden');
+        return;
     }
 
-    if (supervisorSelect) {
-        supervisorSelect.addEventListener('change', updateSupervisorInfo);
-        if (supervisorSelect.value) updateSupervisorInfo();
-    }
+    const workDaysReq = toWorkDaysRequested(durasi, satuan);
+    const startDate   = new Date(mulaiVal + 'T00:00:00');   // hindari timezone shift
 
-    if (pltCheckbox) {
-        pltCheckbox.addEventListener('change', function () {
-            applyPltMode(this.checked);
-        });
-    }
+    const { endDate, skipped, calendarDays, actualStart } = await calcWorkDays(startDate, workDaysReq);
+
+    tanggalSelesaiDisp.value = fmt(endDate);
+    lamaHariHidden.value     = workDaysReq;
+
+    // Update ringkasan
+    const satuanLabel = satuan === 'hari' ? 'hari kerja' : satuan === 'minggu' ? 'hari kerja' : 'hari kerja';
+    summaryHariKerja.textContent = `${workDaysReq} hari kerja`;
+    summaryDilewati.textContent  = skipped > 0
+        ? `${skipped} hari (Sabtu/Minggu/Libur)`
+        : 'Tidak ada hari dilewati';
+    summaryKalender.textContent  = `${calendarDays} hari kalender`;
+    durasiSummary.classList.remove('hidden');
+}
+
+function scheduleRecalc() {
+    clearTimeout(_calcTimer);
+    _calcTimer = setTimeout(recalculate, 300);   // debounce 300ms
+}
+
+if (durasiInput)        durasiInput.addEventListener('input', scheduleRecalc);
+if (satuanInput)        satuanInput.addEventListener('change', scheduleRecalc);
+if (tanggalMulaiInput)  tanggalMulaiInput.addEventListener('change', scheduleRecalc);
+
+// Trigger kalkulasi awal jika ada nilai old() dari Laravel
+if (tanggalMulaiInput?.value && durasiInput?.value) {
+    recalculate();
+}
 </script>
 @endpush
