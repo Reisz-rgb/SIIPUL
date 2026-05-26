@@ -431,10 +431,11 @@ class UserController extends Controller
                 $sisaN2 = (string) $sisaN2Raw;
                 $sisaN1 = (string) $sisaN1Raw;
                 $sisaN = (string) $totalN;
-                $keterangan = $totalN !== $sisaNRaw ? 'Termasuk bonus ' . ($bonusN1 + $bonusN2) . ' hr' : '-';
-                $ketN2 = $bonusN2 > 0 ? 'Bonus: ' . $bonusN2 . ' hr' : '-';
-                $ketN1 = $bonusN1 > 0 ? 'Bonus: ' . $bonusN1 . ' hr' : '-';
-                $ketN = $keterangan;
+                $ketN2 = 'Sisa cuti ' . ($leaveYear - 2);
+                $ketN1 = 'Sisa cuti ' . ($leaveYear - 1);
+                $ketN  = 'Sisa cuti ' . $leaveYear
+                    . ($totalN !== $sisaNRaw ? ' (+' . ($bonusN1 + $bonusN2) . ' bonus)' : '');
+
             }
         } catch (\Throwable $e) {
             Log::warning('Balance fillTemplate fallback: ' . $e->getMessage());
