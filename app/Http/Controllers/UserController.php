@@ -163,7 +163,7 @@ class UserController extends Controller
             $tempFile = $this->saveTempFile($processor, $fileName);
 
             try {
-                $tempFile = $this->fillSupervisorMergeFields($tempFile, $supervisor);
+                $tempFile = $this->fillSupervisorMergeFields($tempFile, $supervisor, $leave->plt_jabatan ?? null);
             } catch (\Throwable $mergeError) {
                 Log::warning('MergeField gagal: ' . $mergeError->getMessage());
             }
@@ -192,9 +192,8 @@ class UserController extends Controller
      * NIP_Atasan_langsung) menggunakan MergeFieldReplacer.
      * Menggunakan saveInPlace() — timpa file temp langsung tanpa copy.
      */
-    private function fillSupervisorMergeFields(string $filePath, $supervisor): string
+    private function fillSupervisorMergeFields(string $filePath, $supervisor, ?string $pltJabatan = null): string
     {
-        // Pastikan file benar-benar ada sebelum diproses
         if (!file_exists($filePath)) {
             throw new \RuntimeException(
                 "File temp tidak ditemukan sebelum MergeField: {$filePath}"
@@ -203,8 +202,12 @@ class UserController extends Controller
 
         $namaAtasan    = $supervisor?->nama ?? '-';
         $nipAtasan     = $supervisor?->nip ?? '-';
-        $jabatanAtasan = $supervisor?->jabatan ?? $supervisor?->unit_kerja ?? '-';
         $nipFormatted  = $this->formatNip($nipAtasan);
+
+        // Gunakan PLT jika ada
+        $jabatanAtasan = !empty($pltJabatan)
+            ? $pltJabatan
+            : ($supervisor?->jabatan ?? $supervisor?->unit_kerja ?? '-');
 
         $replacer = new MergeFieldReplacer($filePath);
         $replacer
@@ -212,7 +215,6 @@ class UserController extends Controller
             ->setValue('NIP_Atasan_langsung', $nipFormatted)
             ->setValue('Nama_Bidang',         $jabatanAtasan);
 
-        // saveInPlace: timpa file yang sudah ada, tidak butuh copy
         return $replacer->saveInPlace();
     }
 
@@ -448,7 +450,12 @@ class UserController extends Controller
         $tp->setValue('TELP', $s($leave->phone ?? '-'));
         $tp->setValue('NAMA_ATASAN',    $s($supervisor?->nama ?? '-'));
         $tp->setValue('NIP_ATASAN',     $this->formatNip((string)($supervisor?->nip ?? '')));
-        $tp->setValue('JABATAN_ATASAN', $s($supervisor?->jabatan ?? $supervisor?->unit_kerja ?? '-'));
+        // Gunakan jabatan PLT jika ada, fallback ke jabatan dari DB
+        $jabatanAtasan = !empty($leave->plt_jabatan)
+            ? $leave->plt_jabatan
+            : ($supervisor?->jabatan ?? $supervisor?->unit_kerja ?? '-');
+
+        $tp->setValue('JABATAN_ATASAN', $s($jabatanAtasan));
 
         $tp->setValue('DISETUJUI', $leave->status === LeaveRequest::STATUS_APPROVED ? 'X' : ' ');
         $tp->setValue('MENUNGGU', $leave->status === LeaveRequest::STATUS_PENDING ? 'X' : ' ');

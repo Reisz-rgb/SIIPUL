@@ -16,6 +16,7 @@ class StoreCutiRequest extends FormRequest
     {
         return [
             'supervisor_id'          => ['required', 'exists:supervisors,id'],
+            'plt_jabatan'            => 'nullable|string|max:255',
             'jenis_cuti'             => ['required', 'in:Cuti Tahunan,Cuti Besar,Cuti Sakit,Cuti Melahirkan,Cuti Alasan Penting,Cuti Karena Alasan Penting,Cuti Luar Tanggungan,Cuti di Luar Tanggungan Negara,Cuti di luar tanggungan Negara'],
             'alasan'                 => ['required', 'string', 'min:20', 'max:1000'],
             'lama_hari'              => ['required', 'integer', 'min:1', 'max:365'],

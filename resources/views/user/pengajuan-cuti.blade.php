@@ -130,19 +130,16 @@
                         <label class="block text-xs font-extrabold text-slate-600 mb-2">
                             Nama Atasan <span class="text-red-600">*</span>
                         </label>
-
-                        {{-- Custom select wrapper --}}
                         <div class="relative">
                             <select name="supervisor_id"
                                     id="supervisor_select"
                                     required
                                     class="w-full appearance-none px-4 py-3 pr-10 rounded-2xl border
-                                           {{ $errors->has('supervisor_id') ? 'border-red-400 bg-red-50' : 'border-slate-200 bg-white' }}
-                                           text-slate-800 font-semibold focus:outline-none focus:ring-4 focus:ring-red-100 focus:border-[var(--maroon)] cursor-pointer">
+                                        {{ $errors->has('supervisor_id') ? 'border-red-400 bg-red-50' : 'border-slate-200 bg-white' }}
+                                        text-slate-800 font-semibold focus:outline-none focus:ring-4 focus:ring-red-100 focus:border-[var(--maroon)] cursor-pointer">
                                 <option value="" disabled {{ old('supervisor_id') ? '' : 'selected' }}>
                                     — Pilih atasan langsung —
                                 </option>
-
                                 @foreach ($supervisors as $unitKerja => $group)
                                     <optgroup label="{{ $unitKerja }}">
                                         @foreach ($group as $supervisor)
@@ -157,33 +154,65 @@
                                     </optgroup>
                                 @endforeach
                             </select>
-
-                            {{-- Chevron icon --}}
                             <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400">
                                 <i class="bi bi-chevron-down text-sm"></i>
                             </div>
                         </div>
-
                         @error('supervisor_id')
                             <p class="text-xs text-red-600 font-semibold mt-1">{{ $message }}</p>
                         @enderror
                     </div>
 
+                    {{-- Checkbox PLT --}}
+                    <label id="plt_checkbox_wrapper"
+                        class="hidden items-center gap-3 cursor-pointer select-none w-fit">
+                        <div class="relative">
+                            <input type="checkbox" id="plt_checkbox" class="sr-only peer">
+                            <div class="w-10 h-6 rounded-full bg-slate-200 peer-checked:bg-[var(--maroon)] transition-colors duration-200"></div>
+                            <div class="absolute top-1 left-1 w-4 h-4 rounded-full bg-white shadow transition-transform duration-200 peer-checked:translate-x-4"></div>
+                        </div>
+                        <span class="text-xs font-extrabold text-slate-600">
+                            Atasan berstatus <span class="text-[var(--maroon)]">PLT</span>
+                            <span class="font-medium text-slate-400">(Pelaksana Tugas)</span>
+                        </span>
+                        <input type="hidden" name="plt_jabatan" id="plt_jabatan_value" value="">
+                    </label>           
+
                     {{-- Info card: muncul setelah memilih atasan --}}
                     <div id="supervisor_info"
-                         class="hidden rounded-2xl border border-slate-100 bg-slate-50/60 p-4 grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        class="hidden rounded-2xl border border-slate-100 bg-slate-50/60 p-4 grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div>
                             <p class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1">NIP</p>
                             <p id="info_nip" class="text-sm font-extrabold text-slate-700">—</p>
                         </div>
                         <div>
                             <p class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1">Jabatan</p>
+                            {{-- Mode normal: teks biasa --}}
                             <p id="info_jabatan" class="text-sm font-extrabold text-slate-700">—</p>
+                            {{-- Mode PLT: input yang bisa diedit, tersembunyi saat tidak PLT --}}
+                            <input id="info_jabatan_plt"
+                                type="text"
+                                placeholder="Tulis jabatan PLT..."
+                                class="hidden w-full text-sm font-extrabold text-slate-700 bg-white border border-amber-300
+                                        rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-200
+                                        focus:border-amber-400 placeholder:font-medium placeholder:text-slate-400" />
                         </div>
                         <div>
                             <p class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1">Unit Kerja</p>
                             <p id="info_unit" class="text-sm font-extrabold text-slate-700">—</p>
                         </div>
+                    </div>
+
+                    {{-- Badge peringatan PLT, muncul hanya saat PLT aktif --}}
+                    <div id="plt_notice"
+                        class="hidden rounded-2xl border border-amber-200 bg-amber-50/60 px-4 py-3 flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-xl bg-white border border-amber-200 flex items-center justify-center text-amber-500 flex-shrink-0">
+                            <i class="bi bi-info-circle-fill text-sm"></i>
+                        </div>
+                        <p class="text-xs font-semibold text-amber-800">
+                            Mode PLT aktif. Jabatan yang Anda isi hanya untuk keperluan tampilan —
+                            data atasan di sistem tidak berubah.
+                        </p>
                     </div>
 
                 </div>
@@ -567,60 +596,13 @@
 @push('scripts')
 <script>
     // -------------------------------------------------------------------------
-    // File upload preview
+    // File upload preview & validasi
     // -------------------------------------------------------------------------
     const fileInput  = document.getElementById('fileUpload');
     const uploadText = document.getElementById('uploadText');
     const uploadHint = document.getElementById('uploadHint');
     const uploadIcon = document.getElementById('uploadIcon');
     const dropZone   = document.getElementById('dropZone');
-
-    if (fileInput) {
-        fileInput.addEventListener('change', function () {
-            if (this.files && this.files[0]) {
-                const file = this.files[0];
-                uploadText.innerText = 'File Siap Diupload!';
-                uploadText.classList.add('text-emerald-700');
-                uploadHint.innerHTML = `<strong>Berhasil memilih:</strong> ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
-                uploadHint.classList.add('text-emerald-700');
-                uploadIcon.innerHTML = '<i class="bi bi-check-circle-fill text-2xl text-emerald-600"></i>';
-                dropZone.classList.replace('border-slate-200', 'border-emerald-300');
-                dropZone.classList.add('bg-emerald-50/40');
-            }
-        });
-    }
-
-    // -------------------------------------------------------------------------
-    // Supervisor info card
-    // -------------------------------------------------------------------------
-    const supervisorSelect = document.getElementById('supervisor_select');
-    const supervisorInfo   = document.getElementById('supervisor_info');
-    const infoNip          = document.getElementById('info_nip');
-    const infoJabatan      = document.getElementById('info_jabatan');
-    const infoUnit         = document.getElementById('info_unit');
-
-    function updateSupervisorInfo() {
-        const selected = supervisorSelect.options[supervisorSelect.selectedIndex];
-
-        if (!selected || !selected.value) {
-            supervisorInfo.classList.add('hidden');
-            return;
-        }
-
-        infoNip.textContent     = selected.dataset.nip     || '—';
-        infoJabatan.textContent = selected.dataset.jabatan || '—';
-        infoUnit.textContent    = selected.dataset.unit    || '—';
-        supervisorInfo.classList.remove('hidden');
-    }
-
-    if (supervisorSelect) {
-        supervisorSelect.addEventListener('change', updateSupervisorInfo);
-
-        // Tampilkan info card langsung jika ada nilai lama (old input setelah error)
-        if (supervisorSelect.value) {
-            updateSupervisorInfo();
-        }
-    }
 
     const ALLOWED_TYPES = [
         'application/pdf',
@@ -631,56 +613,124 @@
     const ALLOWED_EXT = ['pdf', 'docx', 'jpg', 'jpeg', 'png'];
     const MAX_SIZE_MB  = 5;
 
-    fileInput.addEventListener('change', function () {
-        if (!this.files || !this.files[0]) return;
+    if (fileInput) {
+        fileInput.addEventListener('change', function () {
+            if (!this.files || !this.files[0]) return;
 
-        const file   = this.files[0];
-        const ext    = file.name.split('.').pop().toLowerCase();
-        const sizeMB = file.size / (1024 * 1024);
+            const file   = this.files[0];
+            const ext    = file.name.split('.').pop().toLowerCase();
+            const sizeMB = file.size / (1024 * 1024);
 
-        // Cek ekstensi
-        if (!ALLOWED_EXT.includes(ext)) {
-            showError(`Format file tidak diizinkan: .${ext}`);
-            this.value = '';
-            return;
-        }
+            if (!ALLOWED_EXT.includes(ext)) { showFileError(`Format file tidak diizinkan: .${ext}`); this.value = ''; return; }
+            if (!ALLOWED_TYPES.includes(file.type)) { showFileError('Tipe file tidak valid.'); this.value = ''; return; }
+            if (sizeMB > MAX_SIZE_MB) { showFileError(`Ukuran file melebihi ${MAX_SIZE_MB}MB.`); this.value = ''; return; }
 
-        // Cek MIME type (deteksi dari browser)
-        if (!ALLOWED_TYPES.includes(file.type)) {
-            showError(`Tipe file tidak valid.`);
-            this.value = '';
-            return;
-        }
+            showFileSuccess(file);
+        });
+    }
 
-        // Cek ukuran
-        if (sizeMB > MAX_SIZE_MB) {
-            showError(`Ukuran file melebihi ${MAX_SIZE_MB}MB.`);
-            this.value = '';
-            return;
-        }
-
-        // Lolos — tampilkan preview
-        showSuccess(file);
-    });
-
-    function showError(message) {
-        uploadText.innerText  = message;
-        uploadText.className  = 'mt-4 text-sm font-extrabold text-red-600';
-        uploadHint.innerText  = 'Pilih file lain: PDF, DOCX, JPG, atau PNG (maks 5MB)';
-        uploadHint.className  = 'mt-2 text-xs text-red-400 font-medium';
-        uploadIcon.innerHTML  = '<i class="bi bi-x-circle-fill text-2xl text-red-500"></i>';
+    function showFileError(message) {
+        uploadText.innerText = message;
+        uploadText.className = 'mt-4 text-sm font-extrabold text-red-600';
+        uploadHint.innerText = 'Pilih file lain: PDF, DOCX, JPG, atau PNG (maks 5MB)';
+        uploadHint.className = 'mt-2 text-xs text-red-400 font-medium';
+        uploadIcon.innerHTML = '<i class="bi bi-x-circle-fill text-2xl text-red-500"></i>';
         dropZone.classList.replace('border-slate-200', 'border-red-300');
         dropZone.classList.add('bg-red-50/40');
     }
 
-    function showSuccess(file) {
-        uploadText.innerText  = 'File Siap Diupload!';
-        uploadText.className  = 'mt-4 text-sm font-extrabold text-emerald-700';
-        uploadHint.innerHTML  = `<strong>Berhasil memilih:</strong> ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
-        uploadHint.className  = 'mt-2 text-xs text-emerald-700 font-medium';
-        uploadIcon.innerHTML  = '<i class="bi bi-check-circle-fill text-2xl text-emerald-600"></i>';
+    function showFileSuccess(file) {
+        uploadText.innerText = 'File Siap Diupload!';
+        uploadText.className = 'mt-4 text-sm font-extrabold text-emerald-700';
+        uploadHint.innerHTML = `<strong>Berhasil memilih:</strong> ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+        uploadHint.className = 'mt-2 text-xs text-emerald-700 font-medium';
+        uploadIcon.innerHTML = '<i class="bi bi-check-circle-fill text-2xl text-emerald-600"></i>';
         dropZone.classList.replace('border-slate-200', 'border-emerald-300');
         dropZone.classList.add('bg-emerald-50/40');
+    }
+
+    // -------------------------------------------------------------------------
+    // Supervisor info card + PLT toggle
+    // -------------------------------------------------------------------------
+    const supervisorSelect   = document.getElementById('supervisor_select');
+    const supervisorInfo     = document.getElementById('supervisor_info');
+    const infoNip            = document.getElementById('info_nip');
+    const infoJabatan        = document.getElementById('info_jabatan');
+    const infoJabatanPlt     = document.getElementById('info_jabatan_plt');
+    const infoUnit           = document.getElementById('info_unit');
+    const pltCheckboxWrapper = document.getElementById('plt_checkbox_wrapper');
+    const pltCheckbox        = document.getElementById('plt_checkbox');
+    const pltNotice          = document.getElementById('plt_notice');
+    const pltHiddenInput     = document.getElementById('plt_jabatan_value');
+
+    function updateSupervisorInfo() {
+        const selected = supervisorSelect.options[supervisorSelect.selectedIndex];
+
+        if (!selected || !selected.value) {
+            supervisorInfo.classList.add('hidden');
+            pltCheckboxWrapper.classList.add('hidden');
+            pltCheckboxWrapper.classList.remove('flex');
+            pltNotice.classList.add('hidden');
+            pltCheckbox.checked  = false;
+            pltHiddenInput.value = '';
+            applyPltMode(false);
+            return;
+        }
+
+        const jabatan = selected.dataset.jabatan || '—';
+        infoNip.textContent     = selected.dataset.nip  || '—';
+        infoJabatan.textContent = jabatan;
+        infoUnit.textContent    = selected.dataset.unit || '—';
+
+        // Reset PLT saat ganti atasan
+        pltCheckbox.checked      = false;
+        pltHiddenInput.value     = '';
+        infoJabatanPlt.value     = '';
+        applyPltMode(false);
+
+        supervisorInfo.classList.remove('hidden');
+        pltCheckboxWrapper.classList.remove('hidden');
+        pltCheckboxWrapper.classList.add('flex');
+    }
+
+    function applyPltMode(isPlt) {
+        if (isPlt) {
+            infoJabatan.classList.add('hidden');
+            infoJabatanPlt.classList.remove('hidden');
+            pltNotice.classList.remove('hidden');
+
+            // Pre-fill dengan jabatan dari DB sebagai titik awal
+            if (!infoJabatanPlt.value) {
+                const dbJabatan = infoJabatan.textContent;
+                infoJabatanPlt.value = dbJabatan !== '—' ? dbJabatan : '';
+                pltHiddenInput.value = infoJabatanPlt.value;
+            }
+
+            infoJabatanPlt.focus();
+        } else {
+            infoJabatan.classList.remove('hidden');
+            infoJabatanPlt.classList.add('hidden');
+            pltNotice.classList.add('hidden');
+            pltHiddenInput.value = ''; // kosongkan hidden input saat PLT tidak aktif
+        }
+    }
+
+    // Sync input PLT ke hidden field secara realtime
+    if (infoJabatanPlt) {
+        infoJabatanPlt.addEventListener('input', function () {
+            pltHiddenInput.value = this.value.trim();
+        });
+    }
+
+    if (supervisorSelect) {
+        supervisorSelect.addEventListener('change', updateSupervisorInfo);
+        if (supervisorSelect.value) updateSupervisorInfo();
+    }
+
+    if (pltCheckbox) {
+        pltCheckbox.addEventListener('change', function () {
+            applyPltMode(this.checked);
+        });
     }
 </script>
 @endpush

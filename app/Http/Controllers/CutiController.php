@@ -78,6 +78,7 @@ class CutiController extends Controller
         $leaveRequest = LeaveRequest::create([
             'user_id'       => $user->id,
             'supervisor_id' => $request->supervisor_id,
+            'plt_jabatan'   => $request->filled('plt_jabatan') ? $request->plt_jabatan : null, 
             'jenis_cuti'    => $request->jenis_cuti,
             'start_date'    => $request->tanggal_mulai,
             'end_date'      => $request->tanggal_selesai,
