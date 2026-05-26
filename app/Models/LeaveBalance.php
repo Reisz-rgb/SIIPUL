@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
-use App\Models\LeaveRequest;
 
 class LeaveBalance extends Model
 {
@@ -24,6 +24,10 @@ class LeaveBalance extends Model
         return $this->belongsTo(User::class);
     }
 
+    // =========================================================================
+    // CORE: GET OR CREATE
+    // =========================================================================
+
     public static function getOrCreateBalance(int $userId, int $year): self
     {
         return self::firstOrCreate(
@@ -32,68 +36,79 @@ class LeaveBalance extends Model
         );
     }
 
+    // =========================================================================
+    // CORE: HITUNG TOTAL TERSEDIA
+    //
+    // Aturan bonus:
+    //   - Bonus hanya diberikan jika KEDUA tahun (n-2 DAN n-1) used == 0
+    //   - Jika salah satu saja pernah cuti → tidak ada bonus sama sekali
+    //   - Besar bonus = floor(remaining_n2 / 2) + floor(remaining_n1 / 2)
+    // =========================================================================
+
     public static function calculateTotalAvailable(int $userId, int $currentYear): array
     {
         $n2 = self::getOrCreateBalance($userId, $currentYear - 2);
         $n1 = self::getOrCreateBalance($userId, $currentYear - 1);
         $n  = self::getOrCreateBalance($userId, $currentYear);
 
+        // Bonus hanya ada jika KEDUANYA belum pernah dipakai
+        $bonusEligible = ($n2->used === 0 && $n1->used === 0);
+
+        $bonusN2 = $bonusEligible ? (int) floor($n2->remaining / 2) : 0;
+        $bonusN1 = $bonusEligible ? (int) floor($n1->remaining / 2) : 0;
+
         return [
             'n2' => [
                 'year'      => $currentYear - 2,
+                'quota'     => $n2->quota,
                 'used'      => $n2->used,
-                'remaining' => $n2->remaining,   
-                'bonus'     => ($n2->used == 0) ? 6 : 0,
+                'remaining' => $n2->remaining,
+                'bonus'     => $bonusN2,
             ],
             'n1' => [
                 'year'      => $currentYear - 1,
+                'quota'     => $n1->quota,
                 'used'      => $n1->used,
-                'remaining' => $n1->remaining,   
-                'bonus'     => ($n1->used == 0) ? 6 : 0,
+                'remaining' => $n1->remaining,
+                'bonus'     => $bonusN1,
             ],
-            'n'  => [
+            'n' => [
                 'year'      => $currentYear,
                 'quota'     => $n->quota,
                 'used'      => $n->used,
                 'remaining' => $n->remaining,
             ],
-            'total_available' => $n->remaining
-                            + (($n1->used == 0) ? 6 : 0)
-                            + (($n2->used == 0) ? 6 : 0),
+            'total_available' => $n->remaining + $bonusN1 + $bonusN2,
+            'bonus_eligible'  => $bonusEligible,
         ];
     }
+
+    // =========================================================================
+    // CORE: RECALCULATE (dipanggil saat admin approve/reject)
+    // =========================================================================
 
     public static function recalculateAnnualBalances(int $userId, int $year): array
     {
         return DB::transaction(function () use ($userId, $year) {
 
+            // -----------------------------------------------------------------
+            // 1. Refresh saldo n-2 dan n-1 dari data aktual
+            // -----------------------------------------------------------------
             $n2 = self::getOrCreateBalance($userId, $year - 2);
             $n1 = self::getOrCreateBalance($userId, $year - 1);
             $n  = self::getOrCreateBalance($userId, $year);
 
-            // =========================================================
-            // REFRESH DATA TAHUN N-2 DAN N-1
-            // =========================================================
-
-            $n2->used = self::sumApprovedDuration($userId, $year - 2);
+            $n2->used      = self::sumApprovedAnnualDuration($userId, $year - 2);
             $n2->remaining = max(0, $n2->quota - $n2->used);
             $n2->save();
 
-            $n1->used = self::sumApprovedDuration($userId, $year - 1);
+            $n1->used      = self::sumApprovedAnnualDuration($userId, $year - 1);
             $n1->remaining = max(0, $n1->quota - $n1->used);
             $n1->save();
 
-            // =========================================================
-            // RESET TAHUN BERJALAN
-            // =========================================================
-
-            $n->used = 0;
-            $n->remaining = $n->quota;
-
-            // =========================================================
-            // CEK CUTI BESAR (HAJI)
-            // =========================================================
-
+            // -----------------------------------------------------------------
+            // 2. Cek cuti besar tahun berjalan
+            // -----------------------------------------------------------------
             $cutiBesar = LeaveRequest::query()
                 ->where('user_id', $userId)
                 ->where('jenis_cuti', 'Cuti Besar')
@@ -102,16 +117,8 @@ class LeaveBalance extends Model
                 ->orderByDesc('start_date')
                 ->first();
 
-            // =========================================================
-            // JIKA ADA CUTI BESAR
-            // =========================================================
-
             if ($cutiBesar) {
-
-                // =====================================================
-                // VALIDASI 5 TAHUN
-                // =====================================================
-
+                // Validasi cooldown 5 tahun
                 $lastCutiBesar = LeaveRequest::query()
                     ->where('user_id', $userId)
                     ->where('jenis_cuti', 'Cuti Besar')
@@ -121,90 +128,66 @@ class LeaveBalance extends Model
                     ->first();
 
                 $allowed = true;
-
                 if ($lastCutiBesar) {
-
-                    $lastYear = Carbon\Carbon::parse(
-                        $lastCutiBesar->start_date
-                    )->year;
-
-                    $diffYear = $year - $lastYear;
-
-                    // Harus menunggu minimal 5 tahun
-                    if ($diffYear < 5) {
+                    $lastYear = Carbon::parse($lastCutiBesar->start_date)->year;
+                    if (($year - $lastYear) < 5) {
                         $allowed = false;
                     }
                 }
 
-                // =====================================================
-                // JIKA VALID CUTI BESAR
-                // =====================================================
-
                 if ($allowed) {
-
-                    // Hanguskan cuti tahunan tahun berjalan
-                    $n->used = $n->quota;
+                    // Hanguskan seluruh kuota tahun berjalan (bonus tidak relevan)
+                    $n->used      = $n->quota;
                     $n->remaining = 0;
-
                     $n->save();
 
                     return self::calculateTotalAvailable($userId, $year);
                 }
+                // Jika tidak allowed, lanjut hitung normal
+                // (admin seharusnya menolak pengajuan ini, tapi kita handle gracefully)
             }
 
-            // =========================================================
-            // BONUS N-1 DAN N-2
-            // =========================================================
+            // -----------------------------------------------------------------
+            // 3. Reset tahun berjalan, lalu hitung ulang dari nol
+            // -----------------------------------------------------------------
+            $n->used      = 0;
+            $n->remaining = $n->quota;
 
-            $bonusN1Available = ($n1->used == 0) ? 6 : 0;
-            $bonusN2Available = ($n2->used == 0) ? 6 : 0;
+            // -----------------------------------------------------------------
+            // 4. Tentukan apakah berhak bonus
+            //    Syarat: n-2 DAN n-1 keduanya used == 0 (setelah refresh)
+            // -----------------------------------------------------------------
+            $bonusEligible  = ($n2->used === 0 && $n1->used === 0);
+            $bonusPool      = 0;
 
-            // =========================================================
-            // AMBIL SEMUA CUTI TAHUNAN APPROVED
-            // =========================================================
+            if ($bonusEligible) {
+                $bonusPool = (int) floor($n2->remaining / 2)
+                           + (int) floor($n1->remaining / 2);
+            }
 
-            $requests = self::getApprovedRequests($userId, $year);
+            // -----------------------------------------------------------------
+            // 5. Potong saldo berdasarkan pengajuan approved tahun berjalan
+            //    Urutan: kuota n dulu → bonus pool
+            // -----------------------------------------------------------------
+            $requests = self::getApprovedAnnualRequests($userId, $year);
 
             foreach ($requests as $req) {
-
                 $due = (int) $req->duration;
 
-                // =====================================================
-                // POTONG DARI KUOTA TAHUN BERJALAN
-                // =====================================================
-
-                $takeFromN = min($n->remaining, $due);
-
-                $n->used += $takeFromN;
+                // Potong dari kuota tahun berjalan
+                $takeFromN     = min($n->remaining, $due);
+                $n->used      += $takeFromN;
                 $n->remaining -= $takeFromN;
+                $due          -= $takeFromN;
 
-                $due -= $takeFromN;
-
-                // =====================================================
-                // BONUS N-1
-                // =====================================================
-
-                if ($due > 0 && $bonusN1Available > 0) {
-
-                    $takeFromB1 = min($bonusN1Available, $due);
-
-                    $bonusN1Available -= $takeFromB1;
-
-                    $due -= $takeFromB1;
+                // Sisanya potong dari bonus pool (jika eligible)
+                if ($due > 0 && $bonusPool > 0) {
+                    $takeFromBonus = min($bonusPool, $due);
+                    $bonusPool    -= $takeFromBonus;
+                    $due          -= $takeFromBonus;
                 }
 
-                // =====================================================
-                // BONUS N-2
-                // =====================================================
-
-                if ($due > 0 && $bonusN2Available > 0) {
-
-                    $takeFromB2 = min($bonusN2Available, $due);
-
-                    $bonusN2Available -= $takeFromB2;
-
-                    $due -= $takeFromB2;
-                }
+                // Jika masih ada sisa $due → saldo habis (biarkan; validasi ada di store())
             }
 
             $n->save();
@@ -213,45 +196,30 @@ class LeaveBalance extends Model
         });
     }
 
-    private static function sumApprovedDuration(int $userId, int $year): int
+    // =========================================================================
+    // PRIVATE HELPERS
+    // =========================================================================
+
+    private static function sumApprovedAnnualDuration(int $userId, int $year): int
     {
         return (int) DB::table('leave_requests')
             ->where('user_id', $userId)
-            ->where('jenis_cuti', 'Cuti Tahunan') 
-            ->where('status', LeaveRequest::STATUS_APPROVED) 
+            ->where('jenis_cuti', 'Cuti Tahunan')
+            ->where('status', LeaveRequest::STATUS_APPROVED)
             ->whereYear('start_date', $year)
             ->sum('duration');
     }
 
-    private static function getApprovedRequests(int $userId, int $year): \Illuminate\Support\Collection
+    private static function getApprovedAnnualRequests(int $userId, int $year): \Illuminate\Support\Collection
     {
         return LeaveRequest::query()
             ->select(['id', 'duration', 'start_date', 'created_at'])
             ->where('user_id', $userId)
-            ->annualLeave()         
-            ->approved()             
+            ->annualLeave()
+            ->approved()
             ->whereYear('start_date', $year)
             ->orderBy('start_date')
             ->orderBy('created_at')
             ->get();
-    }
-
-    private static function deductFrom(self $balance, int $due): int
-    {
-        $take = min($balance->remaining, $due);
-        $balance->used += $take;
-        $balance->remaining -= $take;
-        return $due - $take;
-    }
-
-    private static function deductBonus(self $balance, int $due): int
-    {
-        $availableBonus = (int) floor($balance->remaining / 2);
-        $useBonus = min($availableBonus, $due);
-        
-        $balance->used += ($useBonus * 2);
-        $balance->remaining -= ($useBonus * 2);
-        
-        return $due - $useBonus;
     }
 }

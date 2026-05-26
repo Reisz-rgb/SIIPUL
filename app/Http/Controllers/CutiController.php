@@ -56,6 +56,25 @@ class CutiController extends Controller
             }
         }
 
+        if ($request->jenis_cuti === 'Cuti Besar') {
+            $lastCutiBesar = LeaveRequest::query()
+                ->where('user_id', $user->id)
+                ->where('jenis_cuti', 'Cuti Besar')
+                ->where('status', LeaveRequest::STATUS_APPROVED)
+                ->whereYear('start_date', '<', now()->year)
+                ->orderByDesc('start_date')
+                ->first();
+
+            if ($lastCutiBesar) {
+                $lastYear = \Carbon\Carbon::parse($lastCutiBesar->start_date)->year;
+                if ((now()->year - $lastYear) < 5) {
+                    return back()
+                        ->withErrors(['jenis_cuti' => 'Cuti Besar hanya bisa diambil 5 tahun sekali. Terakhir: ' . $lastYear])
+                        ->withInput();
+                }
+            }
+        }
+
         $leaveRequest = LeaveRequest::create([
             'user_id'       => $user->id,
             'supervisor_id' => $request->supervisor_id,
