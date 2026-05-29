@@ -327,6 +327,7 @@
                                 id="tanggal_mulai_input"
                                 name="tanggal_mulai"
                                 required
+                                min="{{ now()->subDays(30)->toDateString() }}"
                                 value="{{ old('tanggal_mulai') }}"
                                 class="w-full px-4 py-3 rounded-2xl border border-slate-200 bg-white text-slate-800 font-semibold focus:outline-none focus:ring-4 focus:ring-red-100 focus:border-[var(--maroon)]">
                         </div>
