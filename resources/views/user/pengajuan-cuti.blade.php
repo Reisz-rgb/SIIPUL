@@ -253,6 +253,17 @@
                         </label>
                     @endforeach
                 </div>
+                {{-- Warning cuti besar --}}
+                <div id="cuti_besar_warning"
+                    class="hidden mx-6 mb-6 md:mx-8 md:mb-8 rounded-2xl border border-red-200 bg-red-50/60 px-5 py-4 flex items-start gap-3">
+                    <div class="w-8 h-8 rounded-xl bg-white border border-red-200 flex items-center justify-center text-red-500 flex-shrink-0 mt-0.5">
+                        <i class="bi bi-exclamation-octagon-fill text-sm"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-extrabold text-red-800">Cuti Besar Tidak Tersedia</p>
+                        <p id="cuti_besar_warning_text" class="text-xs font-medium text-red-700 mt-1"></p>
+                    </div>
+                </div>
             </section>
 
             {{-- IV. ALASAN CUTI --}}
@@ -934,5 +945,42 @@ if (tanggalMulaiInput)  tanggalMulaiInput.addEventListener('change', scheduleRec
 if (tanggalMulaiInput?.value && durasiInput?.value) {
     recalculate();
 }
+
+// =============================================================================
+// CUTI BESAR ELIGIBILITY CHECK
+// =============================================================================
+(async function checkCutiBesar() {
+    const res = await fetch('{{ route("user.cuti.besar.check") }}', {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    });
+    const json = await res.json();
+
+    const warning     = document.getElementById('cuti_besar_warning');
+    const warningText = document.getElementById('cuti_besar_warning_text');
+    const submitBtn   = document.querySelector('button[type="submit"]');
+
+    // Pasang listener ke semua radio jenis cuti
+    document.querySelectorAll('input[name="jenis_cuti"]').forEach(radio => {
+        radio.addEventListener('change', function () {
+            if (this.value !== 'Cuti Besar') {
+                warning.classList.add('hidden');
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                return;
+            }
+
+            if (!json.eligible) {
+                warning.classList.remove('hidden');
+                warningText.textContent = json.message;
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                warning.classList.add('hidden');
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        });
+    });
+})();
 </script>
 @endpush

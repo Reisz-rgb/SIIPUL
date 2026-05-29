@@ -4,6 +4,8 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use App\Models\LeaveRequest;
+use Carbon\Carbon;
 
 class StoreCutiRequest extends FormRequest
 {
@@ -75,5 +77,53 @@ class StoreCutiRequest extends FormRequest
     public function isCutiTahunan(): bool
     {
         return $this->jenis_cuti === 'Cuti Tahunan';
+    }
+
+    public function withValidator($validator): void
+    {
+        $validator->after(function ($validator) {
+            if ($this->input('jenis_cuti') !== 'Cuti Besar') {
+                return;
+            }
+
+            $userId = auth()->id();
+            $tahunIni = now()->year;
+
+            // Cek apakah sudah ada cuti besar approved dalam 5 tahun terakhir
+            $lastApproved = LeaveRequest::where('user_id', $userId)
+                ->where('jenis_cuti', 'Cuti Besar')
+                ->where('status', LeaveRequest::STATUS_APPROVED)
+                ->orderByDesc('start_date')
+                ->first();
+
+            if ($lastApproved) {
+                $lastYear = Carbon::parse($lastApproved->start_date)->year;
+                $diff = $tahunIni - $lastYear;
+
+                if ($diff < 5) {
+                    $bolehTahun = $lastYear + 5;
+                    $validator->errors()->add(
+                        'jenis_cuti',
+                        "Anda baru dapat mengajukan Cuti Besar lagi pada tahun {$bolehTahun}. " .
+                        "Cuti Besar terakhir diambil tahun {$lastYear}."
+                    );
+                    return;
+                }
+            }
+
+            // Cek apakah sudah ada cuti besar pending/approved di tahun ini
+            $sudahAda = LeaveRequest::where('user_id', $userId)
+                ->where('jenis_cuti', 'Cuti Besar')
+                ->whereIn('status', [LeaveRequest::STATUS_APPROVED, LeaveRequest::STATUS_PENDING])
+                ->whereYear('start_date', $tahunIni)
+                ->exists();
+
+            if ($sudahAda) {
+                $validator->errors()->add(
+                    'jenis_cuti',
+                    'Anda sudah memiliki pengajuan Cuti Besar yang sedang diproses atau telah disetujui tahun ini.'
+                );
+            }
+        });
     }
 }

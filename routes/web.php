@@ -85,6 +85,8 @@ Route::middleware(['auth', 'active.user', 'no.cache'])
         // Pengajuan cuti
         Route::get('/pengajuan-cuti',  [CutiController::class, 'create'])->name('cuti.create');
         Route::post('/pengajuan-cuti', [CutiController::class, 'store'])->name('cuti.store');
+        Route::get('/cuti/besar/check', [CutiController::class, 'checkCutiBesarEligibility'])
+              ->name('cuti.besar.check');
 
         // Download surat cuti — clean.output ditambah di sini saja (bukan double-group)
         Route::get('/cuti/{leave}/download', [UserController::class, 'downloadSuratCuti'])

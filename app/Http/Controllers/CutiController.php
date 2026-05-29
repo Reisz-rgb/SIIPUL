@@ -98,6 +98,49 @@ class CutiController extends Controller
         return view('user.PengajuanSukses', compact('refNumber'));
     }
 
+    public function checkCutiBesarEligibility(): \Illuminate\Http\JsonResponse
+    {
+        $userId   = Auth::id();
+        $tahunIni = now()->year;
+
+        // Cek cooldown 5 tahun dari yang terakhir approved
+        $lastApproved = LeaveRequest::where('user_id', $userId)
+            ->where('jenis_cuti', 'Cuti Besar')
+            ->where('status', LeaveRequest::STATUS_APPROVED)
+            ->orderByDesc('start_date')
+            ->first();
+
+        if ($lastApproved) {
+            $lastYear = Carbon::parse($lastApproved->start_date)->year;
+            $diff     = $tahunIni - $lastYear;
+
+            if ($diff < 5) {
+                $bolehTahun = $lastYear + 5;
+                return response()->json([
+                    'eligible' => false,
+                    'message'  => "Cuti Besar terakhir diambil tahun {$lastYear}. " .
+                                "Anda baru dapat mengajukan lagi pada tahun {$bolehTahun}.",
+                ]);
+            }
+        }
+
+        // Cek apakah sudah ada pending/approved tahun ini
+        $sudahAda = LeaveRequest::where('user_id', $userId)
+            ->where('jenis_cuti', 'Cuti Besar')
+            ->whereIn('status', [LeaveRequest::STATUS_APPROVED, LeaveRequest::STATUS_PENDING])
+            ->whereYear('start_date', $tahunIni)
+            ->exists();
+
+        if ($sudahAda) {
+            return response()->json([
+                'eligible' => false,
+                'message'  => 'Anda sudah memiliki pengajuan Cuti Besar yang sedang diproses atau telah disetujui tahun ini.',
+            ]);
+        }
+
+        return response()->json(['eligible' => true, 'message' => '']);
+    }
+
     // =========================================================================
     // ADMIN – DETAIL & UPDATE STATUS
     // =========================================================================
