@@ -1,4 +1,4 @@
-﻿@extends('layouts.admin')
+@extends('layouts.admin')
 @section('title', 'Kelola Pegawai - SIPERCUT')
 
 @push('styles')
@@ -26,7 +26,7 @@
         position: fixed;
         background: #FFFFFF;
         border-right: 1px dashed #E2E8F0;
-        z-index: 1001;
+        z-index: 1080 !important;
         padding: 24px;
         display: flex; flex-direction: column;
         transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -35,7 +35,8 @@
     .sidebar-overlay {
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
         background: rgba(0, 0, 0, 0.4);
-        backdrop-filter: blur(4px);
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
         z-index: 1000;
         display: none; opacity: 0; transition: opacity 0.3s ease;
     }
@@ -93,7 +94,29 @@
     }
 
     /* --- TABLE & SEARCH STYLING --- */
-    .table-custom { width: 100%; border-collapse: separate; border-spacing: 0; }
+    .table-responsive {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .table-custom {
+        width: 100%;
+        min-width: 1040px;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    .table-custom th,
+    .table-custom td {
+        white-space: nowrap;
+    }
+
+    .table-custom th:first-child,
+    .table-custom td:first-child {
+        min-width: 260px;
+        white-space: normal;
+    }
 
     .table-custom thead th {
         background: #F8FAFC; color: #64748B; padding: 16px 24px;

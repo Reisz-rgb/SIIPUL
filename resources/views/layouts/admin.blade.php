@@ -49,7 +49,7 @@
             top: 0; left: 0;
             background: #fff;
             border-right: 1px dashed #E2E8F0;
-            z-index: 1060;
+            z-index: 1080 !important;
             padding: 24px;
             display: flex;
             flex-direction: column;
@@ -140,9 +140,10 @@
         /* ── Sidebar Overlay (mobile) ── */
         #sidebarOverlay {
             position: fixed; inset: 0;
-            background: rgba(0,0,0,.5);
-            backdrop-filter: blur(2px);
-            z-index: 1055;
+            background: rgba(15,23,42,.35);
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+            z-index: 1070;
             display: none;
         }
         #sidebarOverlay.show { display: block; }
@@ -252,12 +253,14 @@
         function openSidebar() {
             sidebar.classList.add('show');
             overlay.classList.add('show');
+            document.body.classList.add('admin-sidebar-open');
             document.body.style.overflow = 'hidden';
         }
 
         function closeSidebar() {
             sidebar.classList.remove('show');
             overlay.classList.remove('show');
+            document.body.classList.remove('admin-sidebar-open');
             document.body.style.overflow = '';
         }
 
@@ -270,7 +273,12 @@
         document.querySelectorAll('.mobile-toggler, [data-toggle-sidebar]')
             .forEach(btn => btn.addEventListener('click', e => { e.preventDefault(); toggleSidebar(); }));
 
+        sidebar.querySelectorAll('a.nav-link')
+            .forEach(link => link.addEventListener('click', () => { if (window.innerWidth <= 992) closeSidebar(); }));
+
         overlay.addEventListener('click', closeSidebar);
+        window.addEventListener('resize', () => { if (window.innerWidth > 992) closeSidebar(); });
+        window.addEventListener('pageshow', closeSidebar);
         document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSidebar(); });
     })();
 </script>
