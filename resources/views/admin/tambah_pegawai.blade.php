@@ -1,4 +1,4 @@
-﻿@extends('layouts.admin')
+@extends('layouts.admin')
 @section('title', 'Tambah Pegawai - SIPERCUT')
 
 @push('styles')
@@ -145,10 +145,8 @@
                 <i class="bi bi-list"></i>
             </button>
             <div>
-                <div class="text-white text-opacity-75 small mb-1 fw-medium">
-                    Data Pegawai <i class="bi bi-chevron-right mx-1" style="font-size: 0.7rem"></i> Tambah Baru
-                </div>
                 <h2 class="fw-bold m-0 text-white">Registrasi Pegawai</h2>
+                <p class="text-white text-opacity-75 m-0 small mt-1">Tambahkan data pegawai baru ke sistem.</p>
             </div>
         </div>
 

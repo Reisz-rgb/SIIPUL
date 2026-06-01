@@ -1,4 +1,4 @@
-﻿@extends('layouts.admin')
+@extends('layouts.admin')
 @section('title', 'Kelola Pengajuan - SIPERCUT')
 
 @push('styles')
@@ -175,9 +175,7 @@
             </button>
             <div>
                 <h2 class="fw-bold m-0 text-white">Kelola Pengajuan</h2>
-                <p class="text-white text-opacity-75 m-0 small mt-1">
-                    Dashboard <i class="bi bi-chevron-right mx-1" style="font-size: 0.7rem"></i> Pengajuan Cuti
-                </p>
+                <p class="text-white text-opacity-75 m-0 small mt-1">Kelola dan verifikasi pengajuan cuti pegawai.</p>
             </div>
         </div>
 

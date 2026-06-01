@@ -1,4 +1,4 @@
-﻿@extends('layouts.admin')
+@extends('layouts.admin')
 @section('title', 'Laporan & Analytics - SIPERCUT')
 
 @push('styles')
@@ -251,13 +251,10 @@
                     <i class="bi bi-list"></i>
                 </button>
                 <div>
-                    <div class="text-white text-opacity-75 small mb-1">
-                        Administrator <i class="bi bi-chevron-right mx-1" style="font-size: 0.7rem"></i> Laporan
-                    </div>
                     <h2 class="fw-bold m-0 text-white">Analytics & Statistik</h2>
-                    <div class="mt-2 text-white text-opacity-75 small">
+                    <p class="text-white text-opacity-75 m-0 small mt-1">
                         <i class="bi bi-calendar3 me-1"></i> Data Periode: {{ $labelWaktu }}
-                    </div>
+                    </p>
                 </div>
             </div>
 

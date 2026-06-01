@@ -181,10 +181,8 @@
                 <i class="bi bi-list"></i>
             </button>
             <div>
-                <div class="text-white text-opacity-75 small mb-1 fw-medium">
-                    Administrator <i class="bi bi-chevron-right mx-1" style="font-size: 0.7rem"></i> Master Data
-                </div>
                 <h2 class="fw-bold m-0 text-white">Kelola Pegawai</h2>
+                <p class="text-white text-opacity-75 m-0 small mt-1">Kelola data pegawai dan informasi akun pengguna.</p>
             </div>
         </div>
 
@@ -305,8 +303,9 @@
                                               method="POST">
                                             @csrf
                                             <button type="button"
-                                                    onclick="konfirmasiAktivasi(document.getElementById('activate-form-{{ $p->id }}'), '{{ addslashes($p->name) }}')"
-                                                    class="btn-action"
+                                                    class="btn-action js-activate-pegawai"
+                                                    data-form-id="activate-form-{{ $p->id }}"
+                                                    data-name="{{ e($p->name) }}"
                                                     title="Aktifkan Akun"
                                                     style="border-color: #DCFCE7; color: #15803D; background: #F0FDF4;">
                                                 <i class="bi bi-person-check"></i>
@@ -326,8 +325,8 @@
                                         @csrf
                                         @method('DELETE')
                                         <button type="button"
-                                                onclick="konfirmasiHapus({{ $p->id }})"
-                                                class="btn-action delete"
+                                                class="btn-action delete js-delete-pegawai"
+                                                data-form-id="delete-form-{{ $p->id }}"
                                                 title="Hapus Pegawai">
                                             <i class="bi bi-trash"></i>
                                         </button>
@@ -371,7 +370,7 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-    function konfirmasiHapus(id) {
+    function konfirmasiHapus(formId) {
         Swal.fire({
             title: 'Hapus Data Pegawai?',
             text: "Data yang dihapus tidak dapat dikembalikan!",
@@ -385,12 +384,13 @@
             focusCancel: true
         }).then((result) => {
             if (result.isConfirmed) {
-                document.getElementById('delete-form-' + id).submit();
+                const form = document.getElementById(formId);
+                if (form) form.submit();
             }
-        })
+        });
     }
 
-    function konfirmasiAktivasi(form, nama) {
+    function konfirmasiAktivasi(formId, nama) {
         Swal.fire({
             title: 'Aktifkan Akun?',
             html: `Akun <strong>${nama}</strong> akan diaktifkan dan dapat login ke sistem.`,
@@ -402,8 +402,25 @@
             cancelButtonText: 'Batal',
             reverseButtons: true,
         }).then((result) => {
-            if (result.isConfirmed) form.submit();
+            if (result.isConfirmed) {
+                const form = document.getElementById(formId);
+                if (form) form.submit();
+            }
         });
     }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.js-delete-pegawai').forEach(function (button) {
+            button.addEventListener('click', function () {
+                konfirmasiHapus(button.dataset.formId);
+            });
+        });
+
+        document.querySelectorAll('.js-activate-pegawai').forEach(function (button) {
+            button.addEventListener('click', function () {
+                konfirmasiAktivasi(button.dataset.formId, button.dataset.name || 'Pegawai');
+            });
+        });
+    });
 </script>
 @endpush
