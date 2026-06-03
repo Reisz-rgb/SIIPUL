@@ -83,9 +83,9 @@ class CleanUnitKerja extends Command
                     $pct
                 );
 
-                // Threshold 85%: cukup ketat untuk hindari false positive
+                // Threshold 80%: cukup ketat untuk hindari false positive
                 // tapi cukup longgar untuk tangkap typo 1-2 karakter
-                if ($pct >= 85.0) {
+                if ($pct >= 80.0) {
                     $group[] = $b;
                     $merged[] = $b;
                 }
