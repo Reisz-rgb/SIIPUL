@@ -173,7 +173,7 @@
     {{-- Footer --}}
     <div class="text-center pt-8 pb-4">
         <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">
-            SIPERCUT © {{ now()->year }} • Disdikbudpora Kab Semarang
+            E-CUTI © {{ now()->year }} • Disdikbudpora Kab Semarang
         </p>
     </div>
 

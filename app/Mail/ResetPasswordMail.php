@@ -24,7 +24,7 @@ class ResetPasswordMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Reset Password - SIPERCUT',
+            subject: 'Reset Password - E-CUTI',
         );
     }
 

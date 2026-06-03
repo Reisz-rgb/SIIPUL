@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Admin') - SIPERCUT</title>
+    <title>@yield('title', 'Admin') - E-CUTI</title>
 
     {{-- Fonts --}}
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -187,7 +187,7 @@
     <a href="{{ route('admin.dashboard') }}" class="sidebar-brand">
         <img src="{{ asset('logokabupatensemarang.png') }}" alt="Logo Kabupaten Semarang" width="36" height="36">
         <div style="line-height:1.1">
-            <div style="font-weight:800;font-size:1.1rem;letter-spacing:-.5px">SIPERCUT</div>
+            <div style="font-weight:800;font-size:1.1rem;letter-spacing:-.5px">E-CUTI</div>
             <div style="font-size:.7rem;color:#94A3B8;font-weight:500">Kab. Semarang</div>
         </div>
     </a>

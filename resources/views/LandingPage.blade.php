@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIPERCUT - Disdikbudpora Kab. Semarang</title>
+    <title>E-CUTI - Disdikbudpora Kab. Semarang</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -210,7 +210,7 @@
                          height="40"
                          style="object-fit: contain;">
                     <div>
-                        <div class="brand-title">SIPERCUT</div>
+                        <div class="brand-title">E-CUTI</div>
                         <div class="brand-sub">DISDIKBUDPORA KAB. SEMARANG</div>
                     </div>
                 </a>
@@ -248,7 +248,7 @@
                                     <i class="bi bi-calendar2-check" style="font-size:1.2rem"></i>
                                 </div>
                                 <div>
-                                    <div style="font-weight:900; font-size:1.05rem;">Mulai dengan SIPERCUT</div>
+                                    <div style="font-weight:900; font-size:1.05rem;">Mulai dengan E-CUTI</div>
                                     <div style="color:#64748B; font-size:0.9rem;">Panduan singkat cara mengajukan cuti</div>
                                 </div>
                             </div>
@@ -258,7 +258,7 @@
                         <div class="feature">
                             <div class="feature-icon"><span style="font-weight:900;">1</span></div>
                             <div>
-                                <p class="feature-title">Login ke SIPERCUT</p>
+                                <p class="feature-title">Login ke E-CUTI</p>
                                 <p class="feature-text">Masuk pakai akun kamu. Jika belum punya akun, minta dibuatkan oleh admin/kepegawaian.</p>
                             </div>
                         </div>

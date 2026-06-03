@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Login') - SIPERCUT</title>
+    <title>@yield('title', 'Login') - E-CUTI</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -32,7 +32,7 @@
             <img src="{{ asset('logokabupatensemarang.png') }}"
                  alt="Logo Kabupaten Semarang"
                  class="w-16 h-16 mx-auto mb-4 drop-shadow-lg">
-            <h1 class="text-3xl font-extrabold text-white tracking-tight">SIPERCUT</h1>
+            <h1 class="text-3xl font-extrabold text-white tracking-tight">E-CUTI</h1>
             <p class="text-white/70 text-sm mt-1">Sistem Pengajuan Cuti — Kab. Semarang</p>
         </div>
 

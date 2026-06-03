@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'SIPERCUT') - {{ config('app.name') }}</title>
+    <title>@yield('title', 'E-CUTI') - E-CUTI</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -39,7 +39,7 @@
     {{-- Sidebar --}}
     <aside class="w-64 bg-white border-r border-slate-200 flex flex-col flex-shrink-0">
         <div class="p-6 border-b border-slate-100">
-            <h1 class="text-2xl font-bold text-primary-600 tracking-tight">SIPERCUT</h1>
+            <h1 class="text-2xl font-bold text-primary-600 tracking-tight">E-CUTI</h1>
         </div>
 
         <nav class="flex-1 p-4 space-y-1">

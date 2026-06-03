@@ -18,12 +18,12 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>SIPERCUT</h1>
+            <h1>E-CUTI</h1>
             <p>Sistem Informasi Cuti Pegawai</p>
         </div>
         <div class="body">
             <p>Halo, <strong>{{ $userName }}</strong></p>
-            <p>Kami menerima permintaan untuk mereset password akun SIPERCUT Anda. Klik tombol di bawah untuk melanjutkan:</p>
+            <p>Kami menerima permintaan untuk mereset password akun E-CUTI Anda. Klik tombol di bawah untuk melanjutkan:</p>
 
             <div style="text-align: center;">
                 <a href="{{ $resetUrl }}" class="btn">Reset Password Saya</a>

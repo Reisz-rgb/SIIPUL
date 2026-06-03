@@ -21,7 +21,7 @@
                  alt="Logo"
                  class="h-16 w-auto object-contain">
         </div>
-        <h1 class="text-3xl font-bold tracking-wide mb-1">SIPERCUT</h1>
+        <h1 class="text-3xl font-bold tracking-wide mb-1">E-CUTI</h1>
         <p class="text-sm font-light opacity-90 tracking-wide">Sistem Informasi Cuti Pegawai</p>
     </header>
 
@@ -41,7 +41,7 @@
         </div>
 
         <div class="text-center text-gray-600 mb-10 text-sm leading-relaxed">
-            <p>Akun Anda telah berhasil didaftarkan di sistem SIPERCUT.</p>
+            <p>Akun Anda telah berhasil didaftarkan di sistem E-CUTI.</p>
             <p>Silakan login untuk mengajukan cuti dan mengakses layanan lainnya.</p>
         </div>
 

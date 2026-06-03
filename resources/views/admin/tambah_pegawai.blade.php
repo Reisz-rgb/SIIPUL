@@ -1,5 +1,5 @@
 @extends('layouts.admin')
-@section('title', 'Tambah Pegawai - SIPERCUT')
+@section('title', 'Tambah Pegawai - E-CUTI')
 
 @push('styles')
 <style>

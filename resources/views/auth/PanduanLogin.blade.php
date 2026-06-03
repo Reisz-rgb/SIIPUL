@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panduan Login - SIPERCUT</title>
+    <title>Panduan Login - E-CUTI</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -23,7 +23,7 @@
                      alt="Logo"
                      class="h-16 w-auto object-contain drop-shadow-sm">
             </div>
-            <h1 class="text-2xl font-bold tracking-wide">Panduan Login SIPERCUT</h1>
+            <h1 class="text-2xl font-bold tracking-wide">Panduan Login E-CUTI</h1>
             <p class="text-sm font-light opacity-90">Sistem Informasi Cuti Pegawai</p>
         </div>
 

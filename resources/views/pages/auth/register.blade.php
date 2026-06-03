@@ -5,7 +5,7 @@
 @section('content')
 <div class="sm:mx-auto sm:w-full sm:max-w-md">
     <div class="flex justify-center">
-        <span class="text-4xl font-bold text-primary-600">🔴 SIPERCUT</span>
+        <span class="text-4xl font-bold text-primary-600">🔴 E-CUTI</span>
     </div>
     <h2 class="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900">
         Buat Akun Baru
