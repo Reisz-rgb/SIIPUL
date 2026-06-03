@@ -92,6 +92,11 @@ Route::middleware(['auth', 'active.user', 'no.cache'])
         Route::get('/cuti/{leave}/download', [UserController::class, 'downloadSuratCuti'])
             ->middleware('clean.output')
             ->name('cuti.download');
+
+        Route::get('/holidays/{year}', [CutiController::class, 'getHolidays'])
+            ->name('holidays')
+            ->where('year', '[0-9]{4}');
+
 });
 
 /*

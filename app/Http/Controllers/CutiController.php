@@ -141,6 +141,43 @@ class CutiController extends Controller
         return response()->json(['eligible' => true, 'message' => '']);
     }
 
+    public function getHolidays(int $year): \Illuminate\Http\JsonResponse
+    {
+        $cacheKey = "holidays_{$year}";
+
+        $holidays = \Cache::remember($cacheKey, now()->addDays(7), function () use ($year) {
+            // Sumber: APIHariLibur_V2 — data dari Google Calendar, auto-update
+            // Format: {"2026-01-01": {"name": "Tahun Baru", "holiday": true}, ...}
+            $url = "https://raw.githubusercontent.com/guangrei/APIHariLibur_V2/main/calendar.json";
+
+            try {
+                $response = \Http::timeout(10)->get($url);
+
+                if (!$response->successful()) {
+                    return [];
+                }
+
+                $all = $response->json();
+
+                // Filter hanya tanggal tahun yang diminta dan yang merupakan hari libur
+                return collect($all)
+                    ->filter(fn ($data, $date) =>
+                        str_starts_with($date, (string) $year) &&
+                        ($data['holiday'] ?? false) === true
+                    )
+                    ->keys()
+                    ->values()
+                    ->toArray();
+
+            } catch (\Throwable $e) {
+                \Log::warning("Gagal fetch holidays {$year}: " . $e->getMessage());
+                return [];
+            }
+        });
+
+        return response()->json($holidays);
+    }
+
     // =========================================================================
     // ADMIN – DETAIL & UPDATE STATUS
     // =========================================================================

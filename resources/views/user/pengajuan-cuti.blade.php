@@ -803,15 +803,16 @@ async function fetchHolidays(year) {
 
     showDurasiLoading(true);
     try {
-        const res  = await fetch(`https://api-hari-libur.vercel.app/api?year=${year}`);
+        // Fetch dari backend Laravel sendiri — tidak ada CORS, tidak ada downtime
+        const res  = await fetch(`/user/holidays/${year}`);
         const json = await res.json();
-        // Response: { status, code, data: [ { date: "YYYY-MM-DD", description: "..." } ] }
-        const dates = (json.data || []).map(h => h.date);
-        _holidayCache[year] = dates;
+
+        // Response: ["2026-01-01", "2026-03-28", ...]
+        _holidayCache[year] = Array.isArray(json) ? json : [];
         showDurasiError(false);
-        return dates;
+        return _holidayCache[year];
     } catch (e) {
-        _holidayCache[year] = [];   // fallback: anggap tidak ada libur nasional
+        _holidayCache[year] = [];
         showDurasiError(true);
         return [];
     } finally {
@@ -835,7 +836,7 @@ async function calcWorkDays(startDate, workDays) {
     const holidaySet = new Set([...h1, ...h2]);
 
     function isWorkDay(d) {
-        const dow = d.getDay();                          // 0=Sun, 6=Sat
+        const dow = d.getUTCDay();                          // 0=Sun, 6=Sat
         if (dow === 0 || dow === 6) return false;
         const key = d.toISOString().slice(0, 10);
         if (holidaySet.has(key)) return false;
@@ -845,7 +846,7 @@ async function calcWorkDays(startDate, workDays) {
     // Jika hari mulai itu sendiri bukan hari kerja, geser maju
     let cursor = new Date(startDate);
     while (!isWorkDay(cursor)) {
-        cursor.setDate(cursor.getDate() + 1);
+        cursor.setUTCDate(cursor.getUTCDate() + 1);
     }
     const actualStart = new Date(cursor);
 
@@ -855,10 +856,10 @@ async function calcWorkDays(startDate, workDays) {
     while (counted < workDays) {
         if (isWorkDay(cursor)) {
             counted++;
-            if (counted < workDays) cursor.setDate(cursor.getDate() + 1);
+            if (counted < workDays) cursor.setUTCDate(cursor.getUTCDate() + 1);
         } else {
             skipped++;
-            cursor.setDate(cursor.getDate() + 1);
+            cursor.setUTCDate(cursor.getUTCDate() + 1);
         }
     }
 
@@ -866,19 +867,71 @@ async function calcWorkDays(startDate, workDays) {
     return { endDate: cursor, skipped, calendarDays, actualStart };
 }
 
-/**
- * Konversi durasi + satuan → jumlah hari kerja yang diminta
- */
-function toWorkDaysRequested(durasi, satuan) {
-    if (satuan === 'hari')   return durasi;
-    if (satuan === 'minggu') return durasi * 5;   // 1 minggu = 5 hari kerja
-    if (satuan === 'bulan')  return durasi * 22;  // 1 bulan ≈ 22 hari kerja
-    return durasi;
+// Hitung tanggal selesai berdasarkan satuan kalender
+function calcEndDate(startDate, durasi, satuan) {
+    const end = new Date(startDate);
+    if (satuan === 'minggu') {
+        end.setUTCDate(end.getUTCDate() + (durasi * 7) - 1);
+    } else if (satuan === 'bulan') {
+        end.setUTCMonth(end.getUTCMonth() + durasi);
+        end.setUTCDate(end.getUTCDate() - 1);
+    }
+    return end;
+}
+
+// Hitung hari kerja dalam rentang start..end (inklusif)
+async function countWorkDaysInRange(startDate, endDate) {
+    const years = [];
+    for (let y = startDate.getFullYear(); y <= endDate.getFullYear(); y++) {
+        years.push(y);
+    }
+    const holidayArrays = await Promise.all(years.map(y => fetchHolidays(y)));
+    const holidaySet    = new Set(holidayArrays.flat());
+
+    let workDays = 0;
+    const cursor = new Date(startDate);
+
+    while (cursor <= endDate) {
+        const dow = cursor.getDay();
+        const key = cursor.toISOString().slice(0, 10);
+        if (dow !== 0 && dow !== 6 && !holidaySet.has(key)) {
+            workDays++;
+        }
+        cursor.setDate(cursor.getDate() + 1);
+    }
+
+    return workDays;
+}
+
+// Hitung hari yang dilewati (weekend + libur) dalam rentang
+async function countSkippedInRange(startDate, endDate) {
+    const years = [];
+    for (let y = startDate.getFullYear(); y <= endDate.getFullYear(); y++) {
+        years.push(y);
+    }
+    const holidayArrays = await Promise.all(years.map(y => fetchHolidays(y)));
+    const holidaySet    = new Set(holidayArrays.flat());
+
+    let skipped = 0;
+    const cursor = new Date(startDate);
+
+    while (cursor <= endDate) {
+        const dow = cursor.getDay();
+        const key = cursor.toISOString().slice(0, 10);
+        if (dow === 0 || dow === 6 || holidaySet.has(key)) {
+            skipped++;
+        }
+        cursor.setDate(cursor.getDate() + 1);
+    }
+
+    return skipped;
 }
 
 function fmt(date) {
-    // Format ke YYYY-MM-DD untuk input[type=date]
-    return date.toISOString().slice(0, 10);
+    const y = date.getUTCFullYear();
+    const m = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const d = String(date.getUTCDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
 }
 
 function showDurasiLoading(show) {
@@ -902,11 +955,10 @@ const summaryKalender   = document.getElementById('summary_kalender');
 let _calcTimer = null;
 
 async function recalculate() {
-    const durasi  = parseInt(durasiInput.value, 10);
-    const satuan  = satuanInput.value;
-    const mulaiVal= tanggalMulaiInput.value;
+    const durasi   = parseInt(durasiInput.value, 10);
+    const satuan   = satuanInput.value;
+    const mulaiVal = tanggalMulaiInput.value;
 
-    // Reset jika input belum lengkap
     if (!mulaiVal || isNaN(durasi) || durasi < 1) {
         tanggalSelesaiDisp.value = '';
         lamaHariHidden.value     = '';
@@ -914,21 +966,38 @@ async function recalculate() {
         return;
     }
 
-    const workDaysReq = toWorkDaysRequested(durasi, satuan);
-    const startDate   = new Date(mulaiVal + 'T00:00:00');   // hindari timezone shift
+    const startDate = new Date(mulaiVal + 'T00:00:00Z');
 
-    const { endDate, skipped, calendarDays, actualStart } = await calcWorkDays(startDate, workDaysReq);
+    if (satuan === 'hari') {
+        // Mode hari: sama seperti sebelumnya — hitung n hari kerja ke depan
+        const { endDate, skipped, calendarDays } = await calcWorkDays(startDate, durasi);
 
-    tanggalSelesaiDisp.value = fmt(endDate);
-    lamaHariHidden.value     = workDaysReq;
+        tanggalSelesaiDisp.value = fmt(endDate);
+        lamaHariHidden.value     = durasi;
 
-    // Update ringkasan
-    const satuanLabel = satuan === 'hari' ? 'hari kerja' : satuan === 'minggu' ? 'hari kerja' : 'hari kerja';
-    summaryHariKerja.textContent = `${workDaysReq} hari kerja`;
-    summaryDilewati.textContent  = skipped > 0
-        ? `${skipped} hari (Sabtu/Minggu/Libur)`
-        : 'Tidak ada hari dilewati';
-    summaryKalender.textContent  = `${calendarDays} hari kalender`;
+        summaryHariKerja.textContent = `${durasi} hari kerja`;
+        summaryDilewati.textContent  = skipped > 0
+            ? `${skipped} hari (Sabtu/Minggu/Libur)`
+            : 'Tidak ada hari dilewati';
+        summaryKalender.textContent  = `${calendarDays} hari kalender`;
+
+    } else {
+        // Mode minggu/bulan: rentang kalender tetap, hitung hari kerja di dalamnya
+        const endDate    = calcEndDate(startDate, durasi, satuan);
+        const workDays   = await countWorkDaysInRange(startDate, endDate);
+        const skipped    = await countSkippedInRange(startDate, endDate);
+        const kalender   = Math.round((endDate - startDate) / 86400000) + 1;
+
+        tanggalSelesaiDisp.value = fmt(endDate);
+        lamaHariHidden.value     = workDays;  // kuota yang dipotong = hari kerja dalam rentang
+
+        summaryHariKerja.textContent = `${workDays} hari kerja (kuota dipotong)`;
+        summaryDilewati.textContent  = skipped > 0
+            ? `${skipped} hari (Sabtu/Minggu/Libur, tidak potong kuota)`
+            : 'Tidak ada hari dilewati';
+        summaryKalender.textContent  = `${kalender} hari kalender`;
+    }
+
     durasiSummary.classList.remove('hidden');
 }
 
